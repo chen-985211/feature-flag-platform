@@ -101,6 +101,45 @@ const tasks = {
   async 'seed-demo'() {
     await run('go', ['run', './cmd/seed', 'demo'], backend);
   },
+  async demo() {
+    let database, testDatabase;
+    try {
+      database = new URL(process.env.DATABASE_URL ?? '');
+      if (process.env.TEST_DATABASE_URL)
+        testDatabase = new URL(process.env.TEST_DATABASE_URL);
+    } catch {
+      throw new Error(
+        'DEMO_DATABASE_REJECTED: configure a normal PostgreSQL database',
+      );
+    }
+    if (
+      !['postgres:', 'postgresql:'].includes(database.protocol) ||
+      database.pathname.length < 2 ||
+      decodeURIComponent(database.pathname).endsWith('_test') ||
+      (testDatabase &&
+        database.hostname === testDatabase.hostname &&
+        (database.port || '5432') === (testDatabase.port || '5432') &&
+        database.pathname === testDatabase.pathname)
+    )
+      throw new Error(
+        'DEMO_DATABASE_REJECTED: demo must use a normal database separate from tests',
+      );
+    for (const field of [
+      'SEED_ADMIN_PASSWORD',
+      'SEED_EDITOR_PASSWORD',
+      'SEED_VIEWER_PASSWORD',
+    ]) {
+      const length = Buffer.byteLength(process.env[field] ?? '');
+      if (length < 8 || length > 72)
+        throw new Error(
+          `DEMO_PASSWORD_REQUIRED: configure ${field} (8–72 bytes)`,
+        );
+    }
+    await tasks.migrate();
+    await tasks['seed-demo']();
+    await tasks.build();
+    await tasks.start();
+  },
   async 'docker-build'() {
     await buildDocker();
   },

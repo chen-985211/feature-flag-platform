@@ -6,6 +6,8 @@
 
 D0～D5 已完成。工程基础、核心业务和灰度/版本证据分别见 [D1](../specs/001-engineering-foundation/verification.md)、[D2](../specs/002-core-configuration/verification.md)、[D3](../specs/003-percentage-and-versions/verification.md)。排序、复制/发布见 [D4](../specs/004-ordering-and-environments/verification.md)；演示初始化、三角色和四条 E2E 三轮稳定性见 [D5](../specs/005-demo-and-system-acceptance/verification.md)。D6 镜像/Compose/健康探针与验收工具已实现；按用户决定，实际容器验收留到远端 CI 最后执行，仍待通过。本机前次磁盘阻断和当前验收安排见 [D6](../specs/006-container-delivery/verification.md)。在线实例不属于必交付项。
 
+人工验收环境已从临时 E2E fixture 切到正常 Go 服务和持久化开发库；新增 pnpm demo 初始化/启动入口。已有数据完整保留，正式三角色可用，真实 API 写入及 seed 重跑/服务重启已验证，见 [持久化演示记录](../specs/009-persistent-demo/verification.md)。Docker/远端 CI 的未结状态不变。
+
 ## 开发阶段
 
 | 阶段              | 产出                                                                 | 最低验收                                               | 当前状态       |

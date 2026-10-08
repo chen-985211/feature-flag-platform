@@ -30,7 +30,15 @@ pnpm dev
 
 已有 .env/数据库时不覆盖或重复创建；按本机 PostgreSQL 认证修改 .env。Node 读取 .env，已有进程环境变量优先；凭据不打印，.env 不提交。`pnpm dev` 同时运行 Go API 与 Vite，并在关闭时终止本次子进程。
 
-浏览器打开 http://localhost:5173；Vite 将 /health 和 /api 代理至 Go API（默认 127.0.0.1:8080，可用 API_PROXY_TARGET 改变）。使用 admin/editor/viewer 与各自配置的初始化密码登录。admin 可写所有环境，editor 可写 development/staging，viewer 只读。`pnpm seed:demo` 初始化账号与五份配置，`pnpm seed:users` 仅初始化账号；重复执行保留已有密码、名称、角色和演示配置修改。服务不自动 seed。首次示例及评估/发布/回滚步骤见 [演示手册](docs/delivery/demo.md)。
+人工验收推荐使用正常 Go 同源服务。准备好数据库与 `.env` 中的三个初始化密码后，一条命令完成迁移、演示初始化、构建和启动：
+
+```sh
+APP_ORIGIN=http://127.0.0.1:8080 pnpm demo
+```
+
+打开 http://127.0.0.1:8080。改变监听端口时同时设置 HTTP_ADDR 和与浏览器地址完全一致的 APP_ORIGIN。`pnpm demo` 使用 DATABASE_URL 的普通数据库，启动前拒绝测试库及缺失/非法初始化密码；不会清理数据库。停止后重新执行同一命令，已有配置、规则、版本、历史与账号保留。自动化 E2E 使用独立测试库与临时 schema，人工验收通过正常服务进行。实际数据接线、API/SQL 一致性及重启证据见 [持久化演示记录](docs/specs/009-persistent-demo/verification.md)。
+
+使用 `pnpm dev` 热更新开发时，浏览器打开 http://localhost:5173；Vite 将 /health 和 /api 代理至 Go API（默认 127.0.0.1:8080，可用 API_PROXY_TARGET 改变）。使用 admin/editor/viewer 与各自配置的初始化密码登录。admin 可写所有环境，editor 可写 development/staging，viewer 只读。`pnpm seed:demo` 初始化账号与五份配置，`pnpm seed:users` 仅初始化账号；重复执行保留已有密码、名称、角色和演示配置修改。服务不自动 seed。首次示例及评估/发布/回滚步骤见 [演示手册](docs/delivery/demo.md)。
 
 ```sh
 curl http://127.0.0.1:8080/health/live

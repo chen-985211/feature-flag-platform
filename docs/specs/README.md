@@ -39,6 +39,10 @@ docs/specs/
     spec.md
     plan.md
     verification.md
+  009-persistent-demo/
+    spec.md
+    plan.md
+    verification.md
 ```
 
 D5 演示与系统验收已完成，见 [Spec](005-demo-and-system-acceptance/spec.md)、[Plan](005-demo-and-system-acceptance/plan.md) 和 [验证记录](005-demo-and-system-acceptance/verification.md)。
@@ -60,6 +64,8 @@ D6 容器交付实施中，见 [Spec](006-container-delivery/spec.md)、[Plan](0
 UI 工作台优化已完成：[Spec](007-shadcn-workbench/spec.md)、[Plan](007-shadcn-workbench/plan.md)、[验证](007-shadcn-workbench/verification.md)。
 
 完整交互组件收敛已完成：[Spec](008-component-interactions/spec.md)、[Plan](008-component-interactions/plan.md)、[验证](008-component-interactions/verification.md)。
+
+正式数据库与持久化演示：[Spec](009-persistent-demo/spec.md)、[Plan](009-persistent-demo/plan.md)、[验证](009-persistent-demo/verification.md)。
 
 Spec 使用稳定验收 ID，并关联 [交付编号](../delivery/acceptance.md)。Plan 每步写明目标层、测试层、Red 行为和退出条件。verification 记录实际命令、结果、未运行原因、对应工作区/提交版本以及剩余风险。
 

@@ -20,4 +20,6 @@
 
 Go 领域/应用测试在 backend/internal/contexts；真实 HTTP/并发/失败在 backend/tests/integration/core，实际 seed 二进制在 backend/tests/integration/demo；前端各层和四条 E2E 在 frontend/tests。命令见 [测试手册](../testing/TESTING_RUNBOOK.md)，演示步骤见 [本地演示](demo.md)。
 
+F01/F04/F11 的正常人工运行接线与真实数据额外见 [持久化演示](../specs/009-persistent-demo/verification.md)：普通开发库保存配置、规则、完整版本和真实 Actor 历史；正式三角色可登录，重跑初始化/重启服务保留数据。该原生实例证据不替代 F13 的容器验收。
+
 映射是覆盖责任说明，不代表全仓覆盖率统计、长期容量或线上部署证据。各阶段历史记录对应当时提交；D6 修改后的完整原生回归已通过，实际容器证据待补。

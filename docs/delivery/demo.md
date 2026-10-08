@@ -1,6 +1,16 @@
 # 本地演示手册
 
-先按 [README](../../README.md) 准备 PostgreSQL、迁移和三个 SEED_*_PASSWORD，执行 `pnpm seed:demo`，再 `pnpm dev` 或构建后按 README 同源启动。以下预期对应首次初始化；演示中修改后重跑 seed 会保留修改，不把数据恢复成初始状态。
+先按 [README](../../README.md) 准备 PostgreSQL、DATABASE_URL 和三个 SEED_*_PASSWORD，执行 `APP_ORIGIN=http://127.0.0.1:8080 pnpm demo`。该入口显式迁移、初始化、构建，再运行普通 Go 服务，直接打开 http://127.0.0.1:8080。需要热更新时仍可使用 `pnpm migrate` → `pnpm seed:demo` → `pnpm dev`。以下预期对应首次初始化；演示中修改后重跑 seed 会保留修改，不把数据恢复成初始状态。
+
+## 数据与持久化验收
+
+人工演示连接 DATABASE_URL 的普通 PostgreSQL 数据库，默认 didi_development/public；列表、详情、规则、版本与历史均由 Go API 读取数据库。演示数据是真实数据库记录，可以继续编辑；初始化配置用于展示规则语义，不代表真实公司的线上业务数据。
+
+正常服务停止不会删除表或数据。退出后重新执行相同 demo 命令，再登录即可检查之前的配置。E2E fixture 会清理自己的测试 schema，因此它只用于自动测试，不作为持续人工验收的运行方式。
+
+本次本地实例已经保留旧验收配置，切换到普通 Go 服务，并使用正式 admin 经 API 新建 development/acceptance-persistence（「演示：持久化验收」）。该配置有 country equals CN 返回 true、25% 灰度两条规则，默认 false、已启用，当前 r6；版本与历史保存创建、两次添加规则、停用、启用、基本编辑共六次真实操作。输入 `{"country":"CN"}` 返回 true / attribute_rule，输入 `{}` 返回 false / default。旧示例及其原始操作者和历史也保留；新的操作使用当前登录用户。
+
+这份额外配置是本次真实接口验收的结果；新 checkout 的标准 seed 仍创建下文五份示例，不伪造额外操作历史。SQL、seed 重跑和真实停止/启动的验证见 [持久化记录](../specs/009-persistent-demo/verification.md)。
 
 ## 初始化与账号
 

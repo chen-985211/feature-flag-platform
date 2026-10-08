@@ -20,13 +20,14 @@
 | 构建         | `pnpm build`            | React 资源、内嵌 Go 服务与迁移 CLI                        |
 | 迁移         | `pnpm migrate`          | 版本化 up，不隐式 seed                                    |
 | 开发         | `pnpm dev`              | Vite + 受管理的 API 子进程                                |
+| 原生演示     | `pnpm demo`             | 普通数据库迁移、幂等 seed、构建、正常 Go 同源服务         |
 | 容器构建     | `pnpm docker:build`     | 固定工具链多阶段构建，同一 React/Go 源码                  |
 | 容器启动     | `pnpm docker:up`        | 构建、停止旧 app、等待显式迁移与健康检查                  |
 | 容器演示     | `pnpm docker:seed`      | 显式运行 demo；使用 .env.docker                           |
 | 容器停止     | `pnpm docker:down`      | 移除项目容器/网络，保留数据库卷                           |
 | 容器验收     | `pnpm test:docker`      | 随机项目/卷的启动、业务、既有 E2E、迁移 gate、持久化/恢复 |
 
-显式账号初始化为 pnpm seed:users，完整演示为 pnpm seed:demo，见 [演示手册](../delivery/demo.md)。pnpm test:e2e:stability 构建一次，独立执行三轮四条 E2E；每轮启动新服务、随机 schema/密码，retries=0，失败立即退出。每次运行清理旧 stability 报告；各轮结果/截图与 HTML 分别在 test-results/stability/run-{1,2,3}/{results,report}，不互相覆盖。
+显式账号初始化为 pnpm seed:users，完整演示为 pnpm seed:demo；人工验收推荐 APP_ORIGIN=http://127.0.0.1:8080 pnpm demo，先配置普通 DATABASE_URL 和三个初始化密码，见 [演示手册](../delivery/demo.md)。正常服务生命周期不删除数据。pnpm test:e2e:stability 构建一次，独立执行三轮四条 E2E；每轮启动新服务、随机 schema/密码，retries=0，失败立即退出。每次运行清理旧 stability 报告；各轮结果/截图与 HTML 分别在 test-results/stability/run-{1,2,3}/{results,report}，不互相覆盖。
 
 工具配置、检查职责及固定版本见 [质量工具](../engineering/quality-tooling.md)。前端区分 unit/component/contract；四条 E2E 覆盖核心配置、回滚、排序/复制/固定源发布及 viewer 演示/editor production 只读。test:e2e 先构建内嵌资源，再启动独立 Go 测试服务，每次建立/清理随机 schema，使用本次随机密码。默认专用端口 18090，可用 E2E_PORT 指定另一空闲端口（例如 E2E_PORT=18190 pnpm test:e2e）；拒绝复用已有服务，不停止用户正在验收的服务。Playwright SIGTERM 关闭本次服务并清理数据。先运行 pnpm --dir frontend exec playwright install chromium；未实现层不以 passWithNoTests 冒充成功。
 

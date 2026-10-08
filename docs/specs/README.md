@@ -1,6 +1,6 @@
 # 大任务 Spec 与 Plan 归档
 
-流程与授权由 [开发规范](../engineering/development.md) 维护。本目录存放具体 Large 的规格、实现计划与验证证据，当前只有本索引，尚无业务实现任务的完成记录。
+流程与授权由 [开发规范](../engineering/development.md) 维护。本目录存放具体 Large 的规格、实现计划与验证证据。当前 [工程基础 Spec](001-engineering-foundation/spec.md)、[Plan](001-engineering-foundation/plan.md) 和 [验证记录](001-engineering-foundation/verification.md) 已建立，任务实施中。
 
 ## 目录
 
@@ -17,7 +17,7 @@ docs/specs/
     verification.md
 ```
 
-上面是未来归档示例，不代表任务已经启动或完成。编号单调增加，名称表达业务/工程目标，不使用临时聊天标题。
+001 为当前任务，002 为未来示例。编号单调增加，名称表达业务/工程目标，不使用临时聊天标题；任务完成状态以对应验证记录为准。
 
 ## 生命周期
 

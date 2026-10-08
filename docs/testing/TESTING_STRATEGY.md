@@ -2,7 +2,7 @@
 
 ## 地位与现状
 
-本文拥有测试层级和 TDD 规则。[开发流程](../engineering/development.md) 负责任务分级与 SDD，[测试矩阵](TESTING_MATRIX.md) 决定具体改动的最低层级。当前只有规范，没有测试代码、配置或覆盖率结果。
+本文拥有测试层级和 TDD 规则。[开发流程](../engineering/development.md) 负责任务分级与 SDD，[测试矩阵](TESTING_MATRIX.md) 决定具体改动的最低层级。当前已有 Go 配置与健康端点的 unit/HTTP 测试；前端、业务数据库套件和 E2E 待实施，尚未统计覆盖率。
 
 ## 金字塔
 

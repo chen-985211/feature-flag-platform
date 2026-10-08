@@ -4,7 +4,7 @@
 
 SDD 指 Spec-Driven Development（规格驱动开发），TDD 指 Test-Driven Development。架构见 [架构](architecture.md)，测试细节见 [测试策略](../testing/TESTING_STRATEGY.md)。
 
-当前用户授权先建立规范文档。本次为纯文档 Small 任务，不据此开始业务代码、测试框架或部署的实现。后续完整平台开发属于 Large。
+规范文档阶段已完成并提交。用户现已授权开始开发，完整平台及工程基础按 Large 执行：先保存可审查 Spec/Plan，再在既定范围内 TDD；已确认需求与方案不重复审批。
 
 ## 任务分级
 

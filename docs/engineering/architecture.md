@@ -52,7 +52,7 @@ TanStack Query 是 presentation 的服务端状态投影；表单、选中项、
 
 ## 规划目录
 
-以下为待搭建结构，当前不存在对应应用实现。
+以下为目标结构。当前已存在 backend/cmd/server 与 platform/config、platform/http；业务上下文、前端与迁移尚待搭建。
 
 ```text
 backend/

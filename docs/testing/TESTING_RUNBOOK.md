@@ -2,7 +2,11 @@
 
 ## 当前状态
 
-当前仓库没有 Makefile、package.json、go.mod、测试 runner、数据库迁移或 CI。下面为统一命令接口的设计合同，全部 **TODO：待工程搭建后实现**，目前不可执行，不可据此宣称验证通过。
+当前已存在 backend/go.mod、Go 配置/健康测试、服务入口、根 Makefile 和文档检查脚本。前端 package.json、数据库迁移与 CI 尚未实现。
+
+可执行入口：`make check-docs`、`make test-backend`、`make test-race`、`make vet-backend`、`make build-backend`、`make dev-backend` 与 `make check-backend`。check-backend 聚合当前阶段的全部文档/后端检查；尚不能替代未来完整 verify。启动说明见 [README](../../README.md)。
+
+下表保留完整工程的命令设计。除 check-docs 和当前 Go test-race 外均 **TODO：待对应阶段实现**，不能使用不存在的入口宣称通过。
 
 工程搭建任务必须落实命令与 scripts，并将本表状态改为已实现。命令调整同时更新此处与实际入口，禁止文档与脚本长期不一致。
 
@@ -10,14 +14,14 @@
 
 | 目的             | 统一入口（待实现）          | 将调用的能力                                             |
 | ---------------- | --------------------------- | -------------------------------------------------------- |
-| 文档检查         | `make check-docs`           | 内部链接、Markdown 格式、规则入口完整性                  |
+| 文档检查         | `make check-docs`           | 已实现：内部链接/锚点、Markdown 结构/空白与导航可达性    |
 | 静态检查         | `make check`                | 文档、格式、lint、TypeScript、Go vet、依赖方向与规模     |
 | 基础 unit        | `make test-unit`            | Go internal unit + Vitest unit                           |
 | 前端组件         | `make test-component`       | Vitest/Testing Library component                         |
 | 真实边界         | `make test-integration`     | Go/PostgreSQL 与前端适配器 integration                   |
 | 契约             | `make test-contract`        | HTTP/DTO/错误及前端消费契约                              |
 | 关键路径         | `make test-e2e`             | Playwright + 真实 Go API + 隔离 PostgreSQL               |
-| 竞争检查         | `make test-race`            | 受影响 Go 包的 race 检查与并发测试                       |
+| 竞争检查         | `make test-race`            | 已实现：当前 Go 包 race；业务并发测试随数据库阶段添加    |
 | 日常完整低层门禁 | `make verify`               | 静态 + unit + component + integration + contract + build |
 | 发布/跨流程门禁  | `make verify-full`          | verify + race + 全部已定义关键 E2E + 迁移验证            |
 | 可部署构建       | `make build`                | 前端构建、Go 内嵌静态资源及应用构建                      |
@@ -52,4 +56,4 @@ PR/main：静态、unit、component、contract、真实 PostgreSQL integration �
 
 ## 规范阶段的文档检查
 
-应用命令未实现前，可用一次性本地检查验证 AGENTS/docs 的相对文件链接与标题锚点、空占位、Markdown 空行/代码围栏以及空白差异。记录实际检查方式，不创建虚假的已实现 make 命令。
+文档检查已由 `scripts/check_docs.py` 与 make check-docs 落地。Markdown 的 Prettier 格式检查当前仍借用本机现有工具，不构成本项目依赖；前端工具链阶段再固定并提供仓库内入口。当前完整平台尚未可用，验证报告分别列出已实现命令和未实现层级。

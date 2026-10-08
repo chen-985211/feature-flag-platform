@@ -1,0 +1,34 @@
+# 大任务 Spec 与 Plan 归档
+
+流程与授权由 [开发规范](../engineering/development.md) 维护。本目录存放具体 Large 的规格、实现计划与验证证据，当前只有本索引，尚无业务实现任务的完成记录。
+
+## 目录
+
+```text
+docs/specs/
+  README.md
+  001-engineering-foundation/
+    spec.md
+    plan.md
+    verification.md
+  002-flag-management/
+    spec.md
+    plan.md
+    verification.md
+```
+
+上面是未来归档示例，不代表任务已经启动或完成。编号单调增加，名称表达业务/工程目标，不使用临时聊天标题。
+
+## 生命周期
+
+- Spec：草案 → 已确认 → 实施中 → 已验收/部分完成。
+- Plan：草案 → 已确认/已授权执行 → 实施中 → 已验证。
+- 确认记录注明用户指令/既有决策来源，复用已有授权，不虚构签字或强迫重复审批。
+- 需求变化先更新对应 Spec 与影响记录，再更新 Plan；状态与实际代码/测试证据保持一致。
+- 未解决且会改变核心语义的事项不能在实施时偷偷选择；其他独立步骤可以继续。
+
+## 关联与证据
+
+Spec 使用稳定验收 ID，并关联 [交付编号](../delivery/acceptance.md)。Plan 每步写明目标层、测试层、Red 行为和退出条件。verification 记录实际命令、结果、未运行原因、对应工作区/提交版本以及剩余风险。
+
+使用 [Spec 模板](../templates/spec.md) 和 [Plan 模板](../templates/plan.md)。Small 不强制新建归档文件，必要过程摘要写入 AI 操作记录。

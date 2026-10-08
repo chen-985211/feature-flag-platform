@@ -34,32 +34,30 @@ export function WorkspaceNavigation({
         aria-label={mobile ? '工作空间导航' : '主要导航'}
       >
         <NavigationMenuList>
-          {items.map(({ path, href, label, icon: Icon }) => (
-            <NavigationMenuItem key={path}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <NavigationMenuLink
-                    asChild
-                    active={pathname.startsWith(path)}
-                  >
-                    <NavLink
-                      aria-label={label}
-                      className={({ isActive }) =>
-                        'nav-item' + (isActive ? ' active' : '')
-                      }
-                      to={href}
+          {items.map(({ path, href, label, icon: Icon }) => {
+            const active = pathname === path || pathname.startsWith(path + '/');
+            return (
+              <NavigationMenuItem key={path}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <NavigationMenuLink
+                      asChild
+                      active={active}
+                      className={'nav-item' + (active ? ' active' : '')}
                     >
-                      <Icon aria-hidden="true" />
-                      <span>{label}</span>
-                    </NavLink>
-                  </NavigationMenuLink>
-                </TooltipTrigger>
-                <TooltipContent side={mobile ? 'bottom' : 'right'}>
-                  {label}
-                </TooltipContent>
-              </Tooltip>
-            </NavigationMenuItem>
-          ))}
+                      <NavLink aria-label={label} to={href}>
+                        <Icon aria-hidden="true" />
+                        <span>{label}</span>
+                      </NavLink>
+                    </NavigationMenuLink>
+                  </TooltipTrigger>
+                  <TooltipContent side={mobile ? 'bottom' : 'right'}>
+                    {label}
+                  </TooltipContent>
+                </Tooltip>
+              </NavigationMenuItem>
+            );
+          })}
         </NavigationMenuList>
       </NavigationMenu>
     </TooltipProvider>

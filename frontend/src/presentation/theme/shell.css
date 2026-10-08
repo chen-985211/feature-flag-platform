@@ -94,6 +94,7 @@
   width: 17px;
   height: 17px;
   flex-shrink: 0;
+  color: inherit;
 }
 .content {
   min-width: 0;

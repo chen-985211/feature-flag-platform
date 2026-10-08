@@ -4,7 +4,7 @@
 
 ## 当前状态
 
-D0～D5 已完成。工程基础、核心业务和灰度/版本证据分别见 [D1](../specs/001-engineering-foundation/verification.md)、[D2](../specs/002-core-configuration/verification.md)、[D3](../specs/003-percentage-and-versions/verification.md)。排序、复制/发布见 [D4](../specs/004-ordering-and-environments/verification.md)；演示初始化、三角色和四条 E2E 三轮稳定性见 [D5](../specs/005-demo-and-system-acceptance/verification.md)。D6 镜像/Compose/健康探针与验收工具已实现，实际容器验收受本机磁盘空间阻断，见 [D6](../specs/006-container-delivery/verification.md)。在线实例不属于必交付项。
+D0～D5 已完成。工程基础、核心业务和灰度/版本证据分别见 [D1](../specs/001-engineering-foundation/verification.md)、[D2](../specs/002-core-configuration/verification.md)、[D3](../specs/003-percentage-and-versions/verification.md)。排序、复制/发布见 [D4](../specs/004-ordering-and-environments/verification.md)；演示初始化、三角色和四条 E2E 三轮稳定性见 [D5](../specs/005-demo-and-system-acceptance/verification.md)。D6 镜像/Compose/健康探针与验收工具已实现；按用户决定，实际容器验收留到远端 CI 最后执行，仍待通过。本机前次磁盘阻断和当前验收安排见 [D6](../specs/006-container-delivery/verification.md)。在线实例不属于必交付项。
 
 ## 开发阶段
 
@@ -27,3 +27,11 @@ D0～D5 已完成。工程基础、核心业务和灰度/版本证据分别见 [
 Large 的子任务可以粒度很小，但仍受父 Spec/Plan 约束；不能因为拆分后改动少就取消 SDD。独立纯样式、文案与文档修正按 Small 执行。
 
 功能状态只能在真实验证后更新为已完成；Docker 交付需要真实构建/启动证据。在线部署不作为本次验收门槛。
+
+## 未完成项核对
+
+2026-10-08，对照 [question.md](../../question.md) 的原题与本次补充范围、源码、迁移和验收证据核对：四项必做功能、六组扩展中的业务与自动化测试均已实现，F01～F12 有对应证据。README 的优先级方向说明已补齐；界面收尾的侧栏布局回归已修复并加到既有 E2E。
+
+明确未结项为 F13/D6：实际 Docker 镜像构建、空库迁移/启动、迁移失败门禁、容器业务/E2E、持久化及数据库备份恢复验收。流水线已有 verify:full 和 test:docker，按用户决定在最后远端执行；本次核对时尚未配置 Git 远端，因此没有 CI 运行结果。后续需要提交到交付仓库、运行流水线并补齐真实结果，才能标记 D6 完成。
+
+单 bundle 拆包、性能量化及全仓覆盖率统计目前未做，属于后续优化，不是题面必交付缺项。线上部署不在已确认范围；48 小时一次性提交的题面约束保留，不从本地文件时间推算新的截止时间，也不将本地 Git 提交当作已向收件方交付。

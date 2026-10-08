@@ -4,7 +4,7 @@ React + Go + PostgreSQL，前后端 DDD + Clean，大任务 SDD、行为变更 T
 
 ## 当前状态
 
-D1～D5 已完成：工程基础、登录/三角色、Flag 管理、属性/百分比规则、精确数字评估、排序、版本/差异/回滚、复制/发布、revision 冲突与原子审计、显式演示初始化。完整门禁和四条 Playwright 的三轮独立稳定性检查已通过。D6 已提供镜像、Compose、健康探针和隔离验收入口，实际容器验收待完成，见 [D6 记录](docs/specs/006-container-delivery/verification.md)。本次不要求线上地址。
+D1～D5 已完成：工程基础、登录/三角色、Flag 管理、属性/百分比规则、精确数字评估、排序、版本/差异/回滚、复制/发布、revision 冲突与原子审计、显式演示初始化。完整门禁和四条 Playwright 的三轮独立稳定性检查已通过。D6 已提供镜像、Compose、健康探针和隔离验收入口；按用户决定，实际容器验收留到远端 CI 最后执行，尚未通过，见 [D6 记录](docs/specs/006-container-delivery/verification.md)。本次不要求线上地址。
 
 需求与规范见 [docs](docs/README.md)，完成证据见 [D1](docs/specs/001-engineering-foundation/verification.md)、[D2](docs/specs/002-core-configuration/verification.md)、[D3](docs/specs/003-percentage-and-versions/verification.md)、[D4](docs/specs/004-ordering-and-environments/verification.md) 和 [D5 验证记录](docs/specs/005-demo-and-system-acceptance/verification.md)。
 
@@ -91,6 +91,8 @@ APP_ORIGIN=http://127.0.0.1:8080 pnpm start
 当前聚焦单团队本地平台，未实现多租户、SDK 分发、实时推送、SSO、自助注册和审批流。稳定性三轮是关键路径重复验收，不是长期容量报告；远端 CI 需实际运行后报告，未统计全仓覆盖率。D6 实际容器验收待完成，在线部署不要求。功能证据见 [验收映射](docs/delivery/coverage.md)。
 
 ## 灰度与历史版本
+
+属性规则 equals 按标量类型和值比较，in 匹配非空同类型标量数组中的任一值；不隐式转换类型，缺少属性或类型不符时不命中。属性和百分比规则共用优先级，数字越小越先执行，同一 Flag 拒绝重复优先级。首条命中即返回，返回 false 也终止后续计算；没有命中返回默认值；Flag 停用时始终返回 false。完整语义见 [评估约定](docs/contexts/flags/evaluation.md)。
 
 在详情的规则页选择「百分比灰度」，输入 0～100 的比例，最多两位小数。评估属性使用非空字符串 user_id，例如 `{"user_id":"alice"}`；缺少或无效标识会显示轨迹原因。规则按共同优先级执行，首条命中可返回 true 或 false；普通编辑和比例调整保持 seed，扩量保留原命中用户。算法和边界见 [评估语义](docs/contexts/flags/evaluation.md)。
 

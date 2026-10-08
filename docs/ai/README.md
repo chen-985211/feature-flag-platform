@@ -7,6 +7,7 @@
 - [decisions.md](decisions.md)：范围、方案和工程约定的来源与确认状态。
 - `docs/specs/<任务>/`：Large 的 Spec、Plan 与真实验证记录。
 - `docs/ai/operations/`：按日期/任务保存简明过程记录，当前见 [工程基础](operations/2026-10-08-foundation.md)、[D1 收尾](operations/2026-10-08-d1-completion.md)、[D2 核心业务](operations/2026-10-08-d2-core.md)、[D3 灰度与版本](operations/2026-10-08-d3-versions.md)、[D4 排序与环境流转](operations/2026-10-08-d4-environments.md)、[D5 演示与验收](operations/2026-10-08-d5-acceptance.md)、[D6 容器交付](operations/2026-10-08-d6-containers.md)、[shadcn 工作台](operations/2026-10-08-shadcn-workbench.md) 和 [完整交互组件](operations/2026-10-08-component-interactions.md)。
+- 最近的 Small 修复与题面核对见 [侧栏修复与交付核对](operations/2026-10-08-sidebar-and-delivery-review.md)。
 
 ## 记录字段
 

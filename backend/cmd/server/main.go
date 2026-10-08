@@ -13,6 +13,7 @@ import (
 
 	"didi/backend/internal/platform/config"
 	httptransport "didi/backend/internal/platform/http"
+	"didi/backend/internal/platform/web"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -37,8 +38,11 @@ func run(logger *slog.Logger) error {
 		return errors.New("DATABASE_CONFIG_REJECTED: invalid database connection settings")
 	}
 	defer pool.Close()
+	mux := http.NewServeMux()
+	mux.Handle("/health/", httptransport.NewHandler(pool.Ping, cfg.ReadinessTimeout))
+	mux.Handle("/", web.NewHandler(web.Assets()))
 	server := &http.Server{
-		Addr: cfg.HTTPAddress, Handler: httptransport.NewHandler(pool.Ping, cfg.ReadinessTimeout),
+		Addr: cfg.HTTPAddress, Handler: mux,
 		ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 10 * time.Second,
 		WriteTimeout: 10 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 16 << 10,
 	}
@@ -54,7 +58,9 @@ func run(logger *slog.Logger) error {
 		shutdown, cancel := context.WithTimeout(context.Background(), cfg.ShutdownTimeout)
 		defer cancel()
 		if err := server.Shutdown(shutdown); err != nil {
-			_ = server.Close()
+			if closeErr := server.Close(); closeErr != nil {
+				return errors.New("HTTP_CLOSE_FAILED: server could not close after graceful shutdown deadline")
+			}
 			return errors.New("HTTP_SHUTDOWN_TIMEOUT: server closed after graceful shutdown deadline")
 		}
 	}

@@ -1,10 +1,12 @@
 # 项目文档中心
 
-本项目是 React、Go 与 PostgreSQL 实现的 Feature Flag 与灰度规则平台。规范已提交，当前 [工程基础任务](specs/001-engineering-foundation/spec.md) 已启动；各能力完成状态以对应验证记录为准，在线部署不属于必交付项。
+本项目是 React、Go 与 PostgreSQL 实现的 Feature Flag 与灰度规则平台。规范已提交，当前 [工程基础任务](specs/001-engineering-foundation/spec.md) 已完成；各能力完成状态以对应验证记录为准，在线部署不属于必交付项。
 
 仓库级 AI 入口为 [AGENTS.md](../AGENTS.md)。本页只维护文档目录、归属和状态，不重复业务及工程规则。
 
 当前可执行启动和检查入口见 [项目 README](../README.md)。
+
+前后端已落地的质量检测工具、固定版本与 CI 入口见 [质量工具](engineering/quality-tooling.md)。
 
 ## 文档地图
 

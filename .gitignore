@@ -10,3 +10,6 @@ coverage/
 test-results/
 playwright-report/
 *.log
+*.tsbuildinfo
+backend/internal/platform/web/assets/*
+!backend/internal/platform/web/assets/.gitkeep

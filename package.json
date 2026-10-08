@@ -1,0 +1,48 @@
+{
+  "name": "didi-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=24.21.0 <25"
+  },
+  "scripts": {
+    "check:docs": "node scripts/check-docs.mjs",
+    "check:project": "node scripts/check-project.mjs",
+    "check:architecture": "node scripts/check-architecture.mjs",
+    "format": "prettier --write . && node scripts/tasks.mjs format-go",
+    "format:check": "prettier --check . && node scripts/tasks.mjs format-go-check",
+    "lint": "eslint . && node scripts/tasks.mjs lint-go",
+    "typecheck": "pnpm --dir frontend typecheck",
+    "check:unused": "knip",
+    "check": "node scripts/tasks.mjs check",
+    "test:unit": "node scripts/tasks.mjs test-unit",
+    "test:component": "pnpm --dir frontend test:component",
+    "test:contract": "pnpm --dir frontend test:contract",
+    "test:integration": "node scripts/tasks.mjs test-integration",
+    "test:race": "node scripts/tasks.mjs test-race",
+    "build": "node scripts/tasks.mjs build",
+    "migrate": "node scripts/tasks.mjs migrate",
+    "migrate:down": "node scripts/tasks.mjs migrate-down",
+    "dev": "node scripts/tasks.mjs dev",
+    "dev:backend": "node scripts/tasks.mjs dev-backend",
+    "dev:frontend": "pnpm --dir frontend dev",
+    "tools:install": "node scripts/tasks.mjs install-tools",
+    "verify": "node scripts/tasks.mjs verify",
+    "verify:full": "node scripts/tasks.mjs verify-full",
+    "check:frontend-architecture": "pnpm --dir frontend exec dependency-cruiser --config ../.dependency-cruiser.cjs src",
+    "start": "node scripts/tasks.mjs start"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "dependency-cruiser": "18.5.0",
+    "eslint": "10.12.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "17.13.0",
+    "knip": "6.40.0",
+    "prettier": "3.9.9",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.1"
+  }
+}

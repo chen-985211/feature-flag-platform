@@ -1,0 +1,10 @@
+node_modules
+.tools
+.build
+coverage
+test-results
+playwright-report
+frontend/dist
+backend/internal/platform/web/assets
+pnpm-lock.yaml
+backend/go.sum

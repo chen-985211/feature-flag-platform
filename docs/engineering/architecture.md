@@ -52,7 +52,7 @@ TanStack Query 是 presentation 的服务端状态投影；表单、选中项、
 
 ## 规划目录
 
-以下为目标结构。当前已存在 backend/cmd/server 与 platform/config、platform/http；业务上下文、前端与迁移尚待搭建。
+以下为目标结构。D1 已实现 backend/cmd/{server,migrate}、platform/{config,http,web}、migrations，以及前端 platform 技术健康用例/适配器、composition root 和 presentation 外壳。业务上下文随 D2～D4 实现，不创建空层。
 
 ```text
 backend/
@@ -108,4 +108,4 @@ Flag 的当前配置版本是单一提交点。评估通过一次查询取得当
 
 共享内核只容纳稳定、明确且至少两个上下文确实共同需要的语义。重复几行代码不足以创建通用业务工具；禁止以 `utils`、`helpers` 或 `common` 作为业务规则收容区。
 
-实施阶段应添加前端 import 边界与后端包依赖检查：阻止内层依赖外层、表现层导入具体 HTTP adapter，以及跨上下文内部导入。当前检查脚本待实现；未执行的门禁不能写成通过。
+实施阶段应添加前端 import 边界与后端包依赖检查：阻止内层依赖外层、表现层导入具体 HTTP adapter，以及跨上下文内部导入。D1 已实现这些检查，命令和工具归 [质量工具](quality-tooling.md) 维护；未执行的门禁不能写成通过。

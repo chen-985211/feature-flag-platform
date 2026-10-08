@@ -2,7 +2,7 @@
 
 ## 状态与归属
 
-本文记录已选技术、版本策略与运行方式；架构边界见 [架构](architecture.md)。当前后端已固定 Go 1.27.0/pgx v5.11.0，配置与健康入口已实现；前端、迁移和 Docker 尚待搭建。`backend/go.mod`、`backend/go.sum` 与根 Makefile 是当前精确依赖和命令证据；前端 lockfile 和部署配置落地后补充。
+本文记录已选技术、版本策略与运行方式；架构边界见 [架构](architecture.md)。D1 已固定 Node 24.21.0、pnpm 10.33.0、Go 1.27.0、pgx v5.11.0 与 golang-migrate v4.20.1；React 19.3.0、TypeScript 6.0.3、Vite 8.3.3 已接线。精确依赖由 package.json/pnpm-lock.yaml 和 backend/go.mod/go.sum 维护；工程命令统一由 Node 编排，Make 只转发。Docker 和业务能力仍待后续交付。质量配置见 [质量工具](quality-tooling.md)。
 
 ## 已选技术
 
@@ -40,7 +40,7 @@
 
 ## 开发与部署拓扑
 
-开发模式：浏览器 → Vite `/api` 代理 → Go 服务 → PostgreSQL。
+开发模式：浏览器 → Vite `/health` 与 `/api` 代理 → Go 服务 → PostgreSQL。当前业务 `/api` 在 D2 接入。
 
 发布模式：浏览器 → HTTPS 入口 → Go 服务（前端静态资源与 `/api`）→ PostgreSQL。
 

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    ".": {
+      "entry": ["scripts/*.mjs"],
+      "project": ["scripts/**/*.mjs", "*.mjs"]
+    },
+    "frontend": {
+      "entry": ["tests/**/*.test.{ts,tsx}"],
+      "project": ["src/**/*.{ts,tsx,css}", "tests/**/*.{ts,tsx}", "*.config.ts"]
+    }
+  },
+  "ignoreBinaries": ["go", "gofmt"]
+}

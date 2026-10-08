@@ -1,59 +1,46 @@
 # 验证与执行手册
 
-## 当前状态
+## 已实现入口
 
-当前已存在 backend/go.mod、Go 配置/健康测试、服务入口、根 Makefile 和文档检查脚本。前端 package.json、数据库迁移与 CI 尚未实现。
+统一使用 Node 24.21.0 / pnpm 10.33.0；安装、配置、数据库准备见 [README](../../README.md)。Make 同名目标只转发下列 pnpm 命令，不直接加载配置或运行另一套检查。
 
-可执行入口：`make check-docs`、`make test-backend`、`make test-race`、`make vet-backend`、`make build-backend`、`make dev-backend` 与 `make check-backend`。check-backend 聚合当前阶段的全部文档/后端检查；尚不能替代未来完整 verify。启动说明见 [README](../../README.md)。
+| 目的         | 统一入口                | 实际能力                                                  |
+| ------------ | ----------------------- | --------------------------------------------------------- |
+| 工具安装     | `pnpm tools:install`    | 固定 golangci-lint 到项目 .tools/bin                      |
+| 文档         | `pnpm check:docs`       | Node 链接、锚点、结构、空白与导航可达性                   |
+| 静态         | `pnpm check`            | 文档、规模、精确依赖、格式、lint、类型、分层和 unused     |
+| 格式修复     | `pnpm format`           | Prettier + gofmt；仅显式修复修改文件                      |
+| 基础 unit    | `pnpm test:unit`        | Go internal unit + Vitest unit                            |
+| 前端组件     | `pnpm test:component`   | Vitest / Testing Library                                  |
+| 契约         | `pnpm test:contract`    | 健康 HTTP 消费契约；Go 健康协议在 httptest unit           |
+| 真实边界     | `pnpm test:integration` | 空 schema 迁移及 PostgreSQL 约束/事务                     |
+| 竞争检查     | `pnpm test:race`        | Go 全包 race，包含隔离数据库场景                          |
+| 完整低层门禁 | `pnpm verify`           | check + unit + component + contract + integration + build |
+| 当前完整门禁 | `pnpm verify:full`      | verify + race                                             |
+| 构建         | `pnpm build`            | React 资源、内嵌 Go 服务与迁移 CLI                        |
+| 迁移         | `pnpm migrate`          | 版本化 up，不隐式 seed                                    |
+| 开发         | `pnpm dev`              | Vite + 受管理的 API 子进程                                |
 
-下表保留完整工程的命令设计。除 check-docs 和当前 Go test-race 外均 **TODO：待对应阶段实现**，不能使用不存在的入口宣称通过。
-
-工程搭建任务必须落实命令与 scripts，并将本表状态改为已实现。命令调整同时更新此处与实际入口，禁止文档与脚本长期不一致。
-
-## 规划命令
-
-| 目的             | 统一入口（待实现）          | 将调用的能力                                             |
-| ---------------- | --------------------------- | -------------------------------------------------------- |
-| 文档检查         | `make check-docs`           | 已实现：内部链接/锚点、Markdown 结构/空白与导航可达性    |
-| 静态检查         | `make check`                | 文档、格式、lint、TypeScript、Go vet、依赖方向与规模     |
-| 基础 unit        | `make test-unit`            | Go internal unit + Vitest unit                           |
-| 前端组件         | `make test-component`       | Vitest/Testing Library component                         |
-| 真实边界         | `make test-integration`     | Go/PostgreSQL 与前端适配器 integration                   |
-| 契约             | `make test-contract`        | HTTP/DTO/错误及前端消费契约                              |
-| 关键路径         | `make test-e2e`             | Playwright + 真实 Go API + 隔离 PostgreSQL               |
-| 竞争检查         | `make test-race`            | 已实现：当前 Go 包 race；业务并发测试随数据库阶段添加    |
-| 日常完整低层门禁 | `make verify`               | 静态 + unit + component + integration + contract + build |
-| 发布/跨流程门禁  | `make verify-full`          | verify + race + 全部已定义关键 E2E + 迁移验证            |
-| 可部署构建       | `make build`                | 前端构建、Go 内嵌静态资源及应用构建                      |
-| 数据库迁移       | `make migrate`              | 版本化 SQL up；不隐式 seed                               |
-| 演示数据         | `make seed`                 | 显式幂等 seed，使用指定环境配置                          |
-| 本机开发         | `make dev`                  | API 与 Vite，使用本机 PostgreSQL                         |
-| 容器运行         | `docker compose up --build` | 应用、PostgreSQL 与明确迁移入口                          |
-
-规划底层入口包括 `pnpm --dir frontend` 的 lint/typecheck/test/build scripts、Go unit 的 `go test ./internal/... -count=1`、integration 的 `go test ./tests/integration/... -count=1`。精确参数和 runner 分组应在对应配置创建后确认，不能直接套用参考项目的命令。
+工具配置、检查职责及固定版本见 [质量工具](../engineering/quality-tooling.md)。前端项目区分 unit/component/contract，未实现层不会用 passWithNoTests 冒充成功。后续业务 E2E、seed 与 Docker 尚未落地；不提供空命令。后续新增关键路径时扩展 verify:full 和对应 CI。
 
 ## 开发反馈与最终门禁
 
-TDD 使用单个目标 package/file/case，确认 Red 后再实现。局部修改先跑目标层；完成时按 [测试矩阵](TESTING_MATRIX.md) 和要求执行必要范围。
+TDD 使用单个目标 package/file/case，确认行为 Red 后实现；下载、语法或编译失败不计作有效 Red。局部修改先跑目标层，完成时按 [测试矩阵](TESTING_MATRIX.md) 执行必要范围。
 
-代码或配置改动通常运行 verify；跨流程、事务/会话/权限、迁移、发布/回滚、测试基础设施及部署变更运行 verify-full。纯视觉可以用 component/静态/build 加真实渲染验证，不强迫无关 E2E；纯文档只做文档检查。
+代码/配置改动通常运行 verify；事务、会话、权限、迁移、发布/回滚、测试基础设施与部署改动运行 verify:full。纯视觉做相关静态、构建和浏览器渲染验证；纯文档只做文档与格式检查。已通过结果绑定对应内容，未变化不重复整套；有新改动或未解决风险才重跑。
 
-已通过结果绑定对应工作区内容和验证范围；相关内容未变化时复用，不因进入提交阶段重复跑。出现新改动、失败或未解决风险才扩大或重跑。
+窄范围示例：`pnpm --dir frontend exec vitest run --project component tests/component/app.test.tsx`、`cd backend && go test ./internal/platform/http -count=1`。直接执行数据库 Go 测试需自行提供 TEST_DATABASE_URL；统一 Node 入口会读取 .env，进程环境变量优先。
 
-## 数据库与依赖
+## 隔离数据库
 
-integration/contract/E2E 显式配置隔离的 TEST_DATABASE_URL 并从空库应用迁移，普通 unit 不要求数据库。需要真实数据库的验收若未提供环境，应报告未运行，不能静默 skip 后标记完成。
+integration/race 显式使用 TEST_DATABASE_URL；要求 PostgreSQL URL、库名以 `_test` 结尾、不能与开发库相同。每个测试建立随机 schema，设置专属 search_path，从空 schema 应用迁移；真实事务提交后查询，不以外层回滚事务遮住提交行为。只删除本次创建的 schema，最后关闭本次池和连接。
 
-测试数据库不能复用开发或线上数据，清理前验证目标。服务使用独立配置和动态/专用端口，等待健康状态而非固定 sleep；结束时关闭本次进程并清理本次测试资源。
+缺失环境、连接不可用或缺少 schema 权限均失败，不 skip。unit/component/消费 contract 无数据库依赖。服务 smoke 使用本次专用端口并等待健康端点；结束时关闭本次服务，不停止宿主 PostgreSQL。
 
-## CI 与发布
+## CI 与后续发布
 
-PR/main：静态、unit、component、contract、真实 PostgreSQL integration 和 build 必须执行；改变关键系统接线时执行对应 E2E。发布候选执行 verify-full 和部署 smoke。
+.github/workflows/verify.yml 在 push main / pull_request 中使用 PostgreSQL 17.7，执行固定依赖安装、Go 质量工具安装和 verify:full。远端 CI 必须实际运行才能报告通过；本地结果不代替远端状态。
 
-本项目不要求为了形式建立 nightly；后续若需要性能、稳定性或广泛浏览器检查，以实际成本和风险新增。
+D1 验证配置、技术 HTTP、React 接线、迁移和构建。后续业务阶段才验收完整登录、评估、写入权限、发布/回滚和演示数据，并按风险增加少量系统 E2E；不建立无目的 nightly。
 
-发布验证至少包含空库启动、已有库升级、必要回滚/恢复路径、登录、评估、一次配置修改及权限检查。这里的应用配置回滚与数据库迁移回滚是不同能力；若 migration 不支持 down，必须写明恢复方案并验证备份恢复，而非宣称支持。
-
-## 规范阶段的文档检查
-
-文档检查已由 `scripts/check_docs.py` 与 make check-docs 落地。Markdown 的 Prettier 格式检查当前仍借用本机现有工具，不构成本项目依赖；前端工具链阶段再固定并提供仓库内入口。当前完整平台尚未可用，验证报告分别列出已实现命令和未实现层级。
+最终 Docker 发布须验证空库启动、已有库升级和恢复路径，以及业务关键流程。数据库迁移 down 和应用配置回滚分开报告；不能把尚未运行的容器或业务测试记为已通过。

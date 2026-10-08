@@ -1,30 +1,27 @@
-SHELL := /bin/sh
-
--include .env
-export
-
-.PHONY: help check-docs test-backend test-race vet-backend build-backend dev-backend check-backend
-
-help:
-	@printf '%s\n' '当前已实现：check-docs test-backend test-race vet-backend build-backend dev-backend check-backend' '完整前端、迁移与 Docker 命令仍待实现。'
-
+.PHONY: check-docs check test-unit test-component test-contract test-integration test-race build migrate dev dev-backend verify verify-full
 check-docs:
-	python3 scripts/check_docs.py
-
-test-backend:
-	cd backend && go test ./internal/... -count=1
-
+	pnpm check:docs
+check:
+	pnpm check
+test-unit:
+	pnpm test:unit
+test-component:
+	pnpm test:component
+test-contract:
+	pnpm test:contract
+test-integration:
+	pnpm test:integration
 test-race:
-	cd backend && go test -race ./... -count=1
-
-vet-backend:
-	cd backend && go vet ./...
-
-build-backend:
-	mkdir -p .build
-	cd backend && go build -o ../.build/didi-server ./cmd/server
-
+	pnpm test:race
+build:
+	pnpm build
+migrate:
+	pnpm migrate
+dev:
+	pnpm dev
 dev-backend:
-	cd backend && go run ./cmd/server
-
-check-backend: check-docs test-backend test-race vet-backend build-backend
+	pnpm dev:backend
+verify:
+	pnpm verify
+verify-full:
+	pnpm verify:full

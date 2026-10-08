@@ -1,0 +1,19 @@
+version: '2'
+run:
+  timeout: 5m
+linters:
+  default: none
+  enable:
+    - errcheck
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - gocritic
+    - nolintlint
+  settings:
+    errcheck:
+      check-blank: true
+    nolintlint:
+      require-explanation: true
+      require-specific: true

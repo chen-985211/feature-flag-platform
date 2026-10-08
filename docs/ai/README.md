@@ -9,6 +9,7 @@
 - `docs/ai/operations/`：按日期/任务保存简明过程记录，当前见 [工程基础](operations/2026-10-08-foundation.md)、[D1 收尾](operations/2026-10-08-d1-completion.md)、[D2 核心业务](operations/2026-10-08-d2-core.md)、[D3 灰度与版本](operations/2026-10-08-d3-versions.md)、[D4 排序与环境流转](operations/2026-10-08-d4-environments.md)、[D5 演示与验收](operations/2026-10-08-d5-acceptance.md)、[D6 容器交付](operations/2026-10-08-d6-containers.md)、[shadcn 工作台](operations/2026-10-08-shadcn-workbench.md) 和 [完整交互组件](operations/2026-10-08-component-interactions.md)。
 - 最近的 Small 修复与题面核对见 [侧栏修复与交付核对](operations/2026-10-08-sidebar-and-delivery-review.md)。
 - 人工验收从临时测试环境切到正常 Go/开发库的过程见 [持久化演示](operations/2026-10-08-persistent-demo.md)。
+- 面向其他验收者的逐步操作文档见 [验收指南整理](operations/2026-10-08-manual-acceptance.md)。
 
 ## 记录字段
 

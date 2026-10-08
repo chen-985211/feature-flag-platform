@@ -10,6 +10,8 @@ D1～D5 已完成：工程基础、登录/三角色、Flag 管理、属性/百�
 
 工作台已统一官方 shadcn/ui 组件、浅/深主题和文字排版，列表/详情/表单/评估/版本/历史采用一致的信息层级。下拉、导航、分页、折叠和提示使用对应组件，规则拖拽由 dnd kit 管理。自动验收与限制见 [完整交互组件记录](docs/specs/008-component-interactions/verification.md)，前次 UI 结果见 [工作台记录](docs/specs/007-shadcn-workbench/verification.md)。
 
+第一次验收项目请跟随 [人工验收指南](docs/delivery/manual-acceptance.md)：从启动和账号开始，逐步验证主要功能、扩展、权限与重启持久化；每步有明确输入和预期结果，末尾有待填写的验收记录表。
+
 ## 本地启动
 
 只使用 Docker 的启动、更新、持久化及备份/恢复见 [容器手册](docs/delivery/docker.md)。宿主无需安装 Go/Node/PostgreSQL；原生开发步骤如下。

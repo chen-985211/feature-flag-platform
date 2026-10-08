@@ -8,6 +8,8 @@ Docker 首次启动、更新、持久化与独立数据库备份恢复见 [容�
 
 当前可执行启动和检查入口见 [项目 README](../README.md)。
 
+其他验收者逐步操作请看 [人工验收指南](delivery/manual-acceptance.md)，包含输入、预期结果及记录模板。
+
 人工验收使用普通 Go 同源服务与持久化开发数据库，初始化入口、数据保留和重启验证见 [持久化演示](specs/009-persistent-demo/verification.md) 与 [演示手册](delivery/demo.md)。
 
 工作台共享组件、布局与文字排版已统一到官方 shadcn/ui；下拉、导航、分页、折叠、提示和拖拽也已完成组件化，实际自动验收与限制见 [完整交互组件记录](specs/008-component-interactions/verification.md)。前次 UI 检查范围见 [工作台记录](specs/007-shadcn-workbench/verification.md)。

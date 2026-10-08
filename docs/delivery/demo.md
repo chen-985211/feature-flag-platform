@@ -1,5 +1,7 @@
 # 本地演示手册
 
+第一次验收请先看 [人工验收指南](manual-acceptance.md)，按独立 Key 逐项操作并记录预期结果。本手册维护标准 seed 示例及其初始语义。
+
 先按 [README](../../README.md) 准备 PostgreSQL、DATABASE_URL 和三个 SEED_*_PASSWORD，执行 `APP_ORIGIN=http://127.0.0.1:8080 pnpm demo`。该入口显式迁移、初始化、构建，再运行普通 Go 服务，直接打开 http://127.0.0.1:8080。需要热更新时仍可使用 `pnpm migrate` → `pnpm seed:demo` → `pnpm dev`。以下预期对应首次初始化；演示中修改后重跑 seed 会保留修改，不把数据恢复成初始状态。
 
 ## 数据与持久化验收

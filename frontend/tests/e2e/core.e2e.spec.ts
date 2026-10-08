@@ -2,7 +2,7 @@ import process from 'node:process';
 import { test, expect } from '@playwright/test';
 test('login → create → attribute rule → evaluate → history → logout', async ({
   page,
-}) => {
+}, testInfo) => {
   const password = process.env.E2E_PASSWORD;
   if (!password) throw new Error('Use pnpm test:e2e for isolated credentials');
   await page.goto('/');
@@ -39,7 +39,7 @@ test('login → create → attribute rule → evaluate → history → logout', 
     page.getByRole('button', { name: '运行评估', exact: true }),
   ).toBeEnabled();
   await page.screenshot({
-    path: '../test-results/d2-desktop.png',
+    path: testInfo.outputPath('d2-desktop.png'),
     fullPage: true,
     animations: 'disabled',
   });
@@ -53,7 +53,7 @@ test('login → create → attribute rule → evaluate → history → logout', 
   }));
   expect(geometry.content).toBeLessThanOrEqual(geometry.viewport);
   await page.screenshot({
-    path: '../test-results/d2-dark-mobile.png',
+    path: testInfo.outputPath('d2-dark-mobile.png'),
     fullPage: true,
     animations: 'disabled',
   });

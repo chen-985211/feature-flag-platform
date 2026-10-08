@@ -80,6 +80,14 @@ func run() (retErr error) {
 	if err = (identity.Repository{Pool: pool}).SeedUser(setup, "e2e-admin", "E2E 管理员", "admin", os.Getenv("E2E_PASSWORD")); err != nil {
 		return err
 	}
+	for _, role := range []string{"editor", "viewer"} {
+		if err = (identity.Repository{Pool: pool}).SeedUser(setup, "e2e-"+role, "E2E "+role, role, os.Getenv("E2E_PASSWORD")); err != nil {
+			return err
+		}
+	}
+	if _, err = bootstrap.InitializeDemo(setup, pool, "e2e-admin"); err != nil {
+		return err
+	}
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	api, err := bootstrap.API(pool, config.Config{AppOrigin: "http://127.0.0.1:18090", SessionTTL: time.Hour}, logger)
 	if err != nil {

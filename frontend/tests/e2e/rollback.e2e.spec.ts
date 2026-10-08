@@ -2,7 +2,7 @@ import process from 'node:process';
 import { test, expect } from '@playwright/test';
 test('percentage rule → edit → version preview → rollback → evaluate restored revision', async ({
   page,
-}) => {
+}, testInfo) => {
   const password = process.env.E2E_PASSWORD;
   if (!password) throw new Error('Use pnpm test:e2e');
   await page.goto('/');
@@ -44,19 +44,19 @@ test('percentage rule → edit → version preview → rollback → evaluate res
   ).toBeVisible();
   await expect(page.getByRole('heading', { name: '规则及顺序' })).toBeVisible();
   await page.screenshot({
-    path: '../test-results/d3-version-diff.png',
+    path: testInfo.outputPath('d3-version-diff.png'),
     fullPage: true,
     animations: 'disabled',
   });
   await page.getByRole('button', { name: '切换为深色主题' }).click();
   await page.screenshot({
-    path: '../test-results/d3-version-dark.png',
+    path: testInfo.outputPath('d3-version-dark.png'),
     fullPage: true,
     animations: 'disabled',
   });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.screenshot({
-    path: '../test-results/d3-version-mobile.png',
+    path: testInfo.outputPath('d3-version-mobile.png'),
     fullPage: true,
     animations: 'disabled',
   });

@@ -23,7 +23,13 @@ docs/specs/
     spec.md
     plan.md
     verification.md
+  005-demo-and-system-acceptance/
+    spec.md
+    plan.md
+    verification.md
 ```
+
+D5 演示与系统验收已完成，见 [Spec](005-demo-and-system-acceptance/spec.md)、[Plan](005-demo-and-system-acceptance/plan.md) 和 [验证记录](005-demo-and-system-acceptance/verification.md)。
 
 001 已完成；002 已完成，见 [Spec](002-core-configuration/spec.md)、[Plan](002-core-configuration/plan.md) 和 [验证记录](002-core-configuration/verification.md)。编号单调增加，名称表达业务/工程目标，不使用临时聊天标题；任务完成状态以对应验证记录为准。
 

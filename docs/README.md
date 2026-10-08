@@ -1,6 +1,6 @@
 # 项目文档中心
 
-本项目是 React、Go 与 PostgreSQL 实现的 Feature Flag 与灰度规则平台。规范已提交，[工程基础](specs/001-engineering-foundation/verification.md)、[D2 核心业务](specs/002-core-configuration/verification.md)、[D3 灰度与版本](specs/003-percentage-and-versions/verification.md) 和 [D4 排序与环境流转](specs/004-ordering-and-environments/verification.md) 已完成并验证。各能力完成状态以对应验证记录为准，在线部署不属于必交付项。
+本项目是 React、Go 与 PostgreSQL 实现的 Feature Flag 与灰度规则平台。规范已提交，[工程基础](specs/001-engineering-foundation/verification.md)、[D2 核心业务](specs/002-core-configuration/verification.md)、[D3 灰度与版本](specs/003-percentage-and-versions/verification.md)、[D4 排序与环境流转](specs/004-ordering-and-environments/verification.md) 和 [D5 演示与系统验收](specs/005-demo-and-system-acceptance/verification.md) 已完成并验证。D6 Docker 待实施；在线部署不属于必交付项。
 
 仓库级 AI 入口为 [AGENTS.md](../AGENTS.md)。本页只维护文档目录、归属和状态，不重复业务及工程规则。
 
@@ -18,7 +18,7 @@
 | `contexts/identity/` | 登录、会话、角色与授权             | [登录与权限](contexts/identity/access-control.md)                                                                                                                                                                                    |
 | `contexts/audit/`    | 真实操作者与操作历史               | [审计历史](contexts/audit/history.md)                                                                                                                                                                                                |
 | `testing/`           | 金字塔、测试选择、组织和执行       | [策略](testing/TESTING_STRATEGY.md)、[矩阵](testing/TESTING_MATRIX.md)、[布局](testing/TESTING_LAYOUT.md)、[要求](testing/TESTING_REQUIREMENTS.md)、[执行手册](testing/TESTING_RUNBOOK.md)                                           |
-| `delivery/`          | 分阶段产出与最终交付验收           | [交付计划](delivery/roadmap.md)、[验收要求](delivery/acceptance.md)                                                                                                                                                                  |
+| `delivery/`          | 分阶段产出与最终交付验收           | [交付计划](delivery/roadmap.md)、[验收要求](delivery/acceptance.md)、[本地演示](delivery/demo.md)、[证据映射](delivery/coverage.md)                                                                                                  |
 | `specs/`             | 大任务的需求、实现计划与验证证据   | [归档约定](specs/README.md)                                                                                                                                                                                                          |
 | `templates/`         | Spec、Plan 的可复用模板            | [Spec](templates/spec.md)、[Plan](templates/plan.md)                                                                                                                                                                                 |
 | `ai/`                | AI 辅助开发记录与需求决策          | [记录约定](ai/README.md)、[需求决策](ai/decisions.md)                                                                                                                                                                                |

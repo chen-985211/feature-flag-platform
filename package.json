@@ -34,7 +34,9 @@
     "check:frontend-architecture": "pnpm --dir frontend exec dependency-cruiser --config ../.dependency-cruiser.cjs src",
     "start": "node scripts/tasks.mjs start",
     "seed:users": "node scripts/tasks.mjs seed-users",
-    "test:e2e": "node scripts/tasks.mjs test-e2e"
+    "seed:demo": "node scripts/tasks.mjs seed-demo",
+    "test:e2e": "node scripts/tasks.mjs test-e2e",
+    "test:e2e:stability": "node scripts/tasks.mjs test-e2e-stability"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

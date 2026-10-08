@@ -2,7 +2,7 @@ import process from 'node:process';
 import { test, expect } from '@playwright/test';
 test('reorder → copy → fixed source publication → target evaluation and audit', async ({
   page,
-}) => {
+}, testInfo) => {
   const password = process.env.E2E_PASSWORD;
   if (!password) throw new Error('Use pnpm test:e2e');
   await page.goto('/');
@@ -53,7 +53,7 @@ test('reorder → copy → fixed source publication → target evaluation and au
     dialog.getByRole('button', { name: '关闭环境流转' }),
   ).toBeFocused();
   await page.screenshot({
-    path: '../test-results/d4-copy-light.png',
+    path: testInfo.outputPath('d4-copy-light.png'),
     fullPage: true,
     animations: 'disabled',
   });
@@ -93,7 +93,7 @@ test('reorder → copy → fixed source publication → target evaluation and au
     element.scrollTop = element.scrollHeight;
   });
   await page.screenshot({
-    path: '../test-results/d4-publication-dark.png',
+    path: testInfo.outputPath('d4-publication-dark.png'),
     fullPage: true,
     animations: 'disabled',
   });
@@ -105,7 +105,7 @@ test('reorder → copy → fixed source publication → target evaluation and au
     element.scrollTop = element.scrollHeight;
   });
   await page.screenshot({
-    path: '../test-results/d4-publication-mobile.png',
+    path: testInfo.outputPath('d4-publication-mobile.png'),
     fullPage: true,
     animations: 'disabled',
   });

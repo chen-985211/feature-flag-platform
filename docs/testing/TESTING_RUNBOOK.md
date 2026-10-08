@@ -21,7 +21,9 @@
 | 迁移         | `pnpm migrate`          | 版本化 up，不隐式 seed                                    |
 | 开发         | `pnpm dev`              | Vite + 受管理的 API 子进程                                |
 
-工具配置、检查职责及固定版本见 [质量工具](../engineering/quality-tooling.md)。前端区分 unit/component/contract；D2～D4 已有核心配置、回滚和排序/复制/固定源发布三条 E2E，Docker 尚未落地。test:e2e 先构建内嵌资源，再启动独立 Go 测试服务，每次建立/清理随机 schema，使用本次随机密码。固定专用端口 18090，拒绝复用已有服务；Playwright SIGTERM 关闭服务并清理数据。先运行 pnpm --dir frontend exec playwright install chromium。D5 验证系统稳定性，未实现层不以 passWithNoTests 冒充成功。
+显式账号初始化为 pnpm seed:users，完整演示为 pnpm seed:demo，见 [演示手册](../delivery/demo.md)。pnpm test:e2e:stability 构建一次，独立执行三轮四条 E2E；每轮启动新服务、随机 schema/密码，retries=0，失败立即退出。每次运行清理旧 stability 报告；各轮结果/截图与 HTML 分别在 test-results/stability/run-{1,2,3}/{results,report}，不互相覆盖。
+
+工具配置、检查职责及固定版本见 [质量工具](../engineering/quality-tooling.md)。前端区分 unit/component/contract；四条 E2E 覆盖核心配置、回滚、排序/复制/固定源发布及 viewer 演示/editor production 只读。Docker 尚未落地。test:e2e 先构建内嵌资源，再启动独立 Go 测试服务，每次建立/清理随机 schema，使用本次随机密码。固定专用端口 18090，拒绝复用已有服务；Playwright SIGTERM 关闭服务并清理数据。先运行 pnpm --dir frontend exec playwright install chromium；未实现层不以 passWithNoTests 冒充成功。
 
 ## 开发反馈与最终门禁
 

@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	flags "didi/backend/internal/contexts/flags/application"
 	identity "didi/backend/internal/contexts/identity/infrastructure"
+	"didi/backend/internal/platform/bootstrap"
 	"didi/backend/internal/platform/config"
 	"errors"
 	"fmt"
@@ -13,11 +15,25 @@ import (
 
 func main() {
 	if err := run(); err != nil {
-		fmt.Fprintln(os.Stderr, "SEED_FAILED: check database, migrations and SEED_*_PASSWORD (8–72 bytes)")
+		switch {
+		case errors.Is(err, flags.ErrForbidden):
+			fmt.Fprintln(os.Stderr, "SEED_FORBIDDEN: the persisted admin account must retain permission to write all environments")
+		case errors.Is(err, flags.ErrKeyConflict):
+			fmt.Fprintln(os.Stderr, "SEED_KEY_CONFLICT: a demo key is owned by another flag; no demo configurations were committed")
+		default:
+			fmt.Fprintln(os.Stderr, "SEED_FAILED: use users or demo; check database, migrations and SEED_*_PASSWORD (8–72 bytes)")
+		}
 		os.Exit(1)
 	}
 }
 func run() error {
+	mode := "users"
+	if len(os.Args) == 2 {
+		mode = os.Args[1]
+	}
+	if len(os.Args) > 2 || mode != "users" && mode != "demo" {
+		return errors.New("invalid seed mode")
+	}
 	cfg, err := config.Load(os.Getenv)
 	if err != nil {
 		return err
@@ -42,5 +58,12 @@ func run() error {
 		}
 	}
 	fmt.Println("PASS: accounts initialized; existing credentials and roles preserved.")
+	if mode == "demo" {
+		result, err := bootstrap.InitializeDemo(ctx, pool, "admin")
+		if err != nil {
+			return err
+		}
+		fmt.Printf("PASS: demo flags created=%d preserved=%d; existing configurations and history preserved.\n", result.Created, result.Preserved)
+	}
 	return nil
 }

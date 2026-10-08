@@ -1,4 +1,6 @@
 import { defineConfig } from '@playwright/test';
+import process from 'node:process';
+const artifacts = process.env.E2E_ARTIFACTS_DIR;
 export default defineConfig({
   testDir: './tests/e2e',
   testMatch: '**/*.e2e.spec.ts',
@@ -7,10 +9,18 @@ export default defineConfig({
   retries: 0,
   timeout: 30000,
   expect: { timeout: 5000 },
-  outputDir: '../test-results/e2e',
+  outputDir: artifacts ? `${artifacts}/results` : '../test-results/e2e',
   reporter: [
     ['list'],
-    ['html', { outputFolder: '../playwright-report', open: 'never' }],
+    [
+      'html',
+      {
+        outputFolder: artifacts
+          ? `${artifacts}/report`
+          : '../playwright-report',
+        open: 'never',
+      },
+    ],
   ],
   use: {
     baseURL: 'http://127.0.0.1:18090',

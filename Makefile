@@ -25,8 +25,12 @@ verify:
 	pnpm verify
 verify-full:
 	pnpm verify:full
-.PHONY: seed-users test-e2e
+.PHONY: seed-users seed-demo test-e2e test-e2e-stability
 seed-users:
 	pnpm seed:users
+seed-demo:
+	pnpm seed:demo
 test-e2e:
 	pnpm test:e2e
+test-e2e-stability:
+	pnpm test:e2e:stability

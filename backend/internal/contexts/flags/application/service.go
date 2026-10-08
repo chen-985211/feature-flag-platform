@@ -36,6 +36,7 @@ type Scope interface {
 	Load(context.Context, string) (domain.Snapshot, error)
 	Version(context.Context, string, int64) (domain.Snapshot, error)
 	Save(context.Context, domain.Snapshot, Actor) error
+	Create(context.Context, domain.Snapshot, Actor) (bool, error)
 	Audit() AuditPort
 }
 type Filter struct {

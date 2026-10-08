@@ -90,14 +90,27 @@ const tasks = {
   async 'seed-users'() {
     await run('go', ['run', './cmd/seed'], backend);
   },
+  async 'seed-demo'() {
+    await run('go', ['run', './cmd/seed', 'demo'], backend);
+  },
   async 'test-e2e'() {
     await tasks.build();
-    await run(
-      'pnpm',
-      ['--dir', 'frontend', 'exec', 'playwright', 'test'],
-      root,
-      { ...process.env, E2E_PASSWORD: randomBytes(24).toString('hex') },
-    );
+    await runE2E();
+  },
+  async 'test-e2e-stability'() {
+    await tasks.build();
+    rmSync(path.join(root, 'test-results', 'stability'), {
+      recursive: true,
+      force: true,
+    });
+    for (let round = 1; round <= 3; round++) {
+      console.log(
+        `E2E stability round ${round}/3 (independent server/schema; retries=0)`,
+      );
+      await runE2E(
+        path.join(root, 'test-results', 'stability', `run-${round}`),
+      );
+    }
   },
   async 'e2e-server'() {
     await run(
@@ -174,14 +187,17 @@ const tasks = {
   async 'verify-full'() {
     await tasks.verify();
     await tasks['test-race']();
-    await run(
-      'pnpm',
-      ['--dir', 'frontend', 'exec', 'playwright', 'test'],
-      root,
-      { ...process.env, E2E_PASSWORD: randomBytes(24).toString('hex') },
-    );
+    await runE2E();
   },
 };
+
+async function runE2E(artifacts) {
+  await run('pnpm', ['--dir', 'frontend', 'exec', 'playwright', 'test'], root, {
+    ...process.env,
+    E2E_PASSWORD: randomBytes(24).toString('hex'),
+    ...(artifacts ? { E2E_ARTIFACTS_DIR: artifacts } : {}),
+  });
+}
 try {
   const name = process.argv[2];
   if (!Object.hasOwn(tasks, name)) throw new Error(`Unknown task: ${name}`);

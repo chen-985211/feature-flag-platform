@@ -81,6 +81,10 @@ func (f *fakeStore) Versions(context.Context, string, int, int) (VersionsPage, e
 
 type fakeScope struct{ *fakeStore }
 
+func (f fakeScope) Create(ctx context.Context, snapshot domain.Snapshot, actor Actor) (bool, error) {
+	return true, f.Save(ctx, snapshot, actor)
+}
+
 func (f *fakeStore) Version(ctx context.Context, id string, rev int64) (Version, error) {
 	snapshot, err := (fakeScope{f}).Version(ctx, id, rev)
 	return Version{VersionSummary: VersionSummary{Revision: rev}, Snapshot: snapshot}, err

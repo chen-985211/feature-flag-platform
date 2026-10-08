@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import { execFileSync, spawn } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs';
 import path from 'node:path';
@@ -80,6 +81,31 @@ const tasks = {
       ['build', '-o', '../.build/didi-migrate', './cmd/migrate'],
       backend,
     );
+    await run(
+      'go',
+      ['build', '-o', '../.build/didi-seed', './cmd/seed'],
+      backend,
+    );
+  },
+  async 'seed-users'() {
+    await run('go', ['run', './cmd/seed'], backend);
+  },
+  async 'test-e2e'() {
+    await tasks.build();
+    await run(
+      'pnpm',
+      ['--dir', 'frontend', 'exec', 'playwright', 'test'],
+      root,
+      { ...process.env, E2E_PASSWORD: randomBytes(24).toString('hex') },
+    );
+  },
+  async 'e2e-server'() {
+    await run(
+      'go',
+      ['build', '-o', '../.build/didi-e2e-server', './tests/e2e/server'],
+      backend,
+    );
+    await run(path.join(root, '.build/didi-e2e-server'), []);
   },
   async start() {
     await run(path.join(root, '.build/didi-server'), []);
@@ -148,6 +174,12 @@ const tasks = {
   async 'verify-full'() {
     await tasks.verify();
     await tasks['test-race']();
+    await run(
+      'pnpm',
+      ['--dir', 'frontend', 'exec', 'playwright', 'test'],
+      root,
+      { ...process.env, E2E_PASSWORD: randomBytes(24).toString('hex') },
+    );
   },
 };
 try {

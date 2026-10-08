@@ -14,6 +14,7 @@ HTTP 错误统一包含稳定 code、可理解 message、必要字段详情和 r
 | 资源不存在       | 404       | FLAG_NOT_FOUND、VERSION_NOT_FOUND                      |
 | 唯一或并发冲突   | 409       | FLAG_KEY_CONFLICT、PRIORITY_CONFLICT、VERSION_CONFLICT |
 | 非预期内部失败   | 500       | INTERNAL_ERROR                                         |
+| 登录请求限速     | 429       | RATE_LIMITED                                           |
 | 技术依赖未就绪   | 503       | SERVICE_NOT_READY                                      |
 
 领域/应用错误由 HTTP 适配器映射；数据库异常归一为应用错误。内部响应不能暴露 SQL、连接字符串、堆栈或服务文件路径。合法的评估 false 是成功结果，不当作错误。

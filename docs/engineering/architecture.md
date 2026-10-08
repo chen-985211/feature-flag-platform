@@ -52,7 +52,7 @@ TanStack Query 是 presentation 的服务端状态投影；表单、选中项、
 
 ## 规划目录
 
-以下为目标结构。D1 已实现 backend/cmd/{server,migrate}、platform/{config,http,web}、migrations，以及前端 platform 技术健康用例/适配器、composition root 和 presentation 外壳。业务上下文随 D2～D4 实现，不创建空层。
+以下为目标结构。D1 已实现 backend/cmd/{server,migrate}、platform/{config,http,web}、migrations，以及前端 platform 技术健康用例/适配器、composition root 和 presentation 外壳。D2 已落地 Identity/Flags/Audit 核心上下文及 public 协作；后续扩展随 D3～D4 实现。
 
 ```text
 backend/

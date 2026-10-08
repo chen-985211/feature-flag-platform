@@ -31,3 +31,7 @@ CI 的 .github/workflows/verify.yml 使用 PostgreSQL 17.7、固定 Node/Go/pnpm
 数据库约束与 SQL 的有效性由真实 PostgreSQL integration 验证，测试布局与金字塔归 [测试执行手册](../testing/TESTING_RUNBOOK.md) 维护。
 
 工具依据：[ESLint 配置](https://eslint.org/docs/latest/use/configure/configuration-files)、[类型感知 lint](https://typescript-eslint.io/getting-started/typed-linting/)、[dependency-cruiser](https://github.com/sverweij/dependency-cruiser)、[Knip](https://knip.dev/overview/getting-started)、[golangci-lint](https://golangci-lint.run/docs/welcome/install/)。
+
+## D2 浏览器门禁
+
+根 workspace 固定 @playwright/test 1.64.0，负责真实前端、Go 与 PostgreSQL 的跨系统冒烟。pnpm test:e2e 构建后运行；pnpm verify:full 在底层与 race 检查通过后运行同一套用例。CI 显式安装 Chromium，不增加 unused 排除项。回滚/发布随 D3/D4 增加，D5 检查稳定性。

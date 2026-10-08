@@ -12,16 +12,16 @@
 | 格式修复     | `pnpm format`           | Prettier + gofmt；仅显式修复修改文件                      |
 | 基础 unit    | `pnpm test:unit`        | Go internal unit + Vitest unit                            |
 | 前端组件     | `pnpm test:component`   | Vitest / Testing Library                                  |
-| 契约         | `pnpm test:contract`    | 健康 HTTP 消费契约；Go 健康协议在 httptest unit           |
-| 真实边界     | `pnpm test:integration` | 空 schema 迁移及 PostgreSQL 约束/事务                     |
+| 契约         | `pnpm test:contract`    | 健康/Flag 消费契约；Go 业务 HTTP 在 integration           |
+| 真实边界     | `pnpm test:integration` | 空 schema 迁移、业务事务/并发/会话与 HTTP 权限            |
 | 竞争检查     | `pnpm test:race`        | Go 全包 race，包含隔离数据库场景                          |
 | 完整低层门禁 | `pnpm verify`           | check + unit + component + contract + integration + build |
-| 当前完整门禁 | `pnpm verify:full`      | verify + race                                             |
+| 当前完整门禁 | `pnpm verify:full`      | verify + race + Playwright 核心冒烟                       |
 | 构建         | `pnpm build`            | React 资源、内嵌 Go 服务与迁移 CLI                        |
 | 迁移         | `pnpm migrate`          | 版本化 up，不隐式 seed                                    |
 | 开发         | `pnpm dev`              | Vite + 受管理的 API 子进程                                |
 
-工具配置、检查职责及固定版本见 [质量工具](../engineering/quality-tooling.md)。前端项目区分 unit/component/contract，未实现层不会用 passWithNoTests 冒充成功。后续业务 E2E、seed 与 Docker 尚未落地；不提供空命令。后续新增关键路径时扩展 verify:full 和对应 CI。
+工具配置、检查职责及固定版本见 [质量工具](../engineering/quality-tooling.md)。前端项目区分 unit/component/contract，未实现层不会用 passWithNoTests 冒充成功。D2 已有 seed:users 与 test:e2e；Docker 尚未落地。test:e2e 先构建内嵌资源，再启动独立 Go 测试服务，每次建立/清理随机 schema，使用本次随机密码。固定专用端口 18090，拒绝复用已有服务；Playwright SIGTERM 关闭服务并清理数据。先运行 pnpm --dir frontend exec playwright install chromium。D3/D4 增加回滚/发布关键路径，D5 验证稳定性。
 
 ## 开发反馈与最终门禁
 
@@ -39,8 +39,8 @@ integration/race 显式使用 TEST_DATABASE_URL；要求 PostgreSQL URL、库名
 
 ## CI 与后续发布
 
-.github/workflows/verify.yml 在 push main / pull_request 中使用 PostgreSQL 17.7，执行固定依赖安装、Go 质量工具安装和 verify:full。远端 CI 必须实际运行才能报告通过；本地结果不代替远端状态。
+.github/workflows/verify.yml 在 push main / pull_request 中使用 PostgreSQL 17.7，执行固定依赖安装、Go 质量工具与 Chromium 安装和 verify:full。远端 CI 必须实际运行才能报告通过；本地结果不代替远端状态。
 
-D1 验证配置、技术 HTTP、React 接线、迁移和构建。后续业务阶段才验收完整登录、评估、写入权限、发布/回滚和演示数据，并按风险增加少量系统 E2E；不建立无目的 nightly。
+D1 验证配置、技术 HTTP、React 接线、迁移和构建。D2 验收登录、评估、写入权限和第一条系统冒烟；后续阶段验收发布/回滚与完整演示数据；不建立无目的 nightly。
 
 最终 Docker 发布须验证空库启动、已有库升级和恢复路径，以及业务关键流程。数据库迁移 down 和应用配置回滚分开报告；不能把尚未运行的容器或业务测试记为已通过。

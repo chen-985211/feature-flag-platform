@@ -38,4 +38,5 @@ jobs:
           cache-dependency-path: backend/go.sum
       - run: pnpm install --frozen-lockfile
       - run: pnpm tools:install
+      - run: pnpm --dir frontend exec playwright install --with-deps chromium
       - run: pnpm verify:full

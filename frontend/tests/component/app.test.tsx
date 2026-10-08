@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import { App } from '../../src/presentation/app-shell/app';
+import { RuntimeStatus } from '../../src/presentation/app-shell/runtime-status';
 import type {
   CheckReadiness,
   Readiness,
@@ -13,7 +13,7 @@ function mount(checkReadiness: CheckReadiness) {
   });
   return render(
     <QueryClientProvider client={client}>
-      <App checkReadiness={checkReadiness} />
+      <RuntimeStatus checkReadiness={checkReadiness} />
     </QueryClientProvider>,
   );
 }
@@ -60,16 +60,5 @@ describe('runtime connection screen', () => {
     await userEvent.click(screen.getByRole('button', { name: '刷新状态' }));
     expect(await screen.findByText('无法连接服务')).toBeVisible();
     expect(screen.queryByText('old-request')).not.toBeInTheDocument();
-  });
-  it('switches the theme accessibly', async () => {
-    mount(() => Promise.resolve({ status: 'ready' }));
-    await screen.findByText('服务已就绪');
-    await userEvent.click(
-      screen.getByRole('button', { name: '切换为深色主题' }),
-    );
-    expect(document.documentElement).toHaveAttribute('data-theme', 'dark');
-    expect(
-      screen.getByRole('button', { name: '切换为浅色主题' }),
-    ).toBeVisible();
   });
 });

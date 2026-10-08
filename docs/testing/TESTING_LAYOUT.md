@@ -23,7 +23,8 @@ frontend/
     contract/
     fixtures/
     support/
-tests/e2e/
+frontend/tests/e2e/
+  core.e2e.spec.ts
   auth.e2e.spec.ts
   flag-evaluation.e2e.spec.ts
   publish-rollback.e2e.spec.ts
@@ -37,7 +38,7 @@ test-results/
 
 - Go unit：`*_test.go`，测试函数说明业务行为，表用例名称表达场景。
 - 前端 unit/component：`*.test.ts(x)`；integration/contract 可使用明确类型后缀，并通过 Vitest projects 分离执行环境。
-- E2E：`*.e2e.spec.ts`，配置仅收集根 `tests/e2e/`，不能混入普通 unit suite。
+- E2E：`*.e2e.spec.ts`，frontend/playwright.config.ts 仅收集 `frontend/tests/e2e/`，不能混入普通 unit suite。
 - unit 使用 Node 环境，React component 使用 jsdom；真实布局使用浏览器，jsdom 不能证明 CSS 几何。
 - 后端 integration/contract 使用独立目录，普通 unit 运行不启动数据库。
 

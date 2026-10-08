@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"didi/backend/internal/platform/bootstrap"
 	"didi/backend/internal/platform/config"
 	httptransport "didi/backend/internal/platform/http"
 	"didi/backend/internal/platform/web"
@@ -40,6 +41,11 @@ func run(logger *slog.Logger) error {
 	defer pool.Close()
 	mux := http.NewServeMux()
 	mux.Handle("/health/", httptransport.NewHandler(pool.Ping, cfg.ReadinessTimeout))
+	api, err := bootstrap.API(pool, cfg, logger)
+	if err != nil {
+		return errors.New("API_BOOTSTRAP_FAILED: could not initialize API")
+	}
+	mux.Handle("/api/", api)
 	mux.Handle("/", web.NewHandler(web.Assets()))
 	server := &http.Server{
 		Addr: cfg.HTTPAddress, Handler: mux,

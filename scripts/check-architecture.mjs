@@ -22,7 +22,8 @@ for (const row of packages) {
   const [name, ...dependencies] = row
     .replaceAll('[', '')
     .replaceAll(']', '')
-    .split(' ');
+    .split(' ')
+    .filter(Boolean);
   const ownContext = name.match(/\/contexts\/([^/]+)\//)?.[1];
   const layerRoot = name.match(/^(.*)\/(?:domain|application)(?:\/|$)/)?.[1];
   for (const dependency of dependencies) {

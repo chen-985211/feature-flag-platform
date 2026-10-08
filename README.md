@@ -4,9 +4,9 @@ React + Go + PostgreSQL，前后端 DDD + Clean，大任务 SDD、行为变更 T
 
 ## 当前状态
 
-D1 工程基础包含前端工作台与真实健康接口接线、后端配置和生命周期、六张基础表迁移、隔离 PostgreSQL 测试、前后端质量门禁与内嵌资源构建。业务功能（登录、Flag、规则评估、版本、审计、发布/回滚）在 D2～D5 实现；Docker 在 D6 验收。本次不要求线上地址。
+D1 工程基础已完成。D2 已接入登录/三角色、Flag 列表与管理、equals/in 属性规则、精确数字评估、完整快照、revision 冲突保护、原子审计与第一条 Playwright 冒烟。百分比灰度、版本浏览/回滚、排序、复制/发布及完整演示配置在 D3～D5 交付，Docker 在 D6 验收。本次不要求线上地址。
 
-需求与规范见 [docs](docs/README.md)，完成证据见 [D1 验证记录](docs/specs/001-engineering-foundation/verification.md)。
+需求与规范见 [docs](docs/README.md)，完成证据见 [D1](docs/specs/001-engineering-foundation/verification.md) 与 [D2 验证记录](docs/specs/002-core-configuration/verification.md)。
 
 ## 本地启动
 
@@ -19,12 +19,14 @@ cp .env.example .env
 createdb didi_development
 createdb didi_test
 pnpm migrate
+# 在 .env 设置 SEED_ADMIN_PASSWORD、SEED_EDITOR_PASSWORD、SEED_VIEWER_PASSWORD
+pnpm seed:users
 pnpm dev
 ```
 
 已有 .env/数据库时不覆盖或重复创建；按本机 PostgreSQL 认证修改 .env。Node 读取 .env，已有进程环境变量优先；凭据不打印，.env 不提交。`pnpm dev` 同时运行 Go API 与 Vite，并在关闭时终止本次子进程。
 
-浏览器打开 http://localhost:5173；Vite 将 /health 代理至 Go API（默认 127.0.0.1:8080，可用 API_PROXY_TARGET 改变）。页面实时查询服务，提供刷新与浅/深色主题，业务能力尚未开放。
+浏览器打开 http://localhost:5173；Vite 将 /health 和 /api 代理至 Go API（默认 127.0.0.1:8080，可用 API_PROXY_TARGET 改变）。使用 admin/editor/viewer 与各自配置的初始化密码登录。admin 可写所有环境，editor 可写 development/staging，viewer 只读。初始化显式执行，重复运行保留已有密码、名称与角色；服务不自动创建账号。
 
 ```sh
 curl http://127.0.0.1:8080/health/live
@@ -41,6 +43,8 @@ pnpm test:unit
 pnpm test:component
 pnpm test:contract
 pnpm test:integration
+pnpm --dir frontend exec playwright install chromium
+pnpm test:e2e
 pnpm verify:full
 ```
 
@@ -52,11 +56,11 @@ pnpm verify:full
 
 ```sh
 pnpm build
-pnpm start
+APP_ORIGIN=http://127.0.0.1:8080 pnpm start
 ```
 
-构建产生 .build/didi-server 与 .build/didi-migrate。服务内嵌 React 资源，页面与 API 同源，直接打开 http://127.0.0.1:8080；构建资源被 Git 忽略。独立 Go 开发入口 `pnpm dev:backend` 在未构建前端时仅提供 API，根页面明确提示先构建。
+构建产生 .build/didi-server、.build/didi-migrate 与 .build/didi-seed。服务内嵌 React 资源，页面与 API 同源，APP_ORIGIN 必须与实际浏览器地址完全一致（含端口）；开发默认 localhost:5173，内嵌运行以上述命令覆盖。直接打开 http://127.0.0.1:8080；构建资源被 Git 忽略。独立 Go 开发入口 `pnpm dev:backend` 在未构建前端时仅提供 API，根页面明确提示先构建。
 
 `pnpm migrate` 应用待执行 up；`pnpm migrate:down` 明确回退一个迁移，移除该迁移创建的表及其数据，只用于可丢弃开发环境。服务启动不自动迁移或 seed。迁移与后续业务配置版本回滚是不同能力。
 
-.env.example 维护数据库、监听地址、APP_ORIGIN、SESSION_TTL、READINESS_TIMEOUT、SHUTDOWN_TIMEOUT 与隔离测试库。当前没有 seed、登录或演示账户。范围与状态分别归 [项目范围](docs/product/scope.md) 和 [交付计划](docs/delivery/roadmap.md)；过程见 [AI 记录](docs/ai/README.md)。
+.env.example 维护数据库、监听地址、APP_ORIGIN、SESSION_TTL、READINESS_TIMEOUT、SHUTDOWN_TIMEOUT 与隔离测试库。SEED_*_PASSWORD 只在显式账号初始化时必填（8～72 字节），无通用默认密码。完整演示 Flag 在 D5 交付。范围与状态分别归 [项目范围](docs/product/scope.md) 和 [交付计划](docs/delivery/roadmap.md)；过程见 [AI 记录](docs/ai/README.md)。

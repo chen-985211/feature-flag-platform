@@ -8,6 +8,8 @@ import (
 // Store expected JSON as text: JSONB otherwise expands/normalizes number lexemes.
 // This codec is also used for audit changes; it contains configuration facts only.
 type storedRule struct {
+	Kind                              string `json:",omitempty"`
+	PercentageBP                      *int   `json:",omitempty"`
 	ID                                string
 	Priority                          int
 	Attribute, Operator, ExpectedJSON string
@@ -21,7 +23,11 @@ type storedSnapshot struct {
 func stored(s domain.Snapshot) storedSnapshot {
 	out := storedSnapshot{Snapshot: s, Rules: []storedRule{}}
 	for _, r := range s.Rules {
-		out.Rules = append(out.Rules, storedRule{ID: r.ID, Priority: r.Priority, Attribute: r.Attribute, Operator: r.Operator, ExpectedJSON: string(r.Expected), Result: r.Result})
+		kind := r.Kind
+		if kind == "attribute" {
+			kind = ""
+		}
+		out.Rules = append(out.Rules, storedRule{Kind: kind, PercentageBP: r.PercentageBP, ID: r.ID, Priority: r.Priority, Attribute: r.Attribute, Operator: r.Operator, ExpectedJSON: string(r.Expected), Result: r.Result})
 	}
 	return out
 }
@@ -43,7 +49,7 @@ func decodeSnapshot(raw []byte) (domain.Snapshot, error) {
 	s := saved.Snapshot
 	s.Rules = []domain.Rule{}
 	for _, r := range saved.Rules {
-		s.Rules = append(s.Rules, domain.Rule{ID: r.ID, Priority: r.Priority, Attribute: r.Attribute, Operator: r.Operator, Expected: json.RawMessage(r.ExpectedJSON), Result: r.Result})
+		s.Rules = append(s.Rules, domain.Rule{Kind: r.Kind, PercentageBP: r.PercentageBP, ID: r.ID, Priority: r.Priority, Attribute: r.Attribute, Operator: r.Operator, Expected: json.RawMessage(r.ExpectedJSON), Result: r.Result})
 	}
 	f, err := domain.Restore(s)
 	if err != nil {

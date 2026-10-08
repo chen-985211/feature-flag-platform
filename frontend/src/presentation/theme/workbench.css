@@ -341,14 +341,14 @@ summary {
   cursor: not-allowed;
 }
 @media (max-width: 760px) {
-  .topbar {
+  .workspace .topbar {
     height: auto;
     min-height: 66px;
     gap: 12px;
     padding: 14px 18px;
     flex-wrap: wrap;
   }
-  .header-actions {
+  .workspace .header-actions {
     gap: 8px;
     flex-wrap: wrap;
   }
@@ -407,5 +407,73 @@ summary {
   }
   .toolbar select {
     width: 100%;
+  }
+}
+.diff-row {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+.diff-row h4 {
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.diff-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+}
+.diff-columns > div {
+  padding: 14px;
+  background: var(--bg);
+  border-radius: 6px;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.diff-columns small {
+  display: block;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.diff-scalar {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.diff-rules {
+  margin: 0;
+  padding-left: 16px;
+  line-height: 1.8;
+  font-size: 12px;
+}
+.diff-rules li {
+  padding-bottom: 8px;
+}
+.diff-rules p {
+  margin: 4px 0;
+  color: var(--muted);
+}
+.restore-confirm {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px;
+  margin-top: 18px;
+  background: var(--bg);
+}
+.restore-confirm p {
+  line-height: 1.8;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+@media (max-width: 760px) {
+  .diff-columns {
+    grid-template-columns: 1fr;
+  }
+  .tabs {
+    gap: 4px;
+    overflow-x: auto;
+  }
+  .tabs button {
+    padding: 10px 12px;
+    white-space: nowrap;
   }
 }

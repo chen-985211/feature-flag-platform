@@ -4,6 +4,8 @@ import { Link, useParams, useSearchParams } from 'react-router-dom';
 import type { Flag, Flags } from '../application/contracts';
 import { FlagForm } from './flag-form';
 import { RuleForm } from './rule-form';
+import { RuleCondition } from './rule-condition';
+import { Versions } from './versions';
 import { feedback } from '../../../shared-kernel/errors';
 import { Button } from '../../../presentation/components/button';
 export function FlagDetail({
@@ -34,6 +36,8 @@ export function FlagDetail({
     await Promise.all([
       cache.invalidateQueries({ queryKey: ['flags'] }),
       cache.invalidateQueries({ queryKey: ['history', id] }),
+      cache.invalidateQueries({ queryKey: ['versions', id] }),
+      cache.invalidateQueries({ queryKey: ['version-preview', id] }),
     ]);
   }
   async function change(operation: () => Promise<Flag>) {
@@ -131,6 +135,7 @@ export function FlagDetail({
         {[
           ['basic', '基本信息'],
           ['rules', '规则'],
+          ['versions', '版本'],
           ['history', '操作历史'],
         ].map(([value, label]) => (
           <button
@@ -207,7 +212,7 @@ export function FlagDetail({
           <section className="panel">
             <div className="card-heading">
               <div>
-                <h2>属性规则</h2>
+                <h2>评估规则</h2>
                 <p className="muted">
                   按优先级从小到大匹配，首条命中决定结果。
                 </p>
@@ -231,11 +236,7 @@ export function FlagDetail({
                     <div className="rule-description">
                       <span className="priority">{rule.priority}</span>
                       <div>
-                        <strong>{rule.attribute}</strong>{' '}
-                        <code>{rule.operator}</code>{' '}
-                        <code className="expected-value">
-                          {rule.expected_json}
-                        </code>
+                        <RuleCondition rule={rule} />
                         <p className="muted">
                           命中返回 <strong>{String(rule.result)}</strong>
                         </p>
@@ -310,6 +311,14 @@ export function FlagDetail({
             />
           )}
         </>
+      )}
+      {tab === 'versions' && (
+        <Versions
+          flag={flag}
+          flags={flags}
+          canWrite={canWrite}
+          onSaved={saved}
+        />
       )}
       {tab === 'history' && history(id)}
     </>

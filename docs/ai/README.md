@@ -6,7 +6,7 @@
 
 - [decisions.md](decisions.md)：范围、方案和工程约定的来源与确认状态。
 - `docs/specs/<任务>/`：Large 的 Spec、Plan 与真实验证记录。
-- `docs/ai/operations/`：按日期/任务保存简明过程记录，当前见 [工程基础记录](operations/2026-10-08-foundation.md) 、[D1 收尾记录](operations/2026-10-08-d1-completion.md) 和 [D2 核心业务记录](operations/2026-10-08-d2-core.md)。
+- `docs/ai/operations/`：按日期/任务保存简明过程记录，当前见 [工程基础记录](operations/2026-10-08-foundation.md)、[D1 收尾记录](operations/2026-10-08-d1-completion.md)、[D2 核心业务记录](operations/2026-10-08-d2-core.md) 和 [D3 灰度与版本记录](operations/2026-10-08-d3-versions.md)。
 
 ## 记录字段
 

@@ -14,6 +14,8 @@ var ErrPriority = errors.New("PRIORITY_CONFLICT")
 var ErrRuleNotFound = errors.New("RULE_NOT_FOUND")
 
 type Rule struct {
+	Kind                string `json:",omitempty"`
+	PercentageBP        *int   `json:",omitempty"`
 	ID                  string
 	Priority            int
 	Attribute, Operator string
@@ -56,7 +58,13 @@ func Restore(s Snapshot) (*Flag, error) {
 			return nil, err
 		}
 	}
-	raw, err := json.Marshal(f.state)
+	sizing := f.Snapshot()
+	for i := range sizing.Rules {
+		if sizing.Rules[i].Kind == "attribute" {
+			sizing.Rules[i].Kind = ""
+		}
+	}
+	raw, err := json.Marshal(sizing)
 	if err != nil || len(raw) > 24<<10 {
 		return nil, ErrInvalid
 	}
@@ -66,7 +74,7 @@ func (f *Flag) Snapshot() Snapshot {
 	s := f.state
 	s.Rules = slices.Clone(s.Rules)
 	for i := range s.Rules {
-		s.Rules[i].Expected = slices.Clone(s.Rules[i].Expected)
+		s.Rules[i] = cloneRule(s.Rules[i])
 	}
 	slices.SortFunc(s.Rules, func(a, b Rule) int { return a.Priority - b.Priority })
 	return s
@@ -90,6 +98,9 @@ func (f *Flag) Advance(now time.Time) error {
 	return nil
 }
 func (f *Flag) AddRule(r Rule) error {
+	if r.Kind == "" {
+		r.Kind = "attribute"
+	}
 	if len(f.state.Rules) >= 100 {
 		return ErrInvalid
 	}
@@ -104,11 +115,14 @@ func (f *Flag) AddRule(r Rule) error {
 			return ErrInvalid
 		}
 	}
-	r.Expected = slices.Clone(r.Expected)
+	r = cloneRule(r)
 	f.state.Rules = append(f.state.Rules, r)
 	return nil
 }
 func (f *Flag) UpdateRule(r Rule) error {
+	if r.Kind == "" {
+		r.Kind = "attribute"
+	}
 	if err := validRule(r); err != nil {
 		return err
 	}
@@ -123,7 +137,7 @@ func (f *Flag) UpdateRule(r Rule) error {
 	if index < 0 {
 		return ErrRuleNotFound
 	}
-	r.Expected = slices.Clone(r.Expected)
+	r = cloneRule(r)
 	f.state.Rules[index] = r
 	return nil
 }
@@ -137,9 +151,29 @@ func (f *Flag) DeleteRule(id string) error {
 	return ErrRuleNotFound
 }
 func validRule(r Rule) error {
-	if r.ID == "" || r.Priority < 1 || r.Priority > 2147483647 || utf8.RuneCountInString(r.Attribute) < 1 || utf8.RuneCountInString(r.Attribute) > 128 || strings.TrimSpace(r.Attribute) == "" || strings.ContainsRune(r.Attribute, 0) {
+	if r.ID == "" || r.Priority < 1 || r.Priority > 2147483647 {
+		return ErrInvalid
+	}
+	if r.Kind == "percentage" {
+		if r.PercentageBP == nil || *r.PercentageBP < 0 || *r.PercentageBP > 10000 || r.Attribute != "" || r.Operator != "" || len(r.Expected) != 0 {
+			return ErrInvalid
+		}
+		return nil
+	}
+	if r.Kind != "attribute" || r.PercentageBP != nil || utf8.RuneCountInString(r.Attribute) < 1 || utf8.RuneCountInString(r.Attribute) > 128 || strings.TrimSpace(r.Attribute) == "" || strings.ContainsRune(r.Attribute, 0) {
 		return ErrInvalid
 	}
 	_, err := expectedValues(r)
 	return err
+}
+func cloneRule(r Rule) Rule {
+	r.Expected = slices.Clone(r.Expected)
+	if r.Kind == "percentage" {
+		r.Expected = nil
+	}
+	if r.PercentageBP != nil {
+		bp := *r.PercentageBP
+		r.PercentageBP = &bp
+	}
+	return r
 }

@@ -30,7 +30,7 @@ func Error(w http.ResponseWriter, code string) {
 	case "CSRF_REJECTED":
 		status = 403
 		message = "请求校验失败，请刷新页面后重试。"
-	case "FLAG_NOT_FOUND", "RULE_NOT_FOUND":
+	case "FLAG_NOT_FOUND", "RULE_NOT_FOUND", "VERSION_NOT_FOUND":
 		status = 404
 		message = "配置或规则不存在。"
 	case "VERSION_CONFLICT":

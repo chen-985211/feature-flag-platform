@@ -9,6 +9,10 @@ import { ApiError } from '../../src/shared-kernel/errors';
 const flags: Flags = {
   list: vi.fn().mockResolvedValue({ items: [], total: 0 }),
   get: vi.fn(),
+  versions: vi.fn(),
+  version: vi.fn(),
+  preview: vi.fn(),
+  rollback: vi.fn(),
   create: vi.fn(),
   edit: vi.fn(),
   enabled: vi.fn(),

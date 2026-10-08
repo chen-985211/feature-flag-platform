@@ -100,7 +100,7 @@ func (s scope) Save(ctx context.Context, f domain.Snapshot, actor app.Actor) err
 	if err != nil {
 		return err
 	}
-	_, err = s.tx.Exec(ctx, `INSERT INTO flags(id,name,key,environment,enabled,default_value,seed,revision,created_at,updated_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) ON CONFLICT(id) DO UPDATE SET name=EXCLUDED.name,key=EXCLUDED.key,enabled=EXCLUDED.enabled,default_value=EXCLUDED.default_value,revision=EXCLUDED.revision,updated_at=EXCLUDED.updated_at`, f.ID, f.Name, f.Key, f.Environment, f.Enabled, f.DefaultValue, f.Seed, f.Revision, f.CreatedAt, f.UpdatedAt)
+	_, err = s.tx.Exec(ctx, `INSERT INTO flags(id,name,key,environment,enabled,default_value,seed,revision,created_at,updated_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) ON CONFLICT(id) DO UPDATE SET name=EXCLUDED.name,key=EXCLUDED.key,enabled=EXCLUDED.enabled,default_value=EXCLUDED.default_value,seed=EXCLUDED.seed,revision=EXCLUDED.revision,updated_at=EXCLUDED.updated_at`, f.ID, f.Name, f.Key, f.Environment, f.Enabled, f.DefaultValue, f.Seed, f.Revision, f.CreatedAt, f.UpdatedAt)
 	if err != nil {
 		return err
 	}
@@ -108,7 +108,13 @@ func (s scope) Save(ctx context.Context, f domain.Snapshot, actor app.Actor) err
 		return err
 	}
 	for _, r := range f.Rules {
-		if _, err = s.tx.Exec(ctx, `INSERT INTO rules(id,flag_id,priority,kind,attribute,operator,expected,result) VALUES($1,$2,$3,'attribute',$4,$5,$6,$7)`, r.ID, f.ID, r.Priority, r.Attribute, r.Operator, []byte(r.Expected), r.Result); err != nil {
+		var attribute, operator, expected any
+		if r.Kind == "attribute" {
+			attribute = r.Attribute
+			operator = r.Operator
+			expected = []byte(r.Expected)
+		}
+		if _, err = s.tx.Exec(ctx, `INSERT INTO rules(id,flag_id,priority,kind,attribute,operator,expected,percentage_bp,result) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`, r.ID, f.ID, r.Priority, r.Kind, attribute, operator, expected, r.PercentageBP, r.Result); err != nil {
 			return err
 		}
 	}

@@ -7,6 +7,7 @@ import (
 )
 
 type RuleDTO struct {
+	PercentageBP *int            `json:"percentage_bp,omitempty"`
 	ExpectedJSON string          `json:"expected_json"`
 	ID           string          `json:"id"`
 	Priority     int             `json:"priority"`
@@ -33,7 +34,7 @@ type SnapshotDTO struct {
 func snapshotDTO(s domain.Snapshot) SnapshotDTO {
 	out := SnapshotDTO{ID: s.ID, Name: s.Name, Key: s.Key, Environment: s.Environment, Enabled: s.Enabled, DefaultValue: s.DefaultValue, Seed: s.Seed, Revision: s.Revision, Rules: []RuleDTO{}, CreatedAt: s.CreatedAt, UpdatedAt: s.UpdatedAt}
 	for _, r := range s.Rules {
-		out.Rules = append(out.Rules, RuleDTO{ID: r.ID, Priority: r.Priority, Kind: "attribute", Attribute: r.Attribute, Operator: r.Operator, Expected: r.Expected, ExpectedJSON: string(r.Expected), Result: r.Result})
+		out.Rules = append(out.Rules, RuleDTO{ID: r.ID, Priority: r.Priority, Kind: r.Kind, PercentageBP: r.PercentageBP, Attribute: r.Attribute, Operator: r.Operator, Expected: r.Expected, ExpectedJSON: string(r.Expected), Result: r.Result})
 	}
 	return out
 }

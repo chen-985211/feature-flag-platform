@@ -12,20 +12,23 @@ var ErrNotFound = errors.New("FLAG_NOT_FOUND")
 var ErrConflict = errors.New("VERSION_CONFLICT")
 var ErrKeyConflict = errors.New("FLAG_KEY_CONFLICT")
 var ErrForbidden = errors.New("FORBIDDEN")
+var ErrVersionNotFound = errors.New("VERSION_NOT_FOUND")
 
 type Actor struct{ ID, Name, Role string }
 type Change struct {
-	Action    string
-	Before    *domain.Snapshot
-	After     domain.Snapshot
-	Actor     Actor
-	RequestID string
+	RestoredRevision int64
+	Action           string
+	Before           *domain.Snapshot
+	After            domain.Snapshot
+	Actor            Actor
+	RequestID        string
 }
 type AuditPort interface {
 	Append(context.Context, Change) error
 }
 type Scope interface {
 	Load(context.Context, string) (domain.Snapshot, error)
+	Version(context.Context, string, int64) (domain.Snapshot, error)
 	Save(context.Context, domain.Snapshot, Actor) error
 	Audit() AuditPort
 }
@@ -43,10 +46,13 @@ type Store interface {
 	Get(context.Context, string) (domain.Snapshot, error)
 	ByKey(context.Context, string, string) (domain.Snapshot, error)
 	List(context.Context, Filter) (Page, error)
+	Versions(context.Context, string, int, int) (VersionsPage, error)
+	Version(context.Context, string, int64) (Version, error)
 }
 type Command struct {
 	Action, ID, RuleID, Name, Key, Environment string
 	Enabled, DefaultValue                      bool
+	SourceRevision                             int64
 	ExpectedRevision                           int64
 	Rule                                       domain.Rule
 }
@@ -103,6 +109,15 @@ func (s Service) Execute(ctx context.Context, actor Actor, requestID string, cmd
 			r := cmd.Rule
 			r.ID = cmd.RuleID
 			err = f.UpdateRule(r)
+		case "flag_rolled_back":
+			if cmd.SourceRevision < 1 || cmd.SourceRevision > 9007199254740991 {
+				return domain.ErrInvalid
+			}
+			source, sourceErr := tx.Version(ctx, cmd.ID, cmd.SourceRevision)
+			if sourceErr != nil {
+				return sourceErr
+			}
+			err = f.ApplyVersion(source)
 		case "rule_deleted":
 			err = f.DeleteRule(cmd.RuleID)
 		default:
@@ -123,7 +138,7 @@ func (s Service) Execute(ctx context.Context, actor Actor, requestID string, cmd
 		if err = tx.Save(ctx, result, actor); err != nil {
 			return err
 		}
-		return tx.Audit().Append(ctx, Change{Action: cmd.Action, Before: before, After: result, Actor: actor, RequestID: requestID})
+		return tx.Audit().Append(ctx, Change{RestoredRevision: cmd.SourceRevision, Action: cmd.Action, Before: before, After: result, Actor: actor, RequestID: requestID})
 	})
 	if err != nil {
 		return domain.Snapshot{}, err

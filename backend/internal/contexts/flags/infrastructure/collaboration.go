@@ -24,9 +24,10 @@ func (a AuditAdapter) Append(ctx context.Context, c app.Change) error {
 		before = stored(*c.Before)
 	}
 	changes, err := json.Marshal(struct {
-		Before any `json:"before"`
-		After  any `json:"after"`
-	}{before, stored(c.After)})
+		RestoredRevision int64 `json:"restored_revision,omitempty"`
+		Before           any   `json:"before"`
+		After            any   `json:"after"`
+	}{c.RestoredRevision, before, stored(c.After)})
 	if err != nil {
 		return err
 	}

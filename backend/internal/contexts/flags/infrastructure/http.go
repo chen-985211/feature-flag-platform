@@ -17,6 +17,7 @@ type HTTP struct {
 }
 
 func (h HTTP) Register(mux *http.ServeMux) {
+	h.registerVersions(mux)
 	mux.HandleFunc("GET /api/flags", h.list)
 	mux.HandleFunc("GET /api/flags/{id}", func(w http.ResponseWriter, r *http.Request) {
 		if !transport.UUID(r.PathValue("id")) {
@@ -134,6 +135,8 @@ func (h HTTP) enabled(w http.ResponseWriter, r *http.Request) {
 }
 func (h HTTP) rule(w http.ResponseWriter, r *http.Request) {
 	var in struct {
+		Kind             string          `json:"kind"`
+		PercentageBP     *int            `json:"percentage_bp"`
 		Attribute        string          `json:"attribute"`
 		Operator         string          `json:"operator"`
 		Expected         json.RawMessage `json:"expected"`
@@ -152,7 +155,7 @@ func (h HTTP) rule(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "PUT" {
 		action = "rule_edited"
 	}
-	h.execute(w, r, app.Command{Action: action, ID: r.PathValue("id"), RuleID: r.PathValue("ruleId"), ExpectedRevision: in.ExpectedRevision, Rule: domain.Rule{Attribute: in.Attribute, Operator: in.Operator, Expected: in.Expected, Priority: in.Priority, Result: *in.Result}})
+	h.execute(w, r, app.Command{Action: action, ID: r.PathValue("id"), RuleID: r.PathValue("ruleId"), ExpectedRevision: in.ExpectedRevision, Rule: domain.Rule{Kind: in.Kind, PercentageBP: in.PercentageBP, Attribute: in.Attribute, Operator: in.Operator, Expected: in.Expected, Priority: in.Priority, Result: *in.Result}})
 }
 func (h HTTP) deleteRule(w http.ResponseWriter, r *http.Request) {
 	var in struct {

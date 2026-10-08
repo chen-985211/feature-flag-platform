@@ -14,7 +14,7 @@ type fakeStore struct {
 	failAudit       bool
 }
 
-func (f *fakeStore) Within(ctx context.Context, fn func(Scope) error) error { return fn(f) }
+func (f *fakeStore) Within(ctx context.Context, fn func(Scope) error) error { return fn(fakeScope{f}) }
 func (f *fakeStore) Load(context.Context, string) (domain.Snapshot, error)  { return f.state, nil }
 func (f *fakeStore) Save(_ context.Context, s domain.Snapshot, _ Actor) error {
 	f.saved++
@@ -62,4 +62,26 @@ func TestCommandGuardsAndSubmission(t *testing.T) {
 			}
 		})
 	}
+}
+
+func (f fakeScope) Version(context.Context, string, int64) (domain.Snapshot, error) {
+	s := f.state
+	s.Name = "Historical"
+	s.Key = "historical"
+	s.Revision = 1
+	s.Enabled = true
+	s.DefaultValue = true
+	s.Seed = "old-seed"
+	s.Rules = []domain.Rule{}
+	return s, nil
+}
+func (f *fakeStore) Versions(context.Context, string, int, int) (VersionsPage, error) {
+	return VersionsPage{}, nil
+}
+
+type fakeScope struct{ *fakeStore }
+
+func (f *fakeStore) Version(ctx context.Context, id string, rev int64) (Version, error) {
+	snapshot, err := (fakeScope{f}).Version(ctx, id, rev)
+	return Version{VersionSummary: VersionSummary{Revision: rev}, Snapshot: snapshot}, err
 }

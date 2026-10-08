@@ -10,6 +10,7 @@ const names: Record<string, string> = {
   rule_created: '添加规则',
   rule_edited: '编辑规则',
   rule_deleted: '删除规则',
+  flag_rolled_back: '恢复历史版本',
 };
 export function History({ audit, id }: { audit: Audit; id: string }) {
   const [offset, setOffset] = useState(0);

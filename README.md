@@ -4,9 +4,9 @@ React + Go + PostgreSQL，前后端 DDD + Clean，大任务 SDD、行为变更 T
 
 ## 当前状态
 
-D1 工程基础已完成。D2 已接入登录/三角色、Flag 列表与管理、equals/in 属性规则、精确数字评估、完整快照、revision 冲突保护、原子审计与第一条 Playwright 冒烟。百分比灰度、版本浏览/回滚、排序、复制/发布及完整演示配置在 D3～D5 交付，Docker 在 D6 验收。本次不要求线上地址。
+D1～D3 已完成：工程基础、登录/三角色、Flag 管理、equals/in 属性规则、百分比灰度、精确数字评估、版本浏览/差异/回滚、revision 冲突保护与原子审计。两条 Playwright 已覆盖核心配置和历史回滚链路。排序与复制/发布在 D4、完整演示配置在 D5、Docker 在 D6 验收。本次不要求线上地址。
 
-需求与规范见 [docs](docs/README.md)，完成证据见 [D1](docs/specs/001-engineering-foundation/verification.md) 与 [D2 验证记录](docs/specs/002-core-configuration/verification.md)。
+需求与规范见 [docs](docs/README.md)，完成证据见 [D1](docs/specs/001-engineering-foundation/verification.md)、[D2](docs/specs/002-core-configuration/verification.md) 和 [D3 验证记录](docs/specs/003-percentage-and-versions/verification.md)。
 
 ## 本地启动
 
@@ -61,6 +61,12 @@ APP_ORIGIN=http://127.0.0.1:8080 pnpm start
 
 构建产生 .build/didi-server、.build/didi-migrate 与 .build/didi-seed。服务内嵌 React 资源，页面与 API 同源，APP_ORIGIN 必须与实际浏览器地址完全一致（含端口）；开发默认 localhost:5173，内嵌运行以上述命令覆盖。直接打开 http://127.0.0.1:8080；构建资源被 Git 忽略。独立 Go 开发入口 `pnpm dev:backend` 在未构建前端时仅提供 API，根页面明确提示先构建。
 
-`pnpm migrate` 应用待执行 up；`pnpm migrate:down` 明确回退一个迁移，移除该迁移创建的表及其数据，只用于可丢弃开发环境。服务启动不自动迁移或 seed。迁移与后续业务配置版本回滚是不同能力。
+`pnpm migrate` 应用待执行 up；`pnpm migrate:down` 明确回退一个迁移，移除该迁移创建的表及其数据，只用于可丢弃开发环境。服务启动不自动迁移或 seed。迁移与业务配置版本回滚是不同能力。
 
 .env.example 维护数据库、监听地址、APP_ORIGIN、SESSION_TTL、READINESS_TIMEOUT、SHUTDOWN_TIMEOUT 与隔离测试库。SEED_*_PASSWORD 只在显式账号初始化时必填（8～72 字节），无通用默认密码。完整演示 Flag 在 D5 交付。范围与状态分别归 [项目范围](docs/product/scope.md) 和 [交付计划](docs/delivery/roadmap.md)；过程见 [AI 记录](docs/ai/README.md)。
+
+## 灰度与历史版本
+
+在详情的规则页选择「百分比灰度」，输入 0～100 的比例，最多两位小数。评估属性使用非空字符串 user_id，例如 `{"user_id":"alice"}`；缺少或无效标识会显示轨迹原因。规则按共同优先级执行，首条命中可返回 true 或 false；普通编辑和比例调整保持 seed，扩量保留原命中用户。算法和边界见 [评估语义](docs/contexts/flags/evaluation.md)。
+
+在版本页选择历史 revision，可查看操作者、完整配置和与当前配置的差异。确认回滚后，以所选内容生成一个新 revision，旧版本保留；配置、完整快照和审计同一事务提交。旧预览遇到并发修改会返回冲突，保留所选版本，刷新差异后重新确认。viewer 只读，production 回滚限 admin。API 与快照兼容说明见 [D3 Plan](docs/specs/003-percentage-and-versions/plan.md)。

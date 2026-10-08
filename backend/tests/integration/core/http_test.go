@@ -112,6 +112,7 @@ func TestHTTPIdentityAndPermissionBoundary(t *testing.T) {
 			{"PATCH", "/api/flags/" + flag.ID + "/enabled", `{"enabled":false,"expected_revision":1}`},
 			{"POST", "/api/flags/" + flag.ID + "/rules", `{"attribute":"country","operator":"equals","expected":"cn","priority":1,"result":true,"expected_revision":1}`},
 			{"PUT", "/api/flags/" + flag.ID + "/rules/00000000-0000-4000-8000-000000000099", `{"attribute":"country","operator":"equals","expected":"cn","priority":1,"result":true,"expected_revision":1}`},
+			{"POST", "/api/flags/" + flag.ID + "/rollback", `{"source_revision":1,"expected_revision":1}`},
 			{"DELETE", "/api/flags/" + flag.ID + "/rules/00000000-0000-4000-8000-000000000099", `{"expected_revision":1}`},
 		} {
 			r := request(mutation.method, mutation.path, mutation.body, cookie, token, "http://localhost:5173")

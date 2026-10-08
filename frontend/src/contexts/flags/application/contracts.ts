@@ -1,13 +1,20 @@
 export type Environment = 'development' | 'staging' | 'production';
-export interface Rule {
+interface RuleBase {
   id: string;
   priority: number;
+  result: boolean;
+}
+interface AttributeRule extends RuleBase {
   kind: 'attribute';
   attribute: string;
   operator: 'equals' | 'in';
   expected_json: string;
-  result: boolean;
 }
+interface PercentageRule extends RuleBase {
+  kind: 'percentage';
+  percentage_bp: number;
+}
+export type Rule = AttributeRule | PercentageRule;
 export interface Flag {
   id: string;
   name: string;
@@ -38,23 +45,67 @@ export interface EditFlag {
   default_value: boolean;
   expected_revision: number;
 }
-export interface RuleInput {
-  attribute: string;
-  operator: 'equals' | 'in';
-  expectedJSON: string;
+interface RuleInputBase {
   priority: number;
   result: boolean;
   expected_revision: number;
 }
+export type RuleInput =
+  | (RuleInputBase & {
+      kind?: 'attribute';
+      attribute: string;
+      operator: 'equals' | 'in';
+      expectedJSON: string;
+    })
+  | (RuleInputBase & { kind: 'percentage'; percentage_bp: number });
+export interface VersionSummary {
+  revision: number;
+  schema_version: number;
+  actor_id: string;
+  actor_name: string;
+  created_at: string;
+}
+export interface Version extends VersionSummary {
+  snapshot: Flag;
+}
+export interface VersionsPage {
+  items: VersionSummary[];
+  total: number;
+}
+export interface VersionPreview {
+  current_revision: number;
+  source_revision: number;
+  source: Flag;
+  changes: { field: string; before_json: string; after_json: string }[];
+}
 export interface Evaluation {
   value: boolean;
   revision: number;
-  source: 'disabled' | 'attribute_rule' | 'default';
+  source: 'disabled' | 'attribute_rule' | 'percentage_rule' | 'default';
   matched_rule_id: string | null;
   used_default: boolean;
-  trace: { rule_id: string; status: 'hit' | 'miss' | 'missing' | 'skipped' }[];
+  trace: {
+    rule_id: string;
+    status: 'hit' | 'miss' | 'missing' | 'invalid_identifier' | 'skipped';
+  }[];
 }
 export interface Flags {
+  versions(
+    id: string,
+    offset: number,
+    signal?: AbortSignal,
+  ): Promise<VersionsPage>;
+  version(id: string, revision: number, signal?: AbortSignal): Promise<Version>;
+  preview(
+    id: string,
+    revision: number,
+    signal?: AbortSignal,
+  ): Promise<VersionPreview>;
+  rollback(
+    id: string,
+    sourceRevision: number,
+    expectedRevision: number,
+  ): Promise<Flag>;
   list(
     environment: Environment,
     q: string,

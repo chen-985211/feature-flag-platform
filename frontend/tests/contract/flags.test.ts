@@ -31,6 +31,9 @@ describe('Flags HTTP consumer', () => {
       .fn<typeof fetch>()
       .mockResolvedValue(Response.json(flag));
     const got = await new HttpFlags(new HttpClient(request)).get('id');
+    expect(got.rules[0].kind).toBe('attribute');
+    if (got.rules[0].kind !== 'attribute')
+      throw new Error('expected attribute rule');
     expect(got.rules[0].expected_json).toBe('9007199254740993');
   });
   it('sends raw rule JSON without Number rounding', async () => {

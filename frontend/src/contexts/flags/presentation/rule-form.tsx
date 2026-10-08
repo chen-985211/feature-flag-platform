@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Rule, RuleInput } from '../application/contracts';
 import { validExpected } from '../domain/editing';
+import { parsePercentage, formatPercentage } from '../domain/percentage';
 import { ApiError, feedback } from '../../../shared-kernel/errors';
 import { Button } from '../../../presentation/components/button';
 export function RuleForm({
@@ -18,32 +19,56 @@ export function RuleForm({
   cancel: () => void;
   reload: () => void;
 }) {
-  const [attribute, setAttribute] = useState(initial?.attribute ?? '');
-  const [operator, setOperator] = useState<'equals' | 'in'>(
-    initial?.operator ?? 'equals',
+  const initialAttribute = initial?.kind === 'attribute' ? initial : undefined;
+  const [kind, setKind] = useState<'attribute' | 'percentage'>(
+    initial?.kind ?? 'attribute',
   );
-  const [expected, setExpected] = useState(initial?.expected_json ?? '"cn"');
+  const [percentage, setPercentage] = useState(
+    initial?.kind === 'percentage'
+      ? formatPercentage(initial.percentage_bp)
+      : '20',
+  );
+  const [attribute, setAttribute] = useState(initialAttribute?.attribute ?? '');
+  const [operator, setOperator] = useState<'equals' | 'in'>(
+    initialAttribute?.operator ?? 'equals',
+  );
+  const [expected, setExpected] = useState(
+    initialAttribute?.expected_json ?? '"cn"',
+  );
   const [priority, setPriority] = useState(initial?.priority ?? nextPriority);
   const [result, setResult] = useState(initial?.result ?? true);
   const [baseRevision] = useState(revision);
   const [error, setError] = useState<unknown>();
   const [busy, setBusy] = useState(false);
   async function submit() {
-    if (!validExpected(expected, operator)) {
+    if (
+      (kind === 'attribute' && !validExpected(expected, operator)) ||
+      (kind === 'percentage' && parsePercentage(percentage) === null)
+    ) {
       setError(new ApiError('INVALID_INPUT'));
       return;
     }
     setBusy(true);
     setError(undefined);
     try {
-      await save({
-        attribute,
-        operator,
-        expectedJSON: expected,
-        priority,
-        result,
-        expected_revision: baseRevision,
-      });
+      await save(
+        kind === 'percentage'
+          ? {
+              kind,
+              percentage_bp: parsePercentage(percentage) ?? 0,
+              priority,
+              result,
+              expected_revision: baseRevision,
+            }
+          : {
+              attribute,
+              operator,
+              expectedJSON: expected,
+              priority,
+              result,
+              expected_revision: baseRevision,
+            },
+      );
     } catch (e) {
       setError(e);
     } finally {
@@ -59,43 +84,75 @@ export function RuleForm({
         void submit();
       }}
     >
-      <h2>{initial ? '编辑规则' : '添加属性规则'}</h2>
-      <label>
-        属性名称
-        <input
-          required
-          maxLength={128}
-          value={attribute}
-          onChange={(e) => setAttribute(e.target.value)}
-          disabled={busy}
-          autoFocus
-        />
-      </label>
-      <label>
-        操作符
-        <select
-          value={operator}
-          onChange={(e) =>
-            setOperator(e.target.value === 'in' ? 'in' : 'equals')
-          }
-          disabled={busy}
-        >
-          <option value="equals">equals · 等于</option>
-          <option value="in">in · 属于</option>
-        </select>
-      </label>
-      <label htmlFor="rule-expected">期望值 JSON</label>
-      <textarea
-        id="rule-expected"
-        required
-        value={expected}
-        onChange={(e) => setExpected(e.target.value)}
+      <h2>{initial ? '编辑规则' : '添加规则'}</h2>
+      <label htmlFor="rule-kind">规则类型</label>
+      <select
+        id="rule-kind"
+        value={kind}
         disabled={busy}
-        spellCheck={false}
-      />
-      <p className="muted">
-        equals 使用字符串、数字或布尔值；in 使用非空、同类型数组。
-      </p>
+        onChange={(e) =>
+          setKind(e.target.value === 'percentage' ? 'percentage' : 'attribute')
+        }
+      >
+        <option value="attribute">属性规则 · equals / in</option>
+        <option value="percentage">百分比灰度</option>
+      </select>
+      {kind === 'percentage' ? (
+        <>
+          <label>
+            用户比例 (%)
+            <input
+              inputMode="decimal"
+              required
+              value={percentage}
+              disabled={busy}
+              onChange={(e) => setPercentage(e.target.value)}
+            />
+          </label>
+          <p className="muted">
+            0～100，最多两位小数。使用非空字符串 user_id
+            稳定分组；调整比例保持原有分桶。
+          </p>
+        </>
+      ) : (
+        <>
+          <label>
+            属性名称
+            <input
+              required
+              maxLength={128}
+              value={attribute}
+              onChange={(e) => setAttribute(e.target.value)}
+              disabled={busy}
+              autoFocus
+            />
+          </label>
+          <label htmlFor="rule-operator">操作符</label>
+          <select
+            id="rule-operator"
+            value={operator}
+            onChange={(e) =>
+              setOperator(e.target.value === 'in' ? 'in' : 'equals')
+            }
+            disabled={busy}
+          >
+            <option value="equals">equals · 等于</option>
+            <option value="in">in · 属于</option>
+          </select>
+          <label htmlFor="rule-expected">期望值 JSON</label>
+          <textarea
+            id="rule-expected"
+            required
+            value={expected}
+            onChange={(e) => setExpected(e.target.value)}
+            disabled={busy}
+            spellCheck={false}
+          />
+          <p className="muted">
+            equals 使用字符串、数字或布尔值；in 使用非空、同类型数组。
+          </p>
+        </>
+      )}
       <label>
         优先级
         <input

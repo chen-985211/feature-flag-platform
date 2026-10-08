@@ -94,11 +94,17 @@ func Evaluate(s Snapshot, raw json.RawMessage) (Evaluation, error) {
 	}
 	for _, r := range s.Rules {
 		status := "miss"
-		if out.MatchedRuleID != nil {
+		switch {
+		case out.MatchedRuleID != nil:
 			status = "skipped"
-		} else if actual, ok := attrs[r.Attribute]; !ok {
-			status = "missing"
-		} else {
+		case r.Kind == "percentage":
+			status = percentageMatch(s.Seed, r, attrs)
+		default:
+			actual, ok := attrs[r.Attribute]
+			if !ok {
+				status = "missing"
+				break
+			}
 			k, v, actualErr := scalar(actual)
 			candidates, expectedErr := expectedValues(r)
 			if expectedErr != nil {
@@ -112,15 +118,20 @@ func Evaluate(s Snapshot, raw json.RawMessage) (Evaluation, error) {
 					}
 					if k == ck && v == cv {
 						status = "hit"
-						out.Value = r.Result
-						out.Source = "attribute_rule"
-						out.UsedDefault = false
-						id := r.ID
-						out.MatchedRuleID = &id
 						break
 					}
 				}
 			}
+		}
+		if status == "hit" {
+			out.Value = r.Result
+			out.Source = "attribute_rule"
+			if r.Kind == "percentage" {
+				out.Source = "percentage_rule"
+			}
+			out.UsedDefault = false
+			id := r.ID
+			out.MatchedRuleID = &id
 		}
 		out.Trace = append(out.Trace, Trace{RuleID: r.ID, Status: status})
 	}

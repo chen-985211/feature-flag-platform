@@ -59,6 +59,10 @@ it('rejects non-object evaluation input and renders authoritative false hits', a
     evaluate,
     list: vi.fn(),
     get: vi.fn(),
+    versions: vi.fn(),
+    version: vi.fn(),
+    preview: vi.fn(),
+    rollback: vi.fn(),
     create: vi.fn(),
     edit: vi.fn(),
     enabled: vi.fn(),
@@ -90,4 +94,32 @@ it('rejects non-object evaluation input and renders authoritative false hits', a
     'checkout',
     '{"tier":9007199254740993}',
   );
+});
+
+it('edits percentage as decimal text and submits exact integer basis points', async () => {
+  const save = vi.fn().mockResolvedValue(undefined);
+  render(
+    <RuleForm
+      revision={3}
+      nextPriority={1}
+      save={save}
+      cancel={() => {}}
+      reload={() => {}}
+    />,
+  );
+  await userEvent.selectOptions(
+    screen.getByLabelText('规则类型'),
+    'percentage',
+  );
+  await userEvent.clear(screen.getByLabelText('用户比例 (%)'));
+  await userEvent.type(screen.getByLabelText('用户比例 (%)'), '99.99');
+  await userEvent.click(screen.getByRole('button', { name: '保存规则' }));
+  expect(save).toHaveBeenCalledWith({
+    kind: 'percentage',
+    percentage_bp: 9999,
+    priority: 1,
+    result: true,
+    expected_revision: 3,
+  });
+  expect(screen.queryByLabelText('期望值 JSON')).not.toBeInTheDocument();
 });

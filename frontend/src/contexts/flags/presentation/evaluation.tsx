@@ -6,12 +6,14 @@ import { Button } from '../../../presentation/components/button';
 const sourceNames = {
   disabled: '配置已停用',
   attribute_rule: '属性规则命中',
+  percentage_rule: '百分比规则命中',
   default: '默认值',
 };
 const statusNames = {
   hit: '命中',
   miss: '未命中',
-  missing: '缺少属性',
+  missing: '缺少属性或 user_id',
+  invalid_identifier: 'user_id 必须为非空字符串',
   skipped: '未计算',
 };
 export function EvaluationConsole({

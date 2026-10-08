@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { it, expect, vi, beforeEach } from 'vitest';
+import { it, expect, vi } from 'vitest';
 import type {
   Flag,
   Flags,
@@ -82,20 +82,6 @@ function gateways(): Flags {
     version: vi.fn().mockResolvedValue({ revision: 4, snapshot: source }),
   };
 }
-beforeEach(() => {
-  Object.defineProperty(HTMLDialogElement.prototype, 'showModal', {
-    configurable: true,
-    value: function (this: HTMLDialogElement) {
-      this.setAttribute('open', '');
-    },
-  });
-  Object.defineProperty(HTMLDialogElement.prototype, 'close', {
-    configurable: true,
-    value: function (this: HTMLDialogElement) {
-      this.removeAttribute('open');
-    },
-  });
-});
 function mountDialog(flags: Flags, write = ['staging']) {
   const close = vi.fn();
   render(
@@ -185,9 +171,6 @@ it('allows previewing but prevents read-only writes and handles Escape', async (
   const close = mountDialog(gateways(), []);
   await screen.findByRole('heading', { name: '源版本完整配置' });
   expect(screen.getByRole('button', { name: '确认复制' })).toBeDisabled();
-  fireEvent(
-    screen.getByRole('dialog'),
-    new Event('cancel', { bubbles: true, cancelable: true }),
-  );
+  await userEvent.keyboard('{Escape}');
   expect(close).toHaveBeenCalledOnce();
 });

@@ -39,7 +39,7 @@ test('percentage rule → edit → version preview → rollback → evaluate res
   await page
     .getByRole('link', { name: 'Percentage rollback', exact: true })
     .click();
-  await page.getByRole('button', { name: '版本', exact: true }).click();
+  await page.getByRole('tab', { name: '版本', exact: true }).click();
   await page.getByLabel('选择版本', { exact: true }).selectOption('2');
   await expect(
     page.getByRole('heading', { name: '选中版本的完整配置' }),

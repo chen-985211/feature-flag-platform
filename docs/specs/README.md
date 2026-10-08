@@ -49,6 +49,8 @@ D6 容器交付实施中，见 [Spec](006-container-delivery/spec.md)、[Plan](0
 
 ## 关联与证据
 
+UI 工作台优化实施中：[Spec](007-shadcn-workbench/spec.md)、[Plan](007-shadcn-workbench/plan.md)、[验证](007-shadcn-workbench/verification.md)。
+
 Spec 使用稳定验收 ID，并关联 [交付编号](../delivery/acceptance.md)。Plan 每步写明目标层、测试层、Red 行为和退出条件。verification 记录实际命令、结果、未运行原因、对应工作区/提交版本以及剩余风险。
 
 使用 [Spec 模板](../templates/spec.md) 和 [Plan 模板](../templates/plan.md)。Small 不强制新建归档文件，必要过程摘要写入 AI 操作记录。

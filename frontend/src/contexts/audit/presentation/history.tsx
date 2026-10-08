@@ -1,3 +1,4 @@
+import { Badge } from '../../../presentation/components/ui/badge';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { Audit } from '../application/contracts';
@@ -38,13 +39,19 @@ export function History({ audit, id }: { audit: Audit; id: string }) {
               <li key={entry.id}>
                 <div className="actions">
                   <strong>{names[entry.action] ?? entry.action}</strong>
-                  <span className="badge neutral">r{entry.revision}</span>
+                  <Badge variant="outline" className="font-mono">
+                    r{entry.revision}
+                  </Badge>
                 </div>
-                <p>
-                  {entry.actor_name} ·{' '}
-                  {new Date(entry.created_at).toLocaleString()} ·{' '}
-                  {entry.environment} / {entry.key}
-                </p>
+                <div className="history-meta">
+                  <span>{entry.actor_name}</span>
+                  <time dateTime={entry.created_at}>
+                    {new Date(entry.created_at).toLocaleString()}
+                  </time>
+                  <code>
+                    {entry.environment} / {entry.key}
+                  </code>
+                </div>
                 <details>
                   <summary>查看变更详情</summary>
                   <pre className="json-output">{entry.changes_json}</pre>

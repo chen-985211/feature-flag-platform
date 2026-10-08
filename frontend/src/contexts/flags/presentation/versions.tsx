@@ -1,3 +1,6 @@
+import { FormDialog } from '../../../presentation/components/form-dialog';
+import { Label } from '../../../presentation/components/ui/label';
+import { NativeSelect } from '../../../presentation/components/ui/native-select';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { Flag, Flags } from '../application/contracts';
@@ -113,24 +116,26 @@ export function Versions({
         )}
         {versions.data && (
           <>
-            <label htmlFor="version-selection">选择版本</label>
-            <select
-              id="version-selection"
-              value={selected ?? ''}
-              disabled={busy}
-              onChange={(e) =>
-                select(e.target.value ? Number(e.target.value) : null)
-              }
-            >
-              <option value="">请选择要查看的版本</option>
-              {versions.data.items.map((v) => (
-                <option key={v.revision} value={v.revision}>
-                  r{v.revision} · {v.actor_name} ·{' '}
-                  {new Date(v.created_at).toLocaleString()}
-                  {v.revision === flag.revision ? ' · 当前' : ''}
-                </option>
-              ))}
-            </select>
+            <div className="field">
+              <Label htmlFor="version-selection">选择版本</Label>
+              <NativeSelect
+                id="version-selection"
+                value={selected ?? ''}
+                disabled={busy}
+                onChange={(e) =>
+                  select(e.target.value ? Number(e.target.value) : null)
+                }
+              >
+                <option value="">请选择要查看的版本</option>
+                {versions.data.items.map((v) => (
+                  <option key={v.revision} value={v.revision}>
+                    r{v.revision} · {v.actor_name} ·{' '}
+                    {new Date(v.created_at).toLocaleString()}
+                    {v.revision === flag.revision ? ' · 当前' : ''}
+                  </option>
+                ))}
+              </NativeSelect>
+            </div>
             <div className="pagination">
               <span>共 {versions.data.total} 个版本</span>
               <Button
@@ -222,57 +227,84 @@ export function Versions({
                     当前账号只可查看此环境的版本。
                   </p>
                 )}
-                {confirming ? (
-                  <section
-                    className="restore-confirm"
-                    aria-label="确认版本恢复"
-                  >
-                    <h3>确认恢复历史配置</h3>
-                    <p>
-                      目标 {flag.environment} / {flag.key}，用 r{selected}{' '}
-                      的完整内容形成新版本。当前预览基于 r
-                      {preview.data.current_revision}。
+                <FormDialog
+                  open={confirming}
+                  onOpenChange={setConfirming}
+                  busy={busy}
+                  title="确认恢复历史配置"
+                  description={
+                    '将 ' +
+                    flag.environment +
+                    ' / ' +
+                    flag.key +
+                    ' 恢复为 r' +
+                    String(selected) +
+                    ' 的完整内容，当前预览基于 r' +
+                    String(preview.data.current_revision) +
+                    '。'
+                  }
+                  trigger={
+                    <Button
+                      variant="primary"
+                      disabled={
+                        !canRestore ||
+                        !canWrite ||
+                        busy ||
+                        stale ||
+                        preview.isFetching
+                      }
+                    >
+                      回滚到 r{selected}
+                    </Button>
+                  }
+                >
+                  {error !== undefined && (
+                    <p role="alert" className="error-message">
+                      {feedback(error)}
                     </p>
-                    <div className="actions">
+                  )}
+                  {stale && (
+                    <>
+                      <p className="permission-note">
+                        所选版本已保留；刷新差异后重新确认。
+                      </p>
                       <Button
-                        variant="primary"
-                        disabled={
-                          busy ||
-                          stale ||
-                          preview.isFetching ||
-                          !canRestore ||
-                          !canWrite
-                        }
                         onClick={() => {
-                          void restore();
+                          void refresh();
                         }}
                       >
-                        {busy ? '回滚中…' : '确认回滚'}
+                        刷新差异
                       </Button>
-                      <Button
-                        variant="ghost"
-                        disabled={busy}
-                        onClick={() => setConfirming(false)}
-                      >
-                        取消回滚
-                      </Button>
-                    </div>
-                  </section>
-                ) : (
-                  <Button
-                    variant="primary"
-                    disabled={
-                      !canRestore ||
-                      !canWrite ||
-                      busy ||
-                      stale ||
-                      preview.isFetching
-                    }
-                    onClick={() => setConfirming(true)}
-                  >
-                    回滚到 r{selected}
-                  </Button>
-                )}
+                    </>
+                  )}
+                  <p className="muted text-xs">
+                    回滚将生成新版本，原有版本和操作历史会保留。
+                  </p>
+                  <div className="actions">
+                    <Button
+                      variant="primary"
+                      disabled={
+                        busy ||
+                        stale ||
+                        preview.isFetching ||
+                        !canRestore ||
+                        !canWrite
+                      }
+                      onClick={() => {
+                        void restore();
+                      }}
+                    >
+                      {busy ? '回滚中…' : '确认回滚'}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      disabled={busy}
+                      onClick={() => setConfirming(false)}
+                    >
+                      取消回滚
+                    </Button>
+                  </div>
+                </FormDialog>
               </section>
             </>
           )}

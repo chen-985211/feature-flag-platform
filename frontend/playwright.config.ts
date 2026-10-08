@@ -2,6 +2,7 @@ import { defineConfig } from '@playwright/test';
 import process from 'node:process';
 const artifacts = process.env.E2E_ARTIFACTS_DIR;
 const containerURL = process.env.E2E_CONTAINER_URL;
+const nativeURL = `http://127.0.0.1:${process.env.E2E_PORT ?? '18090'}`;
 export default defineConfig({
   testDir: './tests/e2e',
   testMatch: '**/*.e2e.spec.ts',
@@ -24,7 +25,7 @@ export default defineConfig({
     ],
   ],
   use: {
-    baseURL: containerURL ?? 'http://127.0.0.1:18090',
+    baseURL: containerURL ?? nativeURL,
     browserName: 'chromium',
     viewport: { width: 1280, height: 900 },
     trace: 'off',
@@ -34,7 +35,7 @@ export default defineConfig({
     ? undefined
     : {
         command: 'node ../scripts/tasks.mjs e2e-server',
-        url: 'http://127.0.0.1:18090/health/ready',
+        url: `${nativeURL}/health/ready`,
         reuseExistingServer: false,
         timeout: 60000,
         gracefulShutdown: { signal: 'SIGTERM', timeout: 10000 },

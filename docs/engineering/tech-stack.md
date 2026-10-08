@@ -6,6 +6,8 @@
 
 ## 已选技术
 
+工作台已接入官方 shadcn new-york-v4 的 Button、Input、Textarea、NativeSelect、Label、Checkbox、Badge、Table、Tabs、Dialog 源码，使用固定 radix-ui 1.7.0。源文件、MIT 许可与原始 registry hash 归 frontend/src/presentation/components/ui；统一主题与排版归 presentation/theme。实际组件与验收见 [UI 记录](../specs/007-shadcn-workbench/verification.md)。
+
 | 责任            | 选择                                    | 放置位置与约束                                         |
 | --------------- | --------------------------------------- | ------------------------------------------------------ |
 | 前端框架        | React + TypeScript                      | React 只进入 presentation 和平台装配；启用严格类型检查 |

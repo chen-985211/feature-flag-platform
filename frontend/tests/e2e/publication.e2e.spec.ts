@@ -73,7 +73,7 @@ test('reorder → copy → fixed source publication → target evaluation and au
   await page.getByLabel('命中返回 true', { exact: true }).uncheck();
   await page.getByRole('button', { name: '保存规则', exact: true }).click();
   await expect(page.getByText('development · revision 5')).toBeVisible();
-  await page.getByRole('button', { name: '基本信息', exact: true }).click();
+  await page.getByRole('tab', { name: '基本信息', exact: true }).click();
   await page.getByRole('button', { name: '编辑基本信息' }).click();
   await page.getByLabel('名称', { exact: true }).fill('Future source');
   await page.getByRole('button', { name: '保存配置', exact: true }).click();
@@ -131,7 +131,7 @@ test('reorder → copy → fixed source publication → target evaluation and au
   await page
     .getByRole('link', { name: 'Environment flow', exact: true })
     .click();
-  await page.getByRole('button', { name: '操作历史', exact: true }).click();
+  await page.getByRole('tab', { name: '操作历史', exact: true }).click();
   await expect(page.getByText('复制配置', { exact: true })).toBeVisible();
   const entry = page
     .getByRole('listitem')

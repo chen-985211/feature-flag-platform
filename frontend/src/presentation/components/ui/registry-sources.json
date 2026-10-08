@@ -1,0 +1,57 @@
+{
+  "style": "new-york-v4",
+  "downloaded": "2026-10-08",
+  "license": "MIT",
+  "sources": [
+    {
+      "name": "button",
+      "url": "https://ui.shadcn.com/r/styles/new-york-v4/button.json",
+      "sha256": "79dd6f75f8136394442202d6b8b922fb269eaad0a5dba579397c9d5b41f893bb"
+    },
+    {
+      "name": "input",
+      "url": "https://ui.shadcn.com/r/styles/new-york-v4/input.json",
+      "sha256": "0c9457181f6ddc80969bcf854e92c362903a55b6e889fbef3fd85343ecc4af5b"
+    },
+    {
+      "name": "textarea",
+      "url": "https://ui.shadcn.com/r/styles/new-york-v4/textarea.json",
+      "sha256": "5cafcfeeee29534f449387a16b585f5923d2faab1a0cdc50a874416b175f59ce"
+    },
+    {
+      "name": "native-select",
+      "url": "https://ui.shadcn.com/r/styles/new-york-v4/native-select.json",
+      "sha256": "4bdbce5575dce610fed747df4547a3d494713f4df8d28e09b3ccee62e4d72f93"
+    },
+    {
+      "name": "label",
+      "url": "https://ui.shadcn.com/r/styles/new-york-v4/label.json",
+      "sha256": "344bde38b8531615dbf8e14af3895517c24d8ef6ce56ddeda7e2e6fe4b5d0c00"
+    },
+    {
+      "name": "checkbox",
+      "url": "https://ui.shadcn.com/r/styles/new-york-v4/checkbox.json",
+      "sha256": "ba0ac64064e2d8fa7299d53e9e84b9a4772fef8dd4cf6170c56d3030a1d69941"
+    },
+    {
+      "name": "table",
+      "url": "https://ui.shadcn.com/r/styles/new-york-v4/table.json",
+      "sha256": "bd1a9fc83a5a2149e504038e274bb7e5a0351af59f6896df52ac4d5b439695ac"
+    },
+    {
+      "name": "tabs",
+      "url": "https://ui.shadcn.com/r/styles/new-york-v4/tabs.json",
+      "sha256": "e1df6e2f95ece373ca909c1d54b8ba8cf4c47dd425c1784bbb9a01c38dd0936b"
+    },
+    {
+      "name": "dialog",
+      "url": "https://ui.shadcn.com/r/styles/new-york-v4/dialog.json",
+      "sha256": "2ade6074e5fad0a4eb171ead44c43d3301a3c83d186d7236fb1fdbea80ee556b"
+    },
+    {
+      "name": "badge",
+      "url": "https://ui.shadcn.com/r/styles/new-york-v4/badge.json",
+      "sha256": "13a9380dfff853ee730c14a52df49f22aecd31f40f2998d7c1e7ec458b6e1650"
+    }
+  ]
+}

@@ -29,12 +29,12 @@ test('viewer reads seeded rules, evaluates, views history and logs out; editor s
   await expect(
     page.getByText('当前环境为只读；可以查看配置和运行评估。'),
   ).toBeVisible();
-  await page.getByRole('button', { name: '版本', exact: true }).click();
+  await page.getByRole('tab', { name: '版本', exact: true }).click();
   await page.getByLabel('选择版本', { exact: true }).selectOption('1');
   await expect(
     page.getByRole('heading', { name: '选中版本的完整配置' }),
   ).toBeVisible();
-  await page.getByRole('button', { name: '操作历史', exact: true }).click();
+  await page.getByRole('tab', { name: '操作历史', exact: true }).click();
   await expect(page.getByText('创建配置', { exact: true })).toBeVisible();
   await expect(
     page

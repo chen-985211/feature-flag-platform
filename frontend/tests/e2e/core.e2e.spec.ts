@@ -61,7 +61,7 @@ test('login → create → attribute rule → evaluate → history → logout', 
   });
   await page.getByRole('link', { name: '功能配置', exact: true }).click();
   await page.getByRole('link', { name: 'Checkout smoke', exact: true }).click();
-  await page.getByRole('button', { name: '操作历史', exact: true }).click();
+  await page.getByRole('tab', { name: '操作历史', exact: true }).click();
   await expect(page.getByText('添加规则', { exact: true })).toBeVisible();
   await expect(page.getByText('创建配置', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: '退出', exact: true }).click();

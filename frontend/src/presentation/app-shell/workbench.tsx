@@ -10,7 +10,17 @@ import {
   useNavigate,
   useSearchParams,
 } from 'react-router-dom';
-import { Flag as FlagIcon, Moon, Sun } from 'lucide-react';
+import {
+  Flag as FlagIcon,
+  Moon,
+  Sun,
+  FlaskConical,
+  Activity,
+  UserRound,
+  LogOut,
+} from 'lucide-react';
+import { NativeSelect } from '../components/ui/native-select';
+import { Label } from '../components/ui/label';
 import type {
   Identity,
   Session,
@@ -116,10 +126,10 @@ export function Workbench({
     }
   }
   const nav = [
-    ['/flags', '功能配置'],
-    ['/evaluate', '评估控制台'],
-    ['/overview', '服务概览'],
-  ];
+    ['/flags', '功能配置', FlagIcon],
+    ['/evaluate', '评估控制台', FlaskConical],
+    ['/overview', '服务概览', Activity],
+  ] as const;
   return (
     <div className="workspace">
       <header className="topbar">
@@ -130,9 +140,9 @@ export function Workbench({
           <strong>Flag 工作台</strong>
         </Link>
         <div className="header-actions">
-          <label className="environment-control">
+          <Label className="environment-control">
             环境
-            <select
+            <NativeSelect
               aria-label="当前环境"
               value={environment}
               onChange={(e) => {
@@ -147,14 +157,16 @@ export function Workbench({
               <option value="development">Development</option>
               <option value="staging">Staging</option>
               <option value="production">Production</option>
-            </select>
-          </label>
+            </NativeSelect>
+          </Label>
           <span className="user-label">
             {current.user.display_name}
             <small>{current.user.role}</small>
           </span>
           <Button
             variant="ghost"
+            size="icon"
+            title={dark ? '切换为浅色主题' : '切换为深色主题'}
             aria-label={dark ? '切换为浅色主题' : '切换为深色主题'}
             onClick={() => setDark(!dark)}
           >
@@ -167,34 +179,44 @@ export function Workbench({
             }}
             disabled={loggingOut}
           >
+            <LogOut size={15} />
             退出
           </Button>
         </div>
       </header>
       <nav className="mobile-nav" aria-label="工作空间导航">
-        {nav.map(([path, label]) => (
+        {nav.map(([path, label, Icon]) => (
           <NavLink key={path} to={path + '?environment=' + environment}>
-            {label}
+            <Icon aria-hidden="true" />
+            <span>{label}</span>
           </NavLink>
         ))}
       </nav>
       <div className="shell">
         <aside className="sidebar">
           <span className="nav-caption">工作空间</span>
-          {nav.map(([path, label]) => (
+          {nav.map(([path, label, Icon]) => (
             <NavLink
               className={({ isActive }) =>
                 'nav-item' + (isActive ? ' active' : '')
               }
+              title={label}
               key={path}
               to={path + '?environment=' + environment}
             >
-              {label}
+              <Icon aria-hidden="true" />
+              <span>{label}</span>
             </NavLink>
           ))}
-          <p className="sidebar-note">
-            先配置，再评估。每次保存都保留版本与操作历史。
-          </p>
+          <div className="sidebar-footer">
+            <span className="user-avatar" title={current.user.display_name}>
+              <UserRound size={16} />
+            </span>
+            <span className="user-label">
+              {current.user.display_name}
+              <small>{current.user.role}</small>
+            </span>
+          </div>
         </aside>
         <main className="content">
           {logoutError !== undefined && (

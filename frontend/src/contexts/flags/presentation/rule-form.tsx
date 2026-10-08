@@ -1,4 +1,9 @@
-import { useState } from 'react';
+import { Checkbox } from '../../../presentation/components/ui/checkbox';
+import { Label } from '../../../presentation/components/ui/label';
+import { NativeSelect } from '../../../presentation/components/ui/native-select';
+import { Textarea } from '../../../presentation/components/ui/textarea';
+import { Input } from '../../../presentation/components/ui/input';
+import { useState, useId } from 'react';
 import type { Rule, RuleInput } from '../application/contracts';
 import { validExpected } from '../domain/editing';
 import { parsePercentage, formatPercentage } from '../domain/percentage';
@@ -11,6 +16,8 @@ export function RuleForm({
   save,
   cancel,
   reload,
+  embedded = false,
+  onBusyChange,
 }: {
   initial?: Rule;
   revision: number;
@@ -18,8 +25,11 @@ export function RuleForm({
   save: (input: RuleInput) => Promise<void>;
   cancel: () => void;
   reload: () => void;
+  embedded?: boolean;
+  onBusyChange?: (busy: boolean) => void;
 }) {
   const initialAttribute = initial?.kind === 'attribute' ? initial : undefined;
+  const fieldID = useId();
   const [kind, setKind] = useState<'attribute' | 'percentage'>(
     initial?.kind ?? 'attribute',
   );
@@ -49,6 +59,7 @@ export function RuleForm({
       return;
     }
     setBusy(true);
+    onBusyChange?.(true);
     setError(undefined);
     try {
       await save(
@@ -73,52 +84,59 @@ export function RuleForm({
       setError(e);
     } finally {
       setBusy(false);
+      onBusyChange?.(false);
     }
   }
   return (
     <form
-      className="panel form-grid"
+      className={embedded ? 'form-grid' : 'panel form-grid'}
       aria-label={initial ? '编辑规则' : '添加规则'}
       onSubmit={(e) => {
         e.preventDefault();
         void submit();
       }}
     >
-      <h2>{initial ? '编辑规则' : '添加规则'}</h2>
-      <label htmlFor="rule-kind">规则类型</label>
-      <select
-        id="rule-kind"
-        value={kind}
-        disabled={busy}
-        onChange={(e) =>
-          setKind(e.target.value === 'percentage' ? 'percentage' : 'attribute')
-        }
-      >
-        <option value="attribute">属性规则 · equals / in</option>
-        <option value="percentage">百分比灰度</option>
-      </select>
+      {!embedded && <h2>{initial ? '编辑规则' : '添加规则'}</h2>}
+      <div className="field">
+        <Label htmlFor="rule-kind">规则类型</Label>
+        <NativeSelect
+          id="rule-kind"
+          value={kind}
+          disabled={busy}
+          onChange={(e) =>
+            setKind(
+              e.target.value === 'percentage' ? 'percentage' : 'attribute',
+            )
+          }
+        >
+          <option value="attribute">属性规则 · equals / in</option>
+          <option value="percentage">百分比灰度</option>
+        </NativeSelect>
+      </div>
       {kind === 'percentage' ? (
         <>
-          <label>
-            用户比例 (%)
-            <input
-              inputMode="decimal"
-              required
-              value={percentage}
-              disabled={busy}
-              onChange={(e) => setPercentage(e.target.value)}
-            />
-          </label>
-          <p className="muted">
-            0～100，最多两位小数。使用非空字符串 user_id
-            稳定分组；调整比例保持原有分桶。
-          </p>
+          <div className="field">
+            <Label className="field">
+              用户比例 (%)
+              <Input
+                inputMode="decimal"
+                required
+                value={percentage}
+                disabled={busy}
+                onChange={(e) => setPercentage(e.target.value)}
+              />
+            </Label>
+            <p className="muted">
+              0～100，最多两位小数。使用非空字符串 user_id
+              稳定分组；调整比例保持原有分桶。
+            </p>
+          </div>
         </>
       ) : (
         <>
-          <label>
+          <Label>
             属性名称
-            <input
+            <Input
               required
               maxLength={128}
               value={attribute}
@@ -126,36 +144,40 @@ export function RuleForm({
               disabled={busy}
               autoFocus
             />
-          </label>
-          <label htmlFor="rule-operator">操作符</label>
-          <select
-            id="rule-operator"
-            value={operator}
-            onChange={(e) =>
-              setOperator(e.target.value === 'in' ? 'in' : 'equals')
-            }
-            disabled={busy}
-          >
-            <option value="equals">equals · 等于</option>
-            <option value="in">in · 属于</option>
-          </select>
-          <label htmlFor="rule-expected">期望值 JSON</label>
-          <textarea
-            id="rule-expected"
-            required
-            value={expected}
-            onChange={(e) => setExpected(e.target.value)}
-            disabled={busy}
-            spellCheck={false}
-          />
-          <p className="muted">
-            equals 使用字符串、数字或布尔值；in 使用非空、同类型数组。
-          </p>
+          </Label>
+          <div className="field">
+            <Label htmlFor="rule-operator">操作符</Label>
+            <NativeSelect
+              id="rule-operator"
+              value={operator}
+              onChange={(e) =>
+                setOperator(e.target.value === 'in' ? 'in' : 'equals')
+              }
+              disabled={busy}
+            >
+              <option value="equals">equals · 等于</option>
+              <option value="in">in · 属于</option>
+            </NativeSelect>
+          </div>
+          <div className="field">
+            <Label htmlFor="rule-expected">期望值 JSON</Label>
+            <Textarea
+              id="rule-expected"
+              required
+              value={expected}
+              onChange={(e) => setExpected(e.target.value)}
+              disabled={busy}
+              spellCheck={false}
+            />
+            <p className="muted">
+              equals 使用字符串、数字或布尔值；in 使用非空、同类型数组。
+            </p>
+          </div>
         </>
       )}
-      <label>
+      <Label>
         优先级
-        <input
+        <Input
           type="number"
           min={1}
           max={2147483647}
@@ -165,16 +187,16 @@ export function RuleForm({
           onChange={(e) => setPriority(e.target.valueAsNumber)}
           disabled={busy}
         />
-      </label>
-      <label className="check-label">
-        <input
-          type="checkbox"
+      </Label>
+      <Label className="check-label" htmlFor={fieldID + '-1'}>
+        <Checkbox
+          id={fieldID + '-1'}
           checked={result}
-          onChange={(e) => setResult(e.target.checked)}
+          onCheckedChange={(checked) => setResult(checked === true)}
           disabled={busy}
         />
         命中返回 true
-      </label>
+      </Label>
       <p className="muted">
         数字越小越先执行。首条命中即结束，包括返回 false。
       </p>
@@ -189,7 +211,7 @@ export function RuleForm({
         </Button>
       )}
       <div className="actions">
-        <Button type="submit" disabled={busy}>
+        <Button type="submit" variant="primary" disabled={busy}>
           {busy ? '保存中…' : '保存规则'}
         </Button>
         <Button type="button" variant="ghost" onClick={cancel} disabled={busy}>

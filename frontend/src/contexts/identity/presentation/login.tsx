@@ -1,3 +1,6 @@
+import { Flag } from 'lucide-react';
+import { Label } from '../../../presentation/components/ui/label';
+import { Input } from '../../../presentation/components/ui/input';
 import { useState } from 'react';
 import type { Identity, Session } from '../application/contracts';
 import { feedback } from '../../../shared-kernel/errors';
@@ -35,12 +38,14 @@ export function Login({
           void submit();
         }}
       >
-        <p className="eyebrow">FLAG 工作台</p>
+        <span className="brand-mark">
+          <Flag size={20} />
+        </span>
         <h1>登录工作空间</h1>
         <p className="muted">使用已分配的账号管理配置与评估规则。</p>
-        <label>
+        <Label>
           账号
-          <input
+          <Input
             autoComplete="username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
@@ -49,10 +54,10 @@ export function Login({
             disabled={busy}
             autoFocus
           />
-        </label>
-        <label>
+        </Label>
+        <Label>
           密码
-          <input
+          <Input
             type="password"
             autoComplete="current-password"
             value={password}
@@ -60,13 +65,13 @@ export function Login({
             required
             disabled={busy}
           />
-        </label>
+        </Label>
         {error !== undefined && (
           <p role="alert" className="error-message">
             {feedback(error)}
           </p>
         )}
-        <Button type="submit" disabled={busy}>
+        <Button type="submit" variant="primary" disabled={busy}>
           {busy ? '登录中…' : '登录'}
         </Button>
       </form>

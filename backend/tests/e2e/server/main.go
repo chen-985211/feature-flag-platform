@@ -15,6 +15,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"log/slog"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -89,7 +90,12 @@ func run() (retErr error) {
 		return err
 	}
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	api, err := bootstrap.API(pool, config.Config{AppOrigin: "http://127.0.0.1:18090", SessionTTL: time.Hour}, logger)
+	port := os.Getenv("E2E_PORT")
+	if port == "" {
+		port = "18090"
+	}
+	address := net.JoinHostPort("127.0.0.1", port)
+	api, err := bootstrap.API(pool, config.Config{AppOrigin: "http://" + address, SessionTTL: time.Hour}, logger)
 	if err != nil {
 		return err
 	}
@@ -97,7 +103,7 @@ func run() (retErr error) {
 	mux.Handle("/api/", api)
 	mux.Handle("/health/", transport.NewHandler(pool.Ping, 2*time.Second))
 	mux.Handle("/", web.NewHandler(web.Assets()))
-	server := &http.Server{Addr: "127.0.0.1:18090", Handler: mux, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 10 * time.Second, WriteTimeout: 10 * time.Second, IdleTimeout: 30 * time.Second}
+	server := &http.Server{Addr: address, Handler: mux, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 10 * time.Second, WriteTimeout: 10 * time.Second, IdleTimeout: 30 * time.Second}
 	stopped := make(chan error, 1)
 	go func() { stopped <- server.ListenAndServe() }()
 	select {

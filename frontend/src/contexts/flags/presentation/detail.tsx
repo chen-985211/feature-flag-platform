@@ -1,4 +1,13 @@
-import { useState, type ReactNode } from 'react';
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from '../../../presentation/components/ui/tabs';
+import { Badge } from '../../../presentation/components/ui/badge';
+import { FormDialog } from '../../../presentation/components/form-dialog';
+import { Plus, ArrowLeft, Play, ArrowRightLeft } from 'lucide-react';
+import { useState, useRef, type ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import type { Flag, Flags } from '../application/contracts';
@@ -27,6 +36,8 @@ export function FlagDetail({
     queryKey: ['flag', id],
     queryFn: ({ signal }) => flags.get(id, signal),
   });
+  const ruleTrigger = useRef<HTMLButtonElement | null>(null);
+  const [formBusy, setFormBusy] = useState(false);
   const [editing, setEditing] = useState(false);
   const [ruleID, setRuleID] = useState<string | null>(null);
   const [nonce, setNonce] = useState(0);
@@ -92,7 +103,8 @@ export function FlagDetail({
   return (
     <>
       <Link className="back-link" to={'/flags?environment=' + flag.environment}>
-        ← 返回配置列表
+        <ArrowLeft size={14} />
+        返回配置列表
       </Link>
       <div className="page-heading">
         <div>
@@ -100,15 +112,19 @@ export function FlagDetail({
             {flag.environment} · revision {flag.revision}
           </p>
           <h1>{flag.name}</h1>
-          <code className="muted">{flag.key}</code>
+          <code className="page-key">{flag.key}</code>
         </div>
         <div className="actions">
           <Button variant="outline" onClick={() => setTransferOpen(true)}>
+            <ArrowRightLeft size={14} />
             环境流转
           </Button>
-          <span className={'badge ' + (flag.enabled ? 'good' : 'neutral')}>
+          <Badge
+            variant="secondary"
+            className={flag.enabled ? 'good' : 'neutral'}
+          >
             {flag.enabled ? '已启用' : '已停用'}
-          </span>
+          </Badge>
           <Button
             variant="outline"
             disabled={!canWrite || busy}
@@ -120,12 +136,14 @@ export function FlagDetail({
           >
             {flag.enabled ? '停用配置' : '启用配置'}
           </Button>
-          <Link
-            className="button button-primary"
-            to={`/evaluate?environment=${flag.environment}&key=${encodeURIComponent(flag.key)}`}
-          >
-            运行评估
-          </Link>
+          <Button asChild variant="primary">
+            <Link
+              to={`/evaluate?environment=${flag.environment}&key=${encodeURIComponent(flag.key)}`}
+            >
+              <Play size={14} />
+              运行评估
+            </Link>
+          </Button>
         </div>
       </div>
       {!canWrite && (
@@ -146,84 +164,81 @@ export function FlagDetail({
           </Button>
         </div>
       )}
-      <nav className="tabs" aria-label="配置详情">
-        {[
-          ['basic', '基本信息'],
-          ['rules', '规则'],
-          ['versions', '版本'],
-          ['history', '操作历史'],
-        ].map(([value, label]) => (
-          <button
-            key={value}
-            className={tab === value ? 'active' : ''}
-            aria-current={tab === value ? 'page' : undefined}
-            onClick={() => {
-              const next = new URLSearchParams(search);
-              next.set('tab', value);
-              setSearch(next);
-            }}
-          >
-            {label}
-          </button>
-        ))}
-      </nav>
-      {tab === 'basic' && (
-        <>
-          {editing ? (
-            <FlagForm
-              key={'base' + String(nonce)}
-              initial={flag}
-              environment={flag.environment}
-              save={async (input, revision) => {
-                await saved(
-                  await flags.edit(id, {
-                    name: input.name,
-                    key: input.key,
-                    default_value: input.default_value,
-                    expected_revision: revision ?? flag.revision,
-                  }),
-                );
-                setEditing(false);
-              }}
-              cancel={() => setEditing(false)}
-              reload={() => {
-                void reload();
-              }}
-            />
-          ) : (
-            <section className="panel">
-              <div className="card-heading">
-                <h2>基本信息</h2>
-                <Button
-                  variant="outline"
-                  onClick={() => setEditing(true)}
-                  disabled={!canWrite}
-                >
-                  编辑基本信息
-                </Button>
-              </div>
-              <dl className="facts">
-                <dt>Key</dt>
-                <dd>
-                  <code>{flag.key}</code>
-                </dd>
-                <dt>环境</dt>
-                <dd>{flag.environment}</dd>
-                <dt>默认结果</dt>
-                <dd>
-                  <code>{String(flag.default_value)}</code>
-                </dd>
-                <dt>创建时间</dt>
-                <dd>{new Date(flag.created_at).toLocaleString()}</dd>
-                <dt>更新时间</dt>
-                <dd>{new Date(flag.updated_at).toLocaleString()}</dd>
-              </dl>
-            </section>
-          )}
-        </>
-      )}
-      {tab === 'rules' && (
-        <>
+      <Tabs
+        value={tab}
+        onValueChange={(value) => {
+          const next = new URLSearchParams(search);
+          next.set('tab', value);
+          setSearch(next);
+        }}
+      >
+        <TabsList aria-label="配置详情" className="detail-tabs">
+          {[
+            ['basic', '基本信息'],
+            ['rules', '规则'],
+            ['versions', '版本'],
+            ['history', '操作历史'],
+          ].map(([value, label]) => (
+            <TabsTrigger key={value} value={value}>
+              {label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+        <TabsContent value="basic">
+          <section className="panel">
+            <div className="card-heading">
+              <h2>基本信息</h2>
+              <FormDialog
+                open={editing}
+                onOpenChange={setEditing}
+                busy={formBusy}
+                title="编辑配置"
+                description={'编辑 ' + flag.key + ' 的基本信息。'}
+                trigger={<Button disabled={!canWrite}>编辑基本信息</Button>}
+              >
+                <FlagForm
+                  embedded
+                  onBusyChange={setFormBusy}
+                  key={'base' + String(nonce)}
+                  initial={flag}
+                  environment={flag.environment}
+                  save={async (input, revision) => {
+                    await saved(
+                      await flags.edit(id, {
+                        name: input.name,
+                        key: input.key,
+                        default_value: input.default_value,
+                        expected_revision: revision ?? flag.revision,
+                      }),
+                    );
+                    setEditing(false);
+                  }}
+                  cancel={() => setEditing(false)}
+                  reload={() => {
+                    void reload();
+                  }}
+                />
+              </FormDialog>
+            </div>
+            <dl className="facts">
+              <dt>Key</dt>
+              <dd>
+                <code>{flag.key}</code>
+              </dd>
+              <dt>环境</dt>
+              <dd>{flag.environment}</dd>
+              <dt>默认结果</dt>
+              <dd>
+                <code>{String(flag.default_value)}</code>
+              </dd>
+              <dt>创建时间</dt>
+              <dd>{new Date(flag.created_at).toLocaleString()}</dd>
+              <dt>更新时间</dt>
+              <dd>{new Date(flag.updated_at).toLocaleString()}</dd>
+            </dl>
+          </section>
+        </TabsContent>
+        <TabsContent value="rules">
           <section className="panel">
             <div className="card-heading">
               <div>
@@ -233,9 +248,14 @@ export function FlagDetail({
                 </p>
               </div>
               <Button
-                onClick={() => setRuleID('')}
+                variant="primary"
+                onClick={(event) => {
+                  ruleTrigger.current = event.currentTarget;
+                  setRuleID('');
+                }}
                 disabled={!canWrite || ruleID !== null}
               >
+                <Plus size={14} />
                 添加规则
               </Button>
             </div>
@@ -285,7 +305,10 @@ export function FlagDetail({
                           <Button
                             variant="ghost"
                             disabled={!canWrite || busy}
-                            onClick={() => setRuleID(rule.id)}
+                            onClick={(event) => {
+                              ruleTrigger.current = event.currentTarget;
+                              setRuleID(rule.id);
+                            }}
                           >
                             编辑规则
                           </Button>
@@ -312,37 +335,50 @@ export function FlagDetail({
             />
           </section>
           {ruleID !== null && (
-            <RuleForm
-              key={ruleID + String(nonce)}
-              initial={selected}
-              revision={flag.revision}
-              nextPriority={Math.min(
-                2147483647,
-                Math.max(0, ...flag.rules.map((r) => r.priority)) + 1,
-              )}
-              save={async (input) => {
-                await saved(
-                  await flags.saveRule(id, ruleID || undefined, input),
-                );
-                setRuleID(null);
+            <FormDialog
+              open
+              onOpenChange={(open) => {
+                if (!open) setRuleID(null);
               }}
-              cancel={() => setRuleID(null)}
-              reload={() => {
-                void reload();
-              }}
-            />
+              busy={formBusy}
+              title={selected ? '编辑规则' : '添加规则'}
+              description={'为 ' + flag.key + ' 配置匹配条件与返回结果。'}
+              focusTarget={ruleTrigger}
+            >
+              <RuleForm
+                embedded
+                onBusyChange={setFormBusy}
+                key={ruleID + String(nonce)}
+                initial={selected}
+                revision={flag.revision}
+                nextPriority={Math.min(
+                  2147483647,
+                  Math.max(0, ...flag.rules.map((r) => r.priority)) + 1,
+                )}
+                save={async (input) => {
+                  await saved(
+                    await flags.saveRule(id, ruleID || undefined, input),
+                  );
+                  setRuleID(null);
+                }}
+                cancel={() => setRuleID(null)}
+                reload={() => {
+                  void reload();
+                }}
+              />
+            </FormDialog>
           )}
-        </>
-      )}
-      {tab === 'versions' && (
-        <Versions
-          flag={flag}
-          flags={flags}
-          canWrite={canWrite}
-          onSaved={saved}
-        />
-      )}
-      {tab === 'history' && history(id)}
+        </TabsContent>
+        <TabsContent value="versions">
+          <Versions
+            flag={flag}
+            flags={flags}
+            canWrite={canWrite}
+            onSaved={saved}
+          />
+        </TabsContent>
+        <TabsContent value="history">{history(id)}</TabsContent>
+      </Tabs>
       {transferOpen && (
         <TransferDialog
           flag={flag}

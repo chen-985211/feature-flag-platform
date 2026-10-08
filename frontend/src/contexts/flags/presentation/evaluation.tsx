@@ -1,3 +1,7 @@
+import { Label } from '../../../presentation/components/ui/label';
+import { Textarea } from '../../../presentation/components/ui/textarea';
+import { Input } from '../../../presentation/components/ui/input';
+import { Badge } from '../../../presentation/components/ui/badge';
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { Environment, Evaluation, Flags } from '../application/contracts';
@@ -66,35 +70,37 @@ export function EvaluationConsole({
           }}
         >
           <h2>评估输入</h2>
-          <label>
+          <Label>
             Flag Key
-            <input
+            <Input
               required
               maxLength={128}
               value={key}
               onChange={(e) => setKey(e.target.value)}
               disabled={busy}
             />
-          </label>
-          <label htmlFor="evaluation-attributes">用户属性 JSON</label>
-          <textarea
-            id="evaluation-attributes"
-            className="attributes-input"
-            required
-            value={attrs}
-            onChange={(e) => setAttrs(e.target.value)}
-            spellCheck={false}
-            disabled={busy}
-          />
-          <p className="muted">
-            输入顶层 JSON 对象。属性名称与类型须与规则一致。
-          </p>
+          </Label>
+          <div className="field">
+            <Label htmlFor="evaluation-attributes">用户属性 JSON</Label>
+            <Textarea
+              id="evaluation-attributes"
+              className="attributes-input"
+              required
+              value={attrs}
+              onChange={(e) => setAttrs(e.target.value)}
+              spellCheck={false}
+              disabled={busy}
+            />
+            <p className="muted">
+              输入顶层 JSON 对象。属性名称与类型须与规则一致。
+            </p>
+          </div>
           {error !== undefined && (
             <p className="error-message" role="alert">
               {feedback(error)}
             </p>
           )}
-          <Button type="submit" disabled={busy}>
+          <Button type="submit" variant="primary" disabled={busy}>
             {busy ? '评估中…' : '运行评估'}
           </Button>
         </form>
@@ -132,9 +138,20 @@ export function EvaluationConsole({
                 <ol className="trace-list">
                   {result.trace.map((step, index) => (
                     <li key={step.rule_id}>
-                      <span>{index + 1}</span>
-                      <code>{step.rule_id}</code>
-                      <strong>{statusNames[step.status]}</strong>
+                      <span className="priority">{index + 1}</span>
+                      <div className="trace-copy">
+                        <span>规则 {index + 1}</span>
+                        <code title={step.rule_id}>{step.rule_id}</code>
+                      </div>
+                      <Badge
+                        variant="secondary"
+                        className={
+                          'trace-status ' +
+                          (step.status === 'hit' ? 'good' : 'neutral')
+                        }
+                      >
+                        {statusNames[step.status]}
+                      </Badge>
                     </li>
                   ))}
                 </ol>

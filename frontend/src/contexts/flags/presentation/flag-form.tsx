@@ -1,4 +1,7 @@
-import { useState } from 'react';
+import { Checkbox } from '../../../presentation/components/ui/checkbox';
+import { Label } from '../../../presentation/components/ui/label';
+import { Input } from '../../../presentation/components/ui/input';
+import { useState, useId } from 'react';
 import type { Flag, CreateFlag } from '../application/contracts';
 import { ApiError, feedback } from '../../../shared-kernel/errors';
 import { Button } from '../../../presentation/components/button';
@@ -8,13 +11,18 @@ export function FlagForm({
   save,
   cancel,
   reload,
+  embedded = false,
+  onBusyChange,
 }: {
   initial?: Flag;
   environment: CreateFlag['environment'];
   save: (input: CreateFlag, revision?: number) => Promise<void>;
   cancel: () => void;
   reload?: () => void;
+  embedded?: boolean;
+  onBusyChange?: (busy: boolean) => void;
 }) {
+  const fieldID = useId();
   const [name, setName] = useState(initial?.name ?? '');
   const [key, setKey] = useState(initial?.key ?? '');
   const [enabled, setEnabled] = useState(initial?.enabled ?? true);
@@ -24,6 +32,7 @@ export function FlagForm({
   const [busy, setBusy] = useState(false);
   async function submit() {
     setBusy(true);
+    onBusyChange?.(true);
     setError(undefined);
     try {
       await save(
@@ -34,25 +43,26 @@ export function FlagForm({
       setError(e);
     } finally {
       setBusy(false);
+      onBusyChange?.(false);
     }
   }
   return (
     <form
-      className="panel form-grid"
+      className={embedded ? 'form-grid' : 'panel form-grid'}
       onSubmit={(event) => {
         event.preventDefault();
         void submit();
       }}
       aria-label={initial ? '编辑配置' : '新建配置'}
     >
-      <h2>{initial ? '编辑配置' : '新建 Flag'}</h2>
+      {!embedded && <h2>{initial ? '编辑配置' : '新建 Flag'}</h2>}
       <p className="muted">
         {environment}
         {revision && ` · 基于 revision ${String(revision)}`}
       </p>
-      <label>
+      <Label>
         名称
-        <input
+        <Input
           required
           maxLength={160}
           value={name}
@@ -60,37 +70,37 @@ export function FlagForm({
           autoFocus
           disabled={busy}
         />
-      </label>
-      <label>
+      </Label>
+      <Label>
         Key
-        <input
+        <Input
           required
           maxLength={128}
           value={key}
           onChange={(e) => setKey(e.target.value)}
           disabled={busy}
         />
-      </label>
+      </Label>
       {!initial && (
-        <label className="check-label">
-          <input
-            type="checkbox"
+        <Label className="check-label" htmlFor={fieldID + '-1'}>
+          <Checkbox
+            id={fieldID + '-1'}
             checked={enabled}
-            onChange={(e) => setEnabled(e.target.checked)}
+            onCheckedChange={(checked) => setEnabled(checked === true)}
             disabled={busy}
           />
           启用配置
-        </label>
+        </Label>
       )}
-      <label className="check-label">
-        <input
-          type="checkbox"
+      <Label className="check-label" htmlFor={fieldID + '-2'}>
+        <Checkbox
+          id={fieldID + '-2'}
           checked={defaultValue}
-          onChange={(e) => setDefault(e.target.checked)}
+          onCheckedChange={(checked) => setDefault(checked === true)}
           disabled={busy}
         />
         默认返回 true
-      </label>
+      </Label>
       {error !== undefined && (
         <p className="error-message" role="alert">
           {feedback(error)}
@@ -107,7 +117,7 @@ export function FlagForm({
           </div>
         )}
       <div className="actions">
-        <Button type="submit" disabled={busy}>
+        <Button type="submit" variant="primary" disabled={busy}>
           {busy ? '保存中…' : '保存配置'}
         </Button>
         <Button type="button" variant="ghost" onClick={cancel} disabled={busy}>

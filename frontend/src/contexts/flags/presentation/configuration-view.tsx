@@ -15,7 +15,7 @@ export function ConfigurationView({
         <dd>{flag.name}</dd>
         <dt>Key / 环境</dt>
         <dd>
-          {flag.key} / {flag.environment}
+          <code>{flag.key}</code> / {flag.environment}
         </dd>
         <dt>启用状态</dt>
         <dd>{flag.enabled ? '已启用' : '已停用'}</dd>
@@ -28,7 +28,7 @@ export function ConfigurationView({
           <code>{flag.seed}</code>
         </dd>
       </dl>
-      <h3>规则顺序与条件</h3>
+      <h3 className="subsection-title">规则顺序与条件</h3>
       {flag.rules.length === 0 ? (
         <p className="muted">此版本没有规则。</p>
       ) : (

@@ -36,7 +36,12 @@
     "seed:users": "node scripts/tasks.mjs seed-users",
     "seed:demo": "node scripts/tasks.mjs seed-demo",
     "test:e2e": "node scripts/tasks.mjs test-e2e",
-    "test:e2e:stability": "node scripts/tasks.mjs test-e2e-stability"
+    "test:e2e:stability": "node scripts/tasks.mjs test-e2e-stability",
+    "docker:build": "node scripts/tasks.mjs docker-build",
+    "docker:up": "node scripts/tasks.mjs docker-up",
+    "docker:down": "node scripts/tasks.mjs docker-down",
+    "docker:seed": "node scripts/tasks.mjs docker-seed",
+    "test:docker": "node scripts/tasks.mjs test-docker"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

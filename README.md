@@ -4,11 +4,13 @@ React + Go + PostgreSQL，前后端 DDD + Clean，大任务 SDD、行为变更 T
 
 ## 当前状态
 
-D1～D5 已完成：工程基础、登录/三角色、Flag 管理、属性/百分比规则、精确数字评估、排序、版本/差异/回滚、复制/发布、revision 冲突与原子审计、显式演示初始化。完整门禁和四条 Playwright 的三轮独立稳定性检查已通过。Docker 在 D6 验收，本次不要求线上地址。
+D1～D5 已完成：工程基础、登录/三角色、Flag 管理、属性/百分比规则、精确数字评估、排序、版本/差异/回滚、复制/发布、revision 冲突与原子审计、显式演示初始化。完整门禁和四条 Playwright 的三轮独立稳定性检查已通过。D6 已提供镜像、Compose、健康探针和隔离验收入口，实际容器验收待完成，见 [D6 记录](docs/specs/006-container-delivery/verification.md)。本次不要求线上地址。
 
 需求与规范见 [docs](docs/README.md)，完成证据见 [D1](docs/specs/001-engineering-foundation/verification.md)、[D2](docs/specs/002-core-configuration/verification.md)、[D3](docs/specs/003-percentage-and-versions/verification.md)、[D4](docs/specs/004-ordering-and-environments/verification.md) 和 [D5 验证记录](docs/specs/005-demo-and-system-acceptance/verification.md)。
 
 ## 本地启动
+
+只使用 Docker 的启动、更新、持久化及备份/恢复见 [容器手册](docs/delivery/docker.md)。宿主无需安装 Go/Node/PostgreSQL；原生开发步骤如下。
 
 先决条件：Node 24.21.0（.node-version）、pnpm 10.33.0、Go 1.27.0、PostgreSQL 17；不需要 Python。通过自己的 Node 版本管理器切换项目版本，不要求修改系统 Node。
 
@@ -47,6 +49,8 @@ pnpm --dir frontend exec playwright install chromium
 pnpm test:e2e
 pnpm test:e2e:stability
 pnpm verify:full
+# 另需可用 Docker Engine；不操作开发数据库或已有 Compose 项目
+pnpm test:docker
 ```
 
 自定义工程检查和命令编排统一使用 Node。前端 TypeScript/ESLint/Prettier/dependency-cruiser/Knip；后端 gofmt/go vet/golangci-lint 和 Go 包导入检查。详情见 [工具说明](docs/engineering/quality-tooling.md)。Make 同名目标只转发 pnpm，完整命令见 [测试执行手册](docs/testing/TESTING_RUNBOOK.md)。
@@ -60,7 +64,7 @@ pnpm build
 APP_ORIGIN=http://127.0.0.1:8080 pnpm start
 ```
 
-构建产生 .build/didi-server、.build/didi-migrate 与 .build/didi-seed。服务内嵌 React 资源，页面与 API 同源，APP_ORIGIN 必须与实际浏览器地址完全一致（含端口）；开发默认 localhost:5173，内嵌运行以上述命令覆盖。直接打开 http://127.0.0.1:8080；构建资源被 Git 忽略。独立 Go 开发入口 `pnpm dev:backend` 在未构建前端时仅提供 API，根页面明确提示先构建。
+构建产生 .build/didi-server、.build/didi-migrate、.build/didi-seed 与 .build/didi-healthcheck。服务内嵌 React 资源，页面与 API 同源，APP_ORIGIN 必须与实际浏览器地址完全一致（含端口）；开发默认 localhost:5173，内嵌运行以上述命令覆盖。直接打开 http://127.0.0.1:8080；构建资源被 Git 忽略。独立 Go 开发入口 `pnpm dev:backend` 在未构建前端时仅提供 API，根页面明确提示先构建。
 
 `pnpm migrate` 应用待执行 up；`pnpm migrate:down` 明确回退一个迁移，移除该迁移创建的表及其数据，只用于可丢弃开发环境。服务启动不自动迁移或 seed。迁移与业务配置版本回滚是不同能力。
 
@@ -82,7 +86,7 @@ APP_ORIGIN=http://127.0.0.1:8080 pnpm start
 
 行锁与 expected revision 共同防止覆盖并发修改，源 revision 固定防止预览后来源漂移。百分比使用 SHA-256(seed + NUL + user_id) 的前八字节按大端转整数后模 10000，与整数基点比较；同 seed/标识始终同桶。参数化 SQL、Cookie 会话、CSRF/Origin 和后端目标环境授权保护实际写入口。
 
-当前聚焦单团队本地平台，未实现多租户、SDK 分发、实时推送、SSO、自助注册和审批流。稳定性三轮是关键路径重复验收，不是长期容量报告；远端 CI 需实际运行后报告，未统计全仓覆盖率。Docker 仍归 D6，在线部署不要求。功能证据见 [验收映射](docs/delivery/coverage.md)。
+当前聚焦单团队本地平台，未实现多租户、SDK 分发、实时推送、SSO、自助注册和审批流。稳定性三轮是关键路径重复验收，不是长期容量报告；远端 CI 需实际运行后报告，未统计全仓覆盖率。D6 实际容器验收待完成，在线部署不要求。功能证据见 [验收映射](docs/delivery/coverage.md)。
 
 ## 灰度与历史版本
 

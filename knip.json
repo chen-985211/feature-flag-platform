@@ -3,7 +3,7 @@
   "workspaces": {
     ".": {
       "entry": ["scripts/*.mjs"],
-      "project": ["scripts/**/*.mjs", "*.mjs"]
+      "project": ["scripts/**/*.mjs", "tests/**/*.mjs", "*.mjs"]
     },
     "frontend": {
       "entry": ["tests/**/*.test.{ts,tsx}"],

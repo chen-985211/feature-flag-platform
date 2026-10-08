@@ -20,10 +20,17 @@
 | 构建         | `pnpm build`            | React 资源、内嵌 Go 服务与迁移 CLI                        |
 | 迁移         | `pnpm migrate`          | 版本化 up，不隐式 seed                                    |
 | 开发         | `pnpm dev`              | Vite + 受管理的 API 子进程                                |
+| 容器构建     | `pnpm docker:build`     | 固定工具链多阶段构建，同一 React/Go 源码                  |
+| 容器启动     | `pnpm docker:up`        | 构建、停止旧 app、等待显式迁移与健康检查                  |
+| 容器演示     | `pnpm docker:seed`      | 显式运行 demo；使用 .env.docker                           |
+| 容器停止     | `pnpm docker:down`      | 移除项目容器/网络，保留数据库卷                           |
+| 容器验收     | `pnpm test:docker`      | 随机项目/卷的启动、业务、既有 E2E、迁移 gate、持久化/恢复 |
 
 显式账号初始化为 pnpm seed:users，完整演示为 pnpm seed:demo，见 [演示手册](../delivery/demo.md)。pnpm test:e2e:stability 构建一次，独立执行三轮四条 E2E；每轮启动新服务、随机 schema/密码，retries=0，失败立即退出。每次运行清理旧 stability 报告；各轮结果/截图与 HTML 分别在 test-results/stability/run-{1,2,3}/{results,report}，不互相覆盖。
 
-工具配置、检查职责及固定版本见 [质量工具](../engineering/quality-tooling.md)。前端区分 unit/component/contract；四条 E2E 覆盖核心配置、回滚、排序/复制/固定源发布及 viewer 演示/editor production 只读。Docker 尚未落地。test:e2e 先构建内嵌资源，再启动独立 Go 测试服务，每次建立/清理随机 schema，使用本次随机密码。固定专用端口 18090，拒绝复用已有服务；Playwright SIGTERM 关闭服务并清理数据。先运行 pnpm --dir frontend exec playwright install chromium；未实现层不以 passWithNoTests 冒充成功。
+工具配置、检查职责及固定版本见 [质量工具](../engineering/quality-tooling.md)。前端区分 unit/component/contract；四条 E2E 覆盖核心配置、回滚、排序/复制/固定源发布及 viewer 演示/editor production 只读。test:e2e 先构建内嵌资源，再启动独立 Go 测试服务，每次建立/清理随机 schema，使用本次随机密码。固定专用端口 18090，拒绝复用已有服务；Playwright SIGTERM 关闭服务并清理数据。先运行 pnpm --dir frontend exec playwright install chromium；未实现层不以 passWithNoTests 冒充成功。
+
+容器入口需可用 Docker Engine/Compose，启动与备份手册见 [Docker](../delivery/docker.md)。docker:* 与 test:docker 不加载开发 .env；test:docker 生成临时凭据，不读取 .env.docker，复用四条 Playwright，通过 E2E_CONTAINER_URL 连接容器并关闭原生测试服务器 fixture。实际容器验收待完成，不能将入口存在当作通过；当前结果见 [D6 记录](../specs/006-container-delivery/verification.md)。
 
 ## 开发反馈与最终门禁
 
@@ -41,7 +48,7 @@ integration/race 显式使用 TEST_DATABASE_URL；要求 PostgreSQL URL、库名
 
 ## CI 与后续发布
 
-.github/workflows/verify.yml 在 push main / pull_request 中使用 PostgreSQL 17.7，执行固定依赖安装、Go 质量工具与 Chromium 安装和 verify:full。远端 CI 必须实际运行才能报告通过；本地结果不代替远端状态。
+.github/workflows/verify.yml 在 push main / pull_request 中使用 PostgreSQL 17.7，执行固定依赖安装、Go 质量工具与 Chromium 安装、verify:full 和 test:docker。远端 CI 必须实际运行才能报告通过；本地结果不代替远端状态。
 
 D1 验证配置、技术 HTTP、React 接线、迁移和构建。D2 验收登录/核心配置，D3 验收灰度/旧快照/版本/回滚，D4 已验收排序/固定源环境流转；D5 统一完整演示和系统稳定性，不建立无目的 nightly。
 

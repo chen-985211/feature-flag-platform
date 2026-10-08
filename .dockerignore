@@ -1,0 +1,14 @@
+.git
+.env
+.env.*
+.tools
+.build
+**/node_modules
+frontend/dist
+backend/internal/platform/web/assets
+coverage
+test-results
+playwright-report
+*.log
+**/*.tsbuildinfo
+docs

@@ -6,7 +6,9 @@ test('reorder → copy → fixed source publication → target evaluation and au
   const password = process.env.E2E_PASSWORD;
   if (!password) throw new Error('Use pnpm test:e2e');
   await page.goto('/');
-  await page.getByLabel('账号', { exact: true }).fill('e2e-admin');
+  await page
+    .getByLabel('账号', { exact: true })
+    .fill(process.env.E2E_ADMIN_USERNAME ?? 'e2e-admin');
   await page.getByLabel('密码', { exact: true }).fill(password);
   await page.getByRole('button', { name: '登录', exact: true }).click();
   await page.getByRole('button', { name: '新建 Flag', exact: true }).click();
@@ -137,5 +139,5 @@ test('reorder → copy → fixed source publication → target evaluation and au
   await entry.getByText('查看变更详情', { exact: true }).click();
   await expect(entry).toContainText('"source"');
   await expect(entry).toContainText(/"revision":\s*5/);
-  await expect(entry).toContainText('E2E 管理员');
+  await expect(entry).toContainText(process.env.E2E_ADMIN_NAME ?? 'E2E 管理员');
 });

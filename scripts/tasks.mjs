@@ -3,8 +3,11 @@ import { execFileSync, spawn } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import { files, loadEnvironment, root, run } from './lib/project.mjs';
+import { buildDocker, compose } from './lib/docker.mjs';
 
-loadEnvironment();
+const taskName = process.argv[2];
+if (!taskName?.startsWith('docker-') && taskName !== 'test-docker')
+  loadEnvironment();
 const backend = path.join(root, 'backend');
 const tool = path.join(root, '.tools', 'bin', 'golangci-lint');
 const tasks = {
@@ -86,12 +89,35 @@ const tasks = {
       ['build', '-o', '../.build/didi-seed', './cmd/seed'],
       backend,
     );
+    await run(
+      'go',
+      ['build', '-o', '../.build/didi-healthcheck', './cmd/healthcheck'],
+      backend,
+    );
   },
   async 'seed-users'() {
     await run('go', ['run', './cmd/seed'], backend);
   },
   async 'seed-demo'() {
     await run('go', ['run', './cmd/seed', 'demo'], backend);
+  },
+  async 'docker-build'() {
+    await buildDocker();
+  },
+  async 'docker-up'() {
+    await compose(['build', 'app']);
+    await compose(['stop', 'app']);
+    await compose(['up', '-d', '--wait', '--wait-timeout', '120', 'app']);
+  },
+  async 'docker-down'() {
+    await compose(['down']);
+  },
+  async 'docker-seed'() {
+    await compose(['run', '--rm', 'seed']);
+  },
+  async 'test-docker'() {
+    const { runDockerSmoke } = await import('../tests/container/smoke.mjs');
+    await runDockerSmoke();
   },
   async 'test-e2e'() {
     await tasks.build();

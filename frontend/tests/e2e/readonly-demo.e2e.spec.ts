@@ -7,7 +7,9 @@ test('viewer reads seeded rules, evaluates, views history and logs out; editor s
   const password = process.env.E2E_PASSWORD;
   if (!password) throw new Error('Use pnpm test:e2e for isolated credentials');
   await page.goto('/');
-  await page.getByLabel('账号', { exact: true }).fill('e2e-viewer');
+  await page
+    .getByLabel('账号', { exact: true })
+    .fill(process.env.E2E_VIEWER_USERNAME ?? 'e2e-viewer');
   await page.getByLabel('密码', { exact: true }).fill(password);
   await page.getByRole('button', { name: '登录', exact: true }).click();
   await expect(page.getByRole('heading', { name: '功能配置' })).toBeVisible();
@@ -34,7 +36,11 @@ test('viewer reads seeded rules, evaluates, views history and logs out; editor s
   ).toBeVisible();
   await page.getByRole('button', { name: '操作历史', exact: true }).click();
   await expect(page.getByText('创建配置', { exact: true })).toBeVisible();
-  await expect(page.getByText(/^E2E 管理员 ·/)).toBeVisible();
+  await expect(
+    page
+      .getByRole('listitem')
+      .filter({ has: page.getByText('创建配置', { exact: true }) }),
+  ).toContainText(process.env.E2E_ADMIN_NAME ?? 'E2E 管理员');
   await page.getByRole('link', { name: '运行评估', exact: true }).click();
   await page
     .getByLabel('用户属性 JSON', { exact: true })
@@ -49,7 +55,9 @@ test('viewer reads seeded rules, evaluates, views history and logs out; editor s
     page.getByRole('heading', { name: '登录工作空间' }),
   ).toBeVisible();
 
-  await page.getByLabel('账号', { exact: true }).fill('e2e-editor');
+  await page
+    .getByLabel('账号', { exact: true })
+    .fill(process.env.E2E_EDITOR_USERNAME ?? 'e2e-editor');
   await page.getByLabel('密码', { exact: true }).fill(password);
   await page.getByRole('button', { name: '登录', exact: true }).click();
   await page.getByRole('link', { name: '功能配置', exact: true }).click();

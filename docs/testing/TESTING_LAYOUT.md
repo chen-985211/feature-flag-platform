@@ -29,10 +29,15 @@ frontend/tests/e2e/
   flag-evaluation.e2e.spec.ts
   publish-rollback.e2e.spec.ts
   readonly.e2e.spec.ts
+tests/container/
+  smoke.mjs
+  support.mjs
 test-results/
 ```
 
 这些文件名表示计划的行为分组，不代表已存在测试。小功能无需创建没有测试职责的空目录。
+
+容器验收实际入口为 tests/container/smoke.mjs；Node 维护部署资源和 HTTP 后置状态，复用 frontend/tests/e2e 的四条现有流程。它是部署 smoke，不替代领域、数据库 integration 或普通 unit。Docker 路径使用随机 Compose project/数据库卷/端口/密码，结束只删除本次资源。
 
 ## Runner 与命名
 

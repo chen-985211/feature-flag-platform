@@ -1,0 +1,80 @@
+x-app: &app
+  image: ${DIDI_IMAGE:-didi:local}
+  build:
+    context: .
+  environment: &environment
+    DATABASE_URL: postgresql://didi@db:5432/didi?sslmode=disable
+    PGPASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.docker}
+    HTTP_ADDR: 0.0.0.0:8080
+    APP_ORIGIN: ${APP_ORIGIN:-http://localhost:8080}
+    SESSION_TTL: 12h
+    READINESS_TIMEOUT: 2s
+    SHUTDOWN_TIMEOUT: 10s
+  read_only: true
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+
+services:
+  db:
+    image: postgres:17.7-bookworm@sha256:86e0b703649d7a792bd9243ee28afc9d8f7c6b2b5638077c9d6882d4d472bbfd
+    environment:
+      POSTGRES_USER: didi
+      POSTGRES_DB: didi
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.docker}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [CMD-SHELL, 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+      start_period: 5s
+    restart: unless-stopped
+
+  migrate:
+    <<: *app
+    entrypoint: [/app/didi-migrate]
+    command: [up]
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: 'no'
+
+  app:
+    <<: *app
+    ports:
+      - '127.0.0.1:${APP_PORT:-8080}:8080'
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: [CMD, /app/didi-healthcheck]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+      start_period: 5s
+    stop_grace_period: 15s
+    restart: unless-stopped
+
+  seed:
+    <<: *app
+    profiles: [tools]
+    entrypoint: [/app/didi-seed]
+    command: [demo]
+    environment:
+      <<: *environment
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-}
+      SEED_EDITOR_PASSWORD: ${SEED_EDITOR_PASSWORD:-}
+      SEED_VIEWER_PASSWORD: ${SEED_VIEWER_PASSWORD:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: 'no'
+
+volumes:
+  postgres-data:

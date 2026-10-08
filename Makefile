@@ -34,3 +34,14 @@ test-e2e:
 	pnpm test:e2e
 test-e2e-stability:
 	pnpm test:e2e:stability
+.PHONY: docker-build docker-up docker-down docker-seed test-docker
+docker-build:
+	pnpm docker:build
+docker-up:
+	pnpm docker:up
+docker-down:
+	pnpm docker:down
+docker-seed:
+	pnpm docker:seed
+test-docker:
+	pnpm test:docker

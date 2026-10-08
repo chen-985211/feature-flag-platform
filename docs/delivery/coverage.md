@@ -16,8 +16,8 @@
 | F10  | 固定源/目标预览 contract、目标身份/Key/revision、原子性、权限/并发/失败                                 | 源后续修改后仍发布固定 r5；[D4](../specs/004-ordering-and-environments/verification.md)                                                                                     |
 | F11  | 角色×环境 unit；真实登录/退出/过期/角色变更、Cookie/CSRF/Origin；production 各写入口拒绝、seed 保留账号 | admin 创建、viewer 演示/退出、editor production 只读；[D2](../specs/002-core-configuration/verification.md) / [D5](../specs/005-demo-and-system-acceptance/verification.md) |
 | F12  | unit/component/contract、实际数据库 integration、静态/类型/分层/unused、race                            | 四条 Playwright，独立三轮稳定性；[D5](../specs/005-demo-and-system-acceptance/verification.md)                                                                              |
-| F13  | D6 待实施：镜像构建、Compose 空库迁移/seed/启动与持久化 smoke                                           | 尚未验收 Docker                                                                                                                                                             |
+| F13  | Dockerfile/Compose、Go ready probe unit、隔离 Node smoke 与复用浏览器路径已提供                         | [D6](../specs/006-container-delivery/verification.md)：配置解析通过；实际镜像构建/启动/持久化/恢复尚未验收，受本机磁盘空间阻断                                              |
 
 Go 领域/应用测试在 backend/internal/contexts；真实 HTTP/并发/失败在 backend/tests/integration/core，实际 seed 二进制在 backend/tests/integration/demo；前端各层和四条 E2E 在 frontend/tests。命令见 [测试手册](../testing/TESTING_RUNBOOK.md)，演示步骤见 [本地演示](demo.md)。
 
-映射是覆盖责任说明，不代表全仓覆盖率统计、长期容量或线上部署证据。各阶段历史记录对应当时提交，当前回归以 D5 同版本门禁为准。
+映射是覆盖责任说明，不代表全仓覆盖率统计、长期容量或线上部署证据。各阶段历史记录对应当时提交；D6 修改后的完整原生回归已通过，实际容器证据待补。

@@ -18,6 +18,7 @@ type HTTP struct {
 
 func (h HTTP) Register(mux *http.ServeMux) {
 	h.registerVersions(mux)
+	h.registerTransfers(mux)
 	mux.HandleFunc("GET /api/flags", h.list)
 	mux.HandleFunc("GET /api/flags/{id}", func(w http.ResponseWriter, r *http.Request) {
 		if !transport.UUID(r.PathValue("id")) {
@@ -40,7 +41,7 @@ func (h HTTP) Register(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/evaluations", h.evaluate)
 }
 func (h HTTP) execute(w http.ResponseWriter, r *http.Request, c app.Command) {
-	if c.Action != "flag_created" && (!transport.UUID(c.ID) || c.ExpectedRevision < 1 || c.ExpectedRevision > 9007199254740991) || c.RuleID != "" && !transport.UUID(c.RuleID) {
+	if c.Action != "flag_created" && c.Action != "flag_copied" && (!transport.UUID(c.ID) || c.ExpectedRevision < 1 || c.ExpectedRevision > 9007199254740991) || c.RuleID != "" && !transport.UUID(c.RuleID) {
 		transport.Error(w, "INVALID_INPUT")
 		return
 	}
@@ -50,7 +51,7 @@ func (h HTTP) execute(w http.ResponseWriter, r *http.Request, c app.Command) {
 		return
 	}
 	status := 200
-	if c.Action == "flag_created" {
+	if c.Action == "flag_created" || c.Action == "flag_copied" {
 		status = 201
 	}
 	transport.JSON(w, status, snapshotDTO(s))

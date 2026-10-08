@@ -21,7 +21,7 @@
 | 迁移         | `pnpm migrate`          | 版本化 up，不隐式 seed                                    |
 | 开发         | `pnpm dev`              | Vite + 受管理的 API 子进程                                |
 
-工具配置、检查职责及固定版本见 [质量工具](../engineering/quality-tooling.md)。前端项目区分 unit/component/contract，未实现层不会用 passWithNoTests 冒充成功。D2 已有 seed:users 与 test:e2e，D3 已加入灰度→历史回滚→评估的第二条 E2E；Docker 尚未落地。test:e2e 先构建内嵌资源，再启动独立 Go 测试服务，每次建立/清理随机 schema，使用本次随机密码。固定专用端口 18090，拒绝复用已有服务；Playwright SIGTERM 关闭服务并清理数据。先运行 pnpm --dir frontend exec playwright install chromium。D4 增加发布关键路径，D5 验证稳定性。
+工具配置、检查职责及固定版本见 [质量工具](../engineering/quality-tooling.md)。前端区分 unit/component/contract；D2～D4 已有核心配置、回滚和排序/复制/固定源发布三条 E2E，Docker 尚未落地。test:e2e 先构建内嵌资源，再启动独立 Go 测试服务，每次建立/清理随机 schema，使用本次随机密码。固定专用端口 18090，拒绝复用已有服务；Playwright SIGTERM 关闭服务并清理数据。先运行 pnpm --dir frontend exec playwright install chromium。D5 验证系统稳定性，未实现层不以 passWithNoTests 冒充成功。
 
 ## 开发反馈与最终门禁
 
@@ -41,6 +41,6 @@ integration/race 显式使用 TEST_DATABASE_URL；要求 PostgreSQL URL、库名
 
 .github/workflows/verify.yml 在 push main / pull_request 中使用 PostgreSQL 17.7，执行固定依赖安装、Go 质量工具与 Chromium 安装和 verify:full。远端 CI 必须实际运行才能报告通过；本地结果不代替远端状态。
 
-D1 验证配置、技术 HTTP、React 接线、迁移和构建。D2 验收登录、评估、写入权限和第一条系统冒烟；D3 验收灰度、旧快照兼容、版本与完整回滚，D4/D5 验收发布及完整演示数据；不建立无目的 nightly。
+D1 验证配置、技术 HTTP、React 接线、迁移和构建。D2 验收登录/核心配置，D3 验收灰度/旧快照/版本/回滚，D4 已验收排序/固定源环境流转；D5 统一完整演示和系统稳定性，不建立无目的 nightly。
 
 最终 Docker 发布须验证空库启动、已有库升级和恢复路径，以及业务关键流程。数据库迁移 down 和应用配置回滚分开报告；不能把尚未运行的容器或业务测试记为已通过。

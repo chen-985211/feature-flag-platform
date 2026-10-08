@@ -31,6 +31,10 @@ const summary = {
 };
 function gateways(): Flags {
   return {
+    reorder: vi.fn(),
+    copy: vi.fn(),
+    publication: vi.fn(),
+    publish: vi.fn(),
     list: vi.fn(),
     get: vi.fn(),
     create: vi.fn(),

@@ -57,6 +57,10 @@ it('rejects non-object evaluation input and renders authoritative false hits', a
   });
   const flags: Flags = {
     evaluate,
+    reorder: vi.fn(),
+    copy: vi.fn(),
+    publication: vi.fn(),
+    publish: vi.fn(),
     list: vi.fn(),
     get: vi.fn(),
     versions: vi.fn(),

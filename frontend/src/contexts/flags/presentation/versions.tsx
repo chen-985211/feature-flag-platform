@@ -1,40 +1,10 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import type { Flag, Flags, Rule } from '../application/contracts';
+import type { Flag, Flags } from '../application/contracts';
 import { ApiError, feedback } from '../../../shared-kernel/errors';
 import { Button } from '../../../presentation/components/button';
 import { ConfigurationView } from './configuration-view';
-import { RuleCondition } from './rule-condition';
-const fields: Record<string, string> = {
-  name: '名称',
-  key: 'Key',
-  enabled: '启用状态',
-  default_value: '默认结果',
-  seed: '灰度 seed',
-  rules: '规则及顺序',
-};
-function DifferenceValue({ field, raw }: { field: string; raw: string }) {
-  const value: unknown = JSON.parse(raw);
-  if (field === 'rules' && Array.isArray(value)) {
-    if (value.length === 0) return <span className="muted">无规则</span>;
-    return (
-      <ol className="diff-rules">
-        {(value as Rule[]).map((rule) => (
-          <li key={rule.id}>
-            <span>优先级 {rule.priority} · </span>
-            <RuleCondition rule={rule} />
-            <p>返回 {String(rule.result)}</p>
-          </li>
-        ))}
-      </ol>
-    );
-  }
-  return (
-    <code className="diff-scalar">
-      {typeof value === 'string' ? value : raw}
-    </code>
-  );
-}
+import { ConfigurationDiff } from './configuration-diff';
 export function Versions({
   flag,
   flags,
@@ -230,29 +200,7 @@ export function Versions({
                 {preview.data.changes.length === 0 ? (
                   <p className="muted">选中内容与当前配置一致。</p>
                 ) : (
-                  <div className="diff-list">
-                    {preview.data.changes.map((change) => (
-                      <section key={change.field} className="diff-row">
-                        <h4>{fields[change.field]}</h4>
-                        <div className="diff-columns">
-                          <div>
-                            <small>当前配置</small>
-                            <DifferenceValue
-                              field={change.field}
-                              raw={change.before_json}
-                            />
-                          </div>
-                          <div>
-                            <small>恢复后配置</small>
-                            <DifferenceValue
-                              field={change.field}
-                              raw={change.after_json}
-                            />
-                          </div>
-                        </div>
-                      </section>
-                    ))}
-                  </div>
+                  <ConfigurationDiff changes={preview.data.changes} />
                 )}
                 {error !== undefined && (
                   <p role="alert" className="error-message">

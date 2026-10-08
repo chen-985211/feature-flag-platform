@@ -12,6 +12,7 @@ import type {
   VersionsPage,
   VersionPreview,
   VersionSummary,
+  PublicationPreview,
 } from '../application/contracts';
 import { validExpected } from '../domain/editing';
 import {
@@ -119,6 +120,85 @@ function flag(v: unknown): Flag {
   return v as unknown as Flag;
 }
 export class HttpFlags implements Flags {
+  async reorder(id: string, ids: string[], revision: number): Promise<Flag> {
+    return flag(
+      await this.http.request(
+        '/api/flags/' + encodeURIComponent(id) + '/rules/order',
+        'POST',
+        JSON.stringify({ rule_ids: ids, expected_revision: revision }),
+      ),
+    );
+  }
+  async copy(id: string, revision: number, target: Environment): Promise<Flag> {
+    return flag(
+      await this.http.request(
+        '/api/flags/' + encodeURIComponent(id) + '/copy',
+        'POST',
+        JSON.stringify({
+          source_revision: revision,
+          target_environment: target,
+        }),
+      ),
+    );
+  }
+  async publication(
+    id: string,
+    revision: number,
+    targetEnvironment: Environment,
+    signal?: AbortSignal,
+  ): Promise<PublicationPreview> {
+    const v = await this.http.request(
+      '/api/flags/' +
+        encodeURIComponent(id) +
+        '/versions/' +
+        String(revision) +
+        '/publication?target_environment=' +
+        targetEnvironment,
+      'GET',
+      undefined,
+      signal,
+    );
+    if (
+      !isRecord(v) ||
+      v.source_revision !== revision ||
+      !integer(v.target_revision) ||
+      v.target_revision < 1 ||
+      !Array.isArray(v.changes) ||
+      !v.changes.every(validChange)
+    )
+      throw new ApiError('INVALID_RESPONSE');
+    const source = flag(v.source),
+      target = flag(v.target);
+    if (
+      source.id !== id ||
+      source.revision !== revision ||
+      target.revision !== v.target_revision ||
+      target.environment !== targetEnvironment ||
+      target.environment === source.environment ||
+      target.id === source.id ||
+      target.key !== source.key
+    )
+      throw new ApiError('INVALID_RESPONSE');
+    return { ...v, source, target } as PublicationPreview;
+  }
+  async publish(
+    id: string,
+    revision: number,
+    target: string,
+    expected: number,
+  ): Promise<Flag> {
+    return flag(
+      await this.http.request(
+        '/api/flags/' + encodeURIComponent(id) + '/publish',
+        'POST',
+        JSON.stringify({
+          source_revision: revision,
+          target_id: target,
+          expected_revision: expected,
+        }),
+      ),
+    );
+  }
   async versions(
     id: string,
     offset: number,

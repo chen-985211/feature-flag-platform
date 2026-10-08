@@ -78,34 +78,16 @@ func (h HTTP) registerVersions(mux *http.ServeMux) {
 			transport.Error(w, err.Error())
 			return
 		}
-		type change struct {
-			Field  string `json:"field"`
-			Before string `json:"before_json"`
-			After  string `json:"after_json"`
-		}
-		changes := []change{}
-		for _, c := range preview.Changes {
-			before, after := c.BeforeJSON, c.AfterJSON
-			if c.Field == "rules" {
-				var convertErr error
-				before, convertErr = diffRuleJSON(before)
-				if convertErr != nil {
-					transport.Error(w, "INTERNAL_ERROR")
-					return
-				}
-				after, convertErr = diffRuleJSON(after)
-				if convertErr != nil {
-					transport.Error(w, "INTERNAL_ERROR")
-					return
-				}
-			}
-			changes = append(changes, change{Field: c.Field, Before: before, After: after})
+		changes, err := differencesDTO(preview.Changes)
+		if err != nil {
+			transport.Error(w, "INTERNAL_ERROR")
+			return
 		}
 		transport.JSON(w, 200, struct {
-			Current  int64       `json:"current_revision"`
-			Source   int64       `json:"source_revision"`
-			Snapshot SnapshotDTO `json:"source"`
-			Changes  []change    `json:"changes"`
+			Current  int64           `json:"current_revision"`
+			Source   int64           `json:"source_revision"`
+			Snapshot SnapshotDTO     `json:"source"`
+			Changes  []differenceDTO `json:"changes"`
 		}{preview.CurrentRevision, preview.SourceRevision, snapshotDTO(preview.Source), changes})
 	})
 	mux.Handle("POST /api/flags/{id}/rollback", h.Mutation(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

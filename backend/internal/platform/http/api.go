@@ -33,6 +33,9 @@ func Error(w http.ResponseWriter, code string) {
 	case "FLAG_NOT_FOUND", "RULE_NOT_FOUND", "VERSION_NOT_FOUND":
 		status = 404
 		message = "配置或规则不存在。"
+	case "TARGET_NOT_FOUND":
+		status = 404
+		message = "目标环境还没有相同 Key，请先复制配置。"
 	case "VERSION_CONFLICT":
 		status = 409
 		message = "配置已被更新，请查看最新版本。"

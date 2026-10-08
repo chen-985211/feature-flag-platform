@@ -6,6 +6,8 @@ import { FlagForm } from './flag-form';
 import { RuleForm } from './rule-form';
 import { RuleCondition } from './rule-condition';
 import { Versions } from './versions';
+import { RuleOrder } from './rule-order';
+import { TransferDialog } from './transfer-dialog';
 import { feedback } from '../../../shared-kernel/errors';
 import { Button } from '../../../presentation/components/button';
 export function FlagDetail({
@@ -31,6 +33,16 @@ export function FlagDetail({
   const [deleting, setDeleting] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>();
+  const [transferOpen, setTransferOpen] = useState(false);
+  async function transferred(target: Flag) {
+    cache.setQueryData(['flag', target.id], target);
+    await Promise.all([
+      cache.invalidateQueries({ queryKey: ['flags'] }),
+      cache.invalidateQueries({ queryKey: ['history', target.id] }),
+      cache.invalidateQueries({ queryKey: ['versions', target.id] }),
+      cache.invalidateQueries({ queryKey: ['version-preview', target.id] }),
+    ]);
+  }
   async function saved(flag: Flag) {
     cache.setQueryData(['flag', id], flag);
     await Promise.all([
@@ -91,6 +103,9 @@ export function FlagDetail({
           <code className="muted">{flag.key}</code>
         </div>
         <div className="actions">
+          <Button variant="outline" onClick={() => setTransferOpen(true)}>
+            环境流转
+          </Button>
           <span className={'badge ' + (flag.enabled ? 'good' : 'neutral')}>
             {flag.enabled ? '已启用' : '已停用'}
           </span>
@@ -288,6 +303,13 @@ export function FlagDetail({
                 ))}
               </ol>
             )}
+            <RuleOrder
+              flag={flag}
+              flags={flags}
+              canWrite={canWrite && ruleID === null}
+              onSaved={saved}
+              reload={reload}
+            />
           </section>
           {ruleID !== null && (
             <RuleForm
@@ -321,6 +343,15 @@ export function FlagDetail({
         />
       )}
       {tab === 'history' && history(id)}
+      {transferOpen && (
+        <TransferDialog
+          flag={flag}
+          flags={flags}
+          writeEnvironments={writeEnvironments}
+          onSaved={transferred}
+          close={() => setTransferOpen(false)}
+        />
+      )}
     </>
   );
 }

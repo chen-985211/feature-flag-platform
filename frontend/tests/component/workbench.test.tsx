@@ -7,6 +7,10 @@ import { Workbench } from '../../src/presentation/app-shell/workbench';
 import type { Flags } from '../../src/contexts/flags/application/contracts';
 import { ApiError } from '../../src/shared-kernel/errors';
 const flags: Flags = {
+  reorder: vi.fn(),
+  copy: vi.fn(),
+  publication: vi.fn(),
+  publish: vi.fn(),
   list: vi.fn().mockResolvedValue({ items: [], total: 0 }),
   get: vi.fn(),
   versions: vi.fn(),

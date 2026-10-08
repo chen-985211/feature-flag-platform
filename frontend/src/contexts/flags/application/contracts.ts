@@ -78,6 +78,13 @@ export interface VersionPreview {
   source: Flag;
   changes: { field: string; before_json: string; after_json: string }[];
 }
+export interface PublicationPreview {
+  source_revision: number;
+  target_revision: number;
+  source: Flag;
+  target: Flag;
+  changes: VersionPreview['changes'];
+}
 export interface Evaluation {
   value: boolean;
   revision: number;
@@ -90,6 +97,24 @@ export interface Evaluation {
   }[];
 }
 export interface Flags {
+  reorder(
+    id: string,
+    ruleIDs: string[],
+    expectedRevision: number,
+  ): Promise<Flag>;
+  copy(id: string, sourceRevision: number, target: Environment): Promise<Flag>;
+  publication(
+    id: string,
+    sourceRevision: number,
+    target: Environment,
+    signal?: AbortSignal,
+  ): Promise<PublicationPreview>;
+  publish(
+    id: string,
+    sourceRevision: number,
+    targetID: string,
+    expectedRevision: number,
+  ): Promise<Flag>;
   versions(
     id: string,
     offset: number,

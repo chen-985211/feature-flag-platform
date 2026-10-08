@@ -92,7 +92,17 @@ func (r Repository) List(ctx context.Context, f app.Filter) (app.Page, error) {
 	return out, rows.Err()
 }
 func (s scope) Load(ctx context.Context, id string) (domain.Snapshot, error) {
-	return decode(s.tx.QueryRow(ctx, currentQuery+`WHERE f.id=$1 FOR UPDATE OF f`, id))
+	// Lock the aggregate before reading its immutable version. A joined locking
+	// query can lose its old-version match after waiting for another writer.
+	var revision int64
+	err := s.tx.QueryRow(ctx, `SELECT revision FROM flags WHERE id=$1 FOR UPDATE`, id).Scan(&revision)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return domain.Snapshot{}, app.ErrNotFound
+	}
+	if err != nil {
+		return domain.Snapshot{}, err
+	}
+	return decode(s.tx.QueryRow(ctx, `SELECT snapshot FROM flag_versions WHERE flag_id=$1 AND revision=$2`, id, revision))
 }
 func (s scope) Audit() app.AuditPort { return s.audit }
 func (s scope) Save(ctx context.Context, f domain.Snapshot, actor app.Actor) error {

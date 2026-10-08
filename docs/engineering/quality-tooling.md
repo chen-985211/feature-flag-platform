@@ -34,4 +34,4 @@ CI 的 .github/workflows/verify.yml 使用 PostgreSQL 17.7、固定 Node/Go/pnpm
 
 ## D2 浏览器门禁
 
-根 workspace 固定 @playwright/test 1.64.0，负责真实前端、Go 与 PostgreSQL 的跨系统冒烟。pnpm test:e2e 构建后运行；pnpm verify:full 在底层与 race 检查通过后运行同一套用例。CI 显式安装 Chromium，不增加 unused 排除项。D3 已增加回滚用例，D4 增加发布，D5 检查稳定性。
+根 workspace 固定 @playwright/test 1.64.0，负责真实前端、Go 与 PostgreSQL 的跨系统冒烟。pnpm test:e2e 构建后运行；pnpm verify:full 在底层与 race 检查通过后运行同一套用例。CI 显式安装 Chromium，不增加 unused 排除项。D2～D4 已接入核心配置、回滚和固定源版本发布三条链路，D5 检查稳定性。

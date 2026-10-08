@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import './workbench.css';
+@import './transfer.css';
 :root {
   color-scheme: light;
   --bg: #f8f9fb;

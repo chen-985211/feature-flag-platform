@@ -57,6 +57,8 @@ priority 为正整数，数字越小越先执行，单个 Flag 内拒绝重复�
 
 发布保留目标 Flag ID、Key、环境和创建时间，应用源名称、启停、默认值、seed 与规则。源规则映射为目标自身规则 ID，不引用其他 Flag 内部实体。目标产生新版本与自己的审计，不搬运源历史。
 
+每次复制/发布为目标规则生成新 ID；跨环境差异比较规则语义与顺序，忽略实体 ID 的技术差别。真正发布始终提交预览所确定的 target_id 和 expected revision，并重新验证同 Key/不同环境，不能因目标改名而转写另一个配置。
+
 发布到 production 以及 production 的其他修改均遵守 [权限规范](../identity/access-control.md)。
 
 ## 核心验证

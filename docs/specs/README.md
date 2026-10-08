@@ -19,6 +19,10 @@ docs/specs/
     spec.md
     plan.md
     verification.md
+  004-ordering-and-environments/
+    spec.md
+    plan.md
+    verification.md
 ```
 
 001 已完成；002 已完成，见 [Spec](002-core-configuration/spec.md)、[Plan](002-core-configuration/plan.md) 和 [验证记录](002-core-configuration/verification.md)。编号单调增加，名称表达业务/工程目标，不使用临时聊天标题；任务完成状态以对应验证记录为准。
@@ -40,3 +44,7 @@ Spec 使用稳定验收 ID，并关联 [交付编号](../delivery/acceptance.md)
 ## D3 百分比与版本
 
 [Spec](003-percentage-and-versions/spec.md)、[Plan](003-percentage-and-versions/plan.md)、[验证记录](003-percentage-and-versions/verification.md)。基于用户继续指令完成实施与本地验收。
+
+## D4 排序与环境流转
+
+[Spec](004-ordering-and-environments/spec.md)、[Plan](004-ordering-and-environments/plan.md)、[验证记录](004-ordering-and-environments/verification.md)。基于用户继续指令完成实施与本地验收。

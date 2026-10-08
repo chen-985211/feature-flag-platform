@@ -4,9 +4,9 @@ React + Go + PostgreSQL，前后端 DDD + Clean，大任务 SDD、行为变更 T
 
 ## 当前状态
 
-D1～D3 已完成：工程基础、登录/三角色、Flag 管理、equals/in 属性规则、百分比灰度、精确数字评估、版本浏览/差异/回滚、revision 冲突保护与原子审计。两条 Playwright 已覆盖核心配置和历史回滚链路。排序与复制/发布在 D4、完整演示配置在 D5、Docker 在 D6 验收。本次不要求线上地址。
+D1～D4 已完成：工程基础、登录/三角色、Flag 管理、属性/百分比规则、精确数字评估、规则排序、版本浏览/差异/回滚、跨环境复制/发布、revision 冲突保护与原子审计。三条 Playwright 已覆盖核心配置、回滚及固定源版本发布链路。完整演示和系统稳定性在 D5、Docker 在 D6 验收。本次不要求线上地址。
 
-需求与规范见 [docs](docs/README.md)，完成证据见 [D1](docs/specs/001-engineering-foundation/verification.md)、[D2](docs/specs/002-core-configuration/verification.md) 和 [D3 验证记录](docs/specs/003-percentage-and-versions/verification.md)。
+需求与规范见 [docs](docs/README.md)，完成证据见 [D1](docs/specs/001-engineering-foundation/verification.md)、[D2](docs/specs/002-core-configuration/verification.md)、[D3](docs/specs/003-percentage-and-versions/verification.md) 和 [D4 验证记录](docs/specs/004-ordering-and-environments/verification.md)。
 
 ## 本地启动
 
@@ -70,3 +70,7 @@ APP_ORIGIN=http://127.0.0.1:8080 pnpm start
 在详情的规则页选择「百分比灰度」，输入 0～100 的比例，最多两位小数。评估属性使用非空字符串 user_id，例如 `{"user_id":"alice"}`；缺少或无效标识会显示轨迹原因。规则按共同优先级执行，首条命中可返回 true 或 false；普通编辑和比例调整保持 seed，扩量保留原命中用户。算法和边界见 [评估语义](docs/contexts/flags/evaluation.md)。
 
 在版本页选择历史 revision，可查看操作者、完整配置和与当前配置的差异。确认回滚后，以所选内容生成一个新 revision，旧版本保留；配置、完整快照和审计同一事务提交。旧预览遇到并发修改会返回冲突，保留所选版本，刷新差异后重新确认。viewer 只读，production 回滚限 admin。API 与快照兼容说明见 [D3 Plan](docs/specs/003-percentage-and-versions/plan.md)。
+
+规则页的「调整规则顺序」支持拖拽、移动按钮的 ↑/↓ 及上移/下移。释放或键盘移动后提交完整序列，成功生成新版本；失败恢复已保存顺序，冲突需刷新后再操作。
+
+详情的「环境流转」选择固定源版本与不同目标环境。复制创建同 Key 新配置，已有配置返回冲突；发布先展示现有目标完整内容/差异，再按预览的目标 revision 提交。源继续编辑不会改变选定版本；发布保留目标身份，目标生成新版本并记录来源。seed 随配置流转，规则生成目标自己的 ID，跨环境差异忽略 ID 和技术时间。目标不存在需先复制，production 复制/发布限 admin。API 见 [D4 Plan](docs/specs/004-ordering-and-environments/plan.md)。

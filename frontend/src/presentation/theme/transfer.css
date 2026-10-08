@@ -1,0 +1,80 @@
+.rule-order {
+  margin-top: 18px;
+  border-top: 1px solid var(--line);
+  padding-top: 18px;
+}
+.sortable-rules {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+}
+.sortable-rules li[draggable='true'] {
+  cursor: grab;
+}
+.sortable-rules li {
+  position: relative;
+}
+.transfer-dialog {
+  width: min(940px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 24px;
+  margin: auto;
+}
+.transfer-dialog::backdrop {
+  background: rgb(5 12 24 / 55%);
+}
+.transfer-dialog[open] {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+.transfer-body {
+  overflow: auto;
+  min-height: 0;
+  overscroll-behavior: contain;
+}
+.transfer-dialog > .card-heading {
+  gap: 16px;
+  margin-bottom: 20px;
+  align-items: flex-start;
+}
+.transfer-controls {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  margin: 20px 0 24px;
+}
+.transfer-controls .pagination {
+  grid-column: 1/-1;
+}
+.transfer-dialog .actions {
+  padding-top: 12px;
+}
+.transfer-actions {
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+  padding-bottom: 8px;
+}
+.transfer-dialog h3 {
+  margin-top: 0;
+}
+@media (max-width: 760px) {
+  .transfer-dialog {
+    padding: 18px;
+  }
+  .transfer-controls {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .transfer-controls select {
+    margin-bottom: 8px;
+  }
+  .transfer-dialog > .card-heading {
+    flex-wrap: wrap;
+  }
+}

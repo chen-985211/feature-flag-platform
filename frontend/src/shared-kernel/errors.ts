@@ -6,6 +6,7 @@ const messages: Record<string, string> = {
   INVALID_USER_ATTRIBUTES: '请输入合法的属性 JSON 对象。',
   FLAG_NOT_FOUND: '配置不存在。',
   VERSION_NOT_FOUND: '版本不存在。',
+  TARGET_NOT_FOUND: '目标环境还没有相同 Key，请先复制配置。',
   RULE_NOT_FOUND: '规则不存在。',
   FLAG_KEY_CONFLICT: '当前环境已存在相同 Key。',
   PRIORITY_CONFLICT: '优先级已被其他规则使用。',

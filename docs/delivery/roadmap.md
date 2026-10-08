@@ -4,7 +4,7 @@
 
 ## 当前状态
 
-D0～D3 已完成。D1 工程基础证据见 [验证记录](../specs/001-engineering-foundation/verification.md)；D2 登录/权限、Flag/属性规则、评估和原子审计及首条 Playwright 见 [D2 记录](../specs/002-core-configuration/verification.md)。D3 百分比灰度、版本内容/差异/回滚及第二条 Playwright 已验证，见 [D3 记录](../specs/003-percentage-and-versions/verification.md)。排序、复制/发布、完整演示数据与 Docker 在 D4～D6 实现；在线实例不属于必交付项。
+D0～D4 已完成。工程基础、核心业务和灰度/版本证据分别见 [D1](../specs/001-engineering-foundation/verification.md)、[D2](../specs/002-core-configuration/verification.md)、[D3](../specs/003-percentage-and-versions/verification.md)。排序、复制/发布及第三条真实 Playwright 已验证，见 [D4 记录](../specs/004-ordering-and-environments/verification.md)。D5 完整演示与稳定性、D6 Docker 仍待实现；在线实例不属于必交付项。
 
 ## 开发阶段
 
@@ -14,7 +14,7 @@ D0～D3 已完成。D1 工程基础证据见 [验证记录](../specs/001-enginee
 | D1 工程与模型     | 前后端骨架、装配、配置、迁移、隔离测试环境和命令                     | 空库启动、依赖向内、unit 与数据库检查可执行            | 已完成   |
 | D2 核心配置与身份 | 登录/角色、Flag 管理、属性规则、评估、原子审计与首条 Playwright 冒烟 | 原题核心路径、唯一约束、权限负向与首条命中             | 已完成   |
 | D3 灰度与版本     | 百分比分桶、版本查看/差异与回滚，复用 D2 快照与乐观锁                | 灰度矩阵、冲突/失败不部分写入、完整恢复                | 已完成   |
-| D4 排序与环境流转 | 拖拽/键盘、复制、差异预览、发布                                      | 原子排序、固定源版本、目标 revision 与 production 权限 | 待实现   |
+| D4 排序与环境流转 | 拖拽/键盘、复制、差异预览、发布                                      | 原子排序、固定源版本、目标 revision 与 production 权限 | 已完成   |
 | D5 系统验收       | 各层回归、E2E 稳定性、演示数据、完整构建与本地 README                | 必做和扩展矩阵全部有证据                               | 待实现   |
 | D6 容器与提交     | Docker 复现、交付包、AI 记录与限制说明                               | 容器与本地可复现、报告真实                             | 待实现   |
 

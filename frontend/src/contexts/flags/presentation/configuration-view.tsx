@@ -1,9 +1,15 @@
 import type { Flag } from '../application/contracts';
 import { RuleCondition } from './rule-condition';
-export function ConfigurationView({ flag }: { flag: Flag }) {
+export function ConfigurationView({
+  flag,
+  heading = '选中版本的完整配置',
+}: {
+  flag: Flag;
+  heading?: string;
+}) {
   return (
     <section className="panel">
-      <h3>选中版本的完整配置</h3>
+      <h3>{heading}</h3>
       <dl className="facts">
         <dt>名称</dt>
         <dd>{flag.name}</dd>

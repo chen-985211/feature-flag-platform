@@ -15,7 +15,13 @@ var ErrForbidden = errors.New("FORBIDDEN")
 var ErrVersionNotFound = errors.New("VERSION_NOT_FOUND")
 
 type Actor struct{ ID, Name, Role string }
+type Source struct {
+	FlagID      string `json:"flag_id"`
+	Environment string `json:"environment"`
+	Revision    int64  `json:"revision"`
+}
 type Change struct {
+	Source           *Source
 	RestoredRevision int64
 	Action           string
 	Before           *domain.Snapshot
@@ -50,6 +56,8 @@ type Store interface {
 	Version(context.Context, string, int64) (Version, error)
 }
 type Command struct {
+	SourceID                                   string
+	RuleIDs                                    []string
 	Action, ID, RuleID, Name, Key, Environment string
 	Enabled, DefaultValue                      bool
 	SourceRevision                             int64
@@ -72,13 +80,32 @@ func (s Service) Execute(ctx context.Context, actor Actor, requestID string, cmd
 		var before *domain.Snapshot
 		var f *domain.Flag
 		var err error
-		if cmd.Action == "flag_created" {
+		var source *Source
+		switch cmd.Action {
+		case "flag_copied":
+			if !domain.ValidEnvironment(cmd.Environment) {
+				return domain.ErrInvalid
+			}
+			if !s.Authorize(actor, cmd.Environment) {
+				return ErrForbidden
+			}
+			var snapshot domain.Snapshot
+			snapshot, err = s.fixedSource(ctx, tx, cmd)
+			if err != nil {
+				return err
+			}
+			source = sourceOf(snapshot)
+			snapshot, err = domain.CopyConfiguration(snapshot, s.NewID(), cmd.Environment, s.ruleIDs(len(snapshot.Rules)), s.Now())
+			if err == nil {
+				f, err = domain.Restore(snapshot)
+			}
+		case "flag_created":
 			if !s.Authorize(actor, cmd.Environment) {
 				return ErrForbidden
 			}
 			now := s.Now()
 			f, err = domain.Restore(domain.Snapshot{SchemaVersion: 1, ID: s.NewID(), Name: cmd.Name, Key: cmd.Key, Environment: cmd.Environment, Seed: s.NewID(), Enabled: cmd.Enabled, DefaultValue: cmd.DefaultValue, Revision: 1, Rules: []domain.Rule{}, CreatedAt: now, UpdatedAt: now})
-		} else {
+		default:
 			current, loadErr := tx.Load(ctx, cmd.ID)
 			if loadErr != nil {
 				return loadErr
@@ -96,7 +123,7 @@ func (s Service) Execute(ctx context.Context, actor Actor, requestID string, cmd
 			return err
 		}
 		switch cmd.Action {
-		case "flag_created":
+		case "flag_created", "flag_copied":
 		case "flag_edited":
 			err = f.Edit(cmd.Name, cmd.Key, cmd.DefaultValue)
 		case "flag_enabled":
@@ -109,6 +136,16 @@ func (s Service) Execute(ctx context.Context, actor Actor, requestID string, cmd
 			r := cmd.Rule
 			r.ID = cmd.RuleID
 			err = f.UpdateRule(r)
+		case "rules_reordered":
+			err = f.Reorder(cmd.RuleIDs)
+		case "flag_published":
+			var snapshot domain.Snapshot
+			snapshot, err = s.fixedSource(ctx, tx, cmd)
+			if err != nil {
+				return err
+			}
+			source = sourceOf(snapshot)
+			err = f.Publish(snapshot, s.ruleIDs(len(snapshot.Rules)))
 		case "flag_rolled_back":
 			if cmd.SourceRevision < 1 || cmd.SourceRevision > 9007199254740991 {
 				return domain.ErrInvalid
@@ -138,7 +175,11 @@ func (s Service) Execute(ctx context.Context, actor Actor, requestID string, cmd
 		if err = tx.Save(ctx, result, actor); err != nil {
 			return err
 		}
-		return tx.Audit().Append(ctx, Change{RestoredRevision: cmd.SourceRevision, Action: cmd.Action, Before: before, After: result, Actor: actor, RequestID: requestID})
+		var restored int64
+		if cmd.Action == "flag_rolled_back" {
+			restored = cmd.SourceRevision
+		}
+		return tx.Audit().Append(ctx, Change{Source: source, RestoredRevision: restored, Action: cmd.Action, Before: before, After: result, Actor: actor, RequestID: requestID})
 	})
 	if err != nil {
 		return domain.Snapshot{}, err

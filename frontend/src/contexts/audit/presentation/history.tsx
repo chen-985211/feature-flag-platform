@@ -11,6 +11,9 @@ const names: Record<string, string> = {
   rule_edited: '编辑规则',
   rule_deleted: '删除规则',
   flag_rolled_back: '恢复历史版本',
+  rules_reordered: '调整规则顺序',
+  flag_copied: '复制配置',
+  flag_published: '发布配置',
 };
 export function History({ audit, id }: { audit: Audit; id: string }) {
   const [offset, setOffset] = useState(0);

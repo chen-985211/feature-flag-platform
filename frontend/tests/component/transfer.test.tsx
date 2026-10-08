@@ -1,5 +1,6 @@
+import { chooseOption } from '../support/choose-option';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { it, expect, vi } from 'vitest';
 import type {
@@ -128,7 +129,7 @@ it('submits keyboard sorting with the complete sequence and restores saved order
     screen.getByRole('button', { name: '上移第 2 条规则' }),
   ).toBeDisabled();
 });
-it('submits drag sorting through the same complete-order contract', async () => {
+it('submits move buttons through the same complete-order contract', async () => {
   const flags = gateways(),
     reorder = vi
       .fn<Flags['reorder']>()
@@ -144,12 +145,9 @@ it('submits drag sorting through the same complete-order contract', async () => 
     />,
   );
   await userEvent.click(screen.getByRole('button', { name: '调整规则顺序' }));
-  const rows = screen.getAllByRole('listitem');
-  fireEvent.dragStart(rows[1], {
-    dataTransfer: { setData: vi.fn(), effectAllowed: 'move' },
-  });
-  fireEvent.dragEnter(rows[0]);
-  fireEvent.drop(rows[0]);
+  await userEvent.click(
+    screen.getByRole('button', { name: '上移第 2 条规则' }),
+  );
   expect(reorder).toHaveBeenCalledWith('source', ['b', 'a'], 4);
 });
 it('preserves fixed source and target after publication conflicts and requires a new preview', async () => {
@@ -159,12 +157,12 @@ it('preserves fixed source and target after publication conflicts and requires a
       .mockRejectedValue(new ApiError('VERSION_CONFLICT'));
   flags.publish = publish;
   mountDialog(flags);
-  await userEvent.selectOptions(screen.getByLabelText('操作方式'), 'publish');
+  await chooseOption('操作方式', '发布到已有配置');
   await screen.findByText(/当前 r7/);
   await userEvent.click(screen.getByRole('button', { name: '确认发布' }));
   expect(await screen.findByRole('alert')).toHaveTextContent('已被更新');
   expect(publish).toHaveBeenCalledWith('source', 4, 'target', 7);
-  expect(screen.getByLabelText('源版本')).toHaveValue('4');
+  expect(screen.getByLabelText('源版本')).toHaveTextContent(/^r4 ·/);
   expect(screen.getByRole('button', { name: '确认发布' })).toBeDisabled();
 });
 it('allows previewing but prevents read-only writes and handles Escape', async () => {

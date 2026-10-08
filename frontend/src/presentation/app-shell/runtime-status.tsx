@@ -1,3 +1,4 @@
+import { Card } from '../components/ui/card';
 import { useQuery } from '@tanstack/react-query';
 import { Check, LoaderCircle, Unplug, RefreshCw } from 'lucide-react';
 import type { CheckReadiness } from '../../platform/health/application/check-readiness';
@@ -33,51 +34,53 @@ export function RuntimeStatus({
   const StateIcon =
     state === 'loading' ? LoaderCircle : state === 'ready' ? Check : Unplug;
   return (
-    <section className="status-card" aria-labelledby="connection-title">
-      <div className="card-heading">
-        <span className="card-label" id="connection-title">
-          服务连接
-        </span>
-        <span className="endpoint">实时状态</span>
-      </div>
-      <div className="connection-body">
-        <span className={'state-icon state-' + state}>
-          <StateIcon
-            size={22}
-            className={state === 'loading' ? 'spin' : ''}
-            aria-hidden="true"
-          />
-        </span>
-        <div className="connection-copy">
-          <div role="status" aria-live="polite">
-            <h2>{title}</h2>
+    <Card asChild>
+      <section className="status-card" aria-labelledby="connection-title">
+        <div className="card-heading">
+          <span className="card-label" id="connection-title">
+            服务连接
+          </span>
+          <span className="endpoint">实时状态</span>
+        </div>
+        <div className="connection-body">
+          <span className={'state-icon state-' + state}>
+            <StateIcon
+              size={22}
+              className={state === 'loading' ? 'spin' : ''}
+              aria-hidden="true"
+            />
+          </span>
+          <div className="connection-copy">
+            <div role="status" aria-live="polite">
+              <h2>{title}</h2>
+            </div>
+            <p>{detail}</p>
           </div>
-          <p>{detail}</p>
+          <Button
+            onClick={() => {
+              void status.refetch();
+            }}
+            disabled={status.isFetching}
+            aria-label="刷新状态"
+          >
+            <RefreshCw
+              size={15}
+              className={status.isFetching ? 'spin' : ''}
+              aria-hidden="true"
+            />
+            刷新状态
+          </Button>
         </div>
-        <Button
-          onClick={() => {
-            void status.refetch();
-          }}
-          disabled={status.isFetching}
-          aria-label="刷新状态"
-        >
-          <RefreshCw
-            size={15}
-            className={status.isFetching ? 'spin' : ''}
-            aria-hidden="true"
-          />
-          刷新状态
-        </Button>
-      </div>
-      {state === 'unavailable' && status.data?.status === 'unavailable' && (
-        <div className="request-id">
-          请求编号 <code>{status.data.requestId}</code>
+        {state === 'unavailable' && status.data?.status === 'unavailable' && (
+          <div className="request-id">
+            请求编号 <code>{status.data.requestId}</code>
+          </div>
+        )}
+        <div className="card-footer">
+          <span className={'status-dot state-' + state} aria-hidden="true" />
+          <span>每次刷新都会重新查询服务状态</span>
         </div>
-      )}
-      <div className="card-footer">
-        <span className={'status-dot state-' + state} aria-hidden="true" />
-        <span>每次刷新都会重新查询服务状态</span>
-      </div>
-    </section>
+      </section>
+    </Card>
   );
 }

@@ -21,25 +21,60 @@ test('reorder → copy → fixed source publication → target evaluation and au
   await page.getByLabel('命中返回 true', { exact: true }).uncheck();
   await page.getByRole('button', { name: '保存规则', exact: true }).click();
   await page.getByRole('button', { name: '添加规则', exact: true }).click();
-  await page.getByLabel('规则类型', { exact: true }).selectOption('percentage');
+  await page.getByRole('combobox', { name: '规则类型', exact: true }).click();
+  await page.getByRole('option', { name: '百分比灰度', exact: true }).click();
   await page.getByLabel('用户比例 (%)', { exact: true }).fill('100');
   await page.getByRole('button', { name: '保存规则', exact: true }).click();
   await page.getByRole('button', { name: '调整规则顺序', exact: true }).click();
   const order = page.getByRole('list', { name: '规则排序' });
   await order.scrollIntoViewIfNeeded();
-  const from = await order.getByRole('listitem').nth(1).boundingBox();
-  const to = await order.getByRole('listitem').nth(0).boundingBox();
+  const originalIDs = await order
+    .getByRole('listitem')
+    .evaluateAll((rows) => rows.map((row) => row.getAttribute('data-rule-id')));
+  const submittedOrders: unknown[] = [];
+  page.on('request', (request) => {
+    if (request.method() === 'POST' && request.url().endsWith('/rules/order'))
+      submittedOrders.push(request.postDataJSON());
+  });
+  const moveSecond = order.getByRole('button', { name: '移动第 2 条规则' });
+  // The keyboard sensor attaches its document listener after activation.
+  // Keep a real key-down/up interval so subsequent input follows that phase.
+  await moveSecond.press('Space', { delay: 20 });
+  await expect(moveSecond).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('status')).toContainText('拖动到目标位置');
+  await page.keyboard.press('ArrowUp');
+  await page.keyboard.press('Escape');
+  await expect(moveSecond).not.toHaveAttribute('aria-pressed', 'true');
+  await expect(moveSecond).toBeFocused();
+  await expect(page.getByText('development · revision 3')).toBeVisible();
+  const savedRequest = page.waitForRequest(
+    (request) =>
+      request.method() === 'POST' && request.url().endsWith('/rules/order'),
+  );
+  await moveSecond.scrollIntoViewIfNeeded();
+  const from = await moveSecond.boundingBox();
+  const to = await order
+    .getByRole('button', { name: '移动第 1 条规则' })
+    .boundingBox();
   if (!from || !to) throw new Error('Sorting rows must be visible');
   await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
   await page.mouse.down();
   await page.mouse.move(to.x + to.width / 2, to.y + to.height / 2, {
     steps: 10,
   });
-  // Native dragover needs a second mouse move; keep the intended drop slot.
-  await page.mouse.move(to.x + to.width / 2 + 1, to.y + to.height / 2);
+  await expect(order.getByRole('listitem').nth(0)).toHaveAttribute(
+    'data-over',
+    'true',
+  );
   await page.mouse.up();
-  await expect(page.getByRole('status')).toContainText('顺序已保存');
+  await savedRequest;
+  await expect(
+    page.getByRole('status').filter({ hasText: '规则顺序已保存' }),
+  ).toBeVisible();
   await expect(page.getByText('development · revision 4')).toBeVisible();
+  expect(submittedOrders).toEqual([
+    { rule_ids: [originalIDs[1], originalIDs[0]], expected_revision: 3 },
+  ]);
   await page.getByRole('button', { name: '环境流转', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: '环境流转' });
   await expect(
@@ -83,8 +118,12 @@ test('reorder → copy → fixed source publication → target evaluation and au
   await expect(page.getByText('development · revision 6')).toBeVisible();
   await page.getByRole('button', { name: '切换为深色主题' }).click();
   await page.getByRole('button', { name: '环境流转', exact: true }).click();
-  await dialog.getByLabel('源版本', { exact: true }).selectOption('5');
-  await dialog.getByLabel('操作方式', { exact: true }).selectOption('publish');
+  await dialog.getByRole('combobox', { name: '源版本', exact: true }).click();
+  await page.getByRole('option', { name: /^r5 ·/, exact: true }).click();
+  await dialog.getByRole('combobox', { name: '操作方式', exact: true }).click();
+  await page
+    .getByRole('option', { name: '发布到已有配置', exact: true })
+    .click();
   await expect(dialog.getByRole('heading', { name: '发布差异' })).toBeVisible();
   await expect(dialog.getByText(/当前 r1/)).toBeVisible();
   await expect(dialog.getByRole('button', { name: '确认发布' })).toBeEnabled();

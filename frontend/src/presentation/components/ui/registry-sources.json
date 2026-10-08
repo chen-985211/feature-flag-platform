@@ -19,11 +19,6 @@
       "sha256": "5cafcfeeee29534f449387a16b585f5923d2faab1a0cdc50a874416b175f59ce"
     },
     {
-      "name": "native-select",
-      "url": "https://ui.shadcn.com/r/styles/new-york-v4/native-select.json",
-      "sha256": "4bdbce5575dce610fed747df4547a3d494713f4df8d28e09b3ccee62e4d72f93"
-    },
-    {
       "name": "label",
       "url": "https://ui.shadcn.com/r/styles/new-york-v4/label.json",
       "sha256": "344bde38b8531615dbf8e14af3895517c24d8ef6ce56ddeda7e2e6fe4b5d0c00"
@@ -52,6 +47,41 @@
       "name": "badge",
       "url": "https://ui.shadcn.com/r/styles/new-york-v4/badge.json",
       "sha256": "13a9380dfff853ee730c14a52df49f22aecd31f40f2998d7c1e7ec458b6e1650"
+    },
+    {
+      "name": "select",
+      "url": "https://ui.shadcn.com/r/styles/new-york-v4/select.json",
+      "sha256": "ca3189ea8101a04f144b6d0f0e7330841639bfa5f4d57e7cca0894d39b30817b"
+    },
+    {
+      "name": "card",
+      "url": "https://ui.shadcn.com/r/styles/new-york-v4/card.json",
+      "sha256": "c7ebaa49ba2a0613838558f3892c5007523c2dc26d6b36a244145d454a796106"
+    },
+    {
+      "name": "alert",
+      "url": "https://ui.shadcn.com/r/styles/new-york-v4/alert.json",
+      "sha256": "413c97869ec0e53efa4a37f590833bcf4a7a57255f5a2e909c6bb5bac7b4570d"
+    },
+    {
+      "name": "collapsible",
+      "url": "https://ui.shadcn.com/r/styles/new-york-v4/collapsible.json",
+      "sha256": "fdc6666e9c728d7e731b0e4d67e11db81020aff47408c259549fc1aefcc8e3e7"
+    },
+    {
+      "name": "tooltip",
+      "url": "https://ui.shadcn.com/r/styles/new-york-v4/tooltip.json",
+      "sha256": "1b7b452b34beab05b22bd653963abd1c88ebd8e9ebcc89dcaebf4ac4938c929e"
+    },
+    {
+      "name": "pagination",
+      "url": "https://ui.shadcn.com/r/styles/new-york-v4/pagination.json",
+      "sha256": "e70ae7251fdb0f3c4c7473b158a15b35fa0a84ce999ce3aea66e6d6d3d409750"
+    },
+    {
+      "name": "navigation-menu",
+      "url": "https://ui.shadcn.com/r/styles/new-york-v4/navigation-menu.json",
+      "sha256": "43549da4f61ef6040c62c7ed9eede9bf0c304c7a6378a3e515c5a47d6421e50d"
     }
   ]
 }

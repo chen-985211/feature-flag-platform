@@ -1,3 +1,6 @@
+import { PagePagination } from '../../../presentation/components/page-pagination';
+import { Notice } from '../../../presentation/components/notice';
+import { Card } from '../../../presentation/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -7,7 +10,10 @@ import {
 } from '../../../presentation/components/ui/dialog';
 import { X } from 'lucide-react';
 import { Label } from '../../../presentation/components/ui/label';
-import { NativeSelect } from '../../../presentation/components/ui/native-select';
+import {
+  Dropdown,
+  DropdownOption,
+} from '../../../presentation/components/dropdown';
 import { useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { Environment, Flag, Flags } from '../application/contracts';
@@ -144,64 +150,59 @@ export function TransferDialog({
         <div className="transfer-body">
           <div className="transfer-controls">
             <Label htmlFor="transfer-mode">操作方式</Label>
-            <NativeSelect
+            <Dropdown
               id="transfer-mode"
               value={mode}
               disabled={busy}
-              onChange={(e) => {
-                setMode(e.target.value === 'publish' ? 'publish' : 'copy');
+              onValueChange={(nextValue) => {
+                setMode(nextValue === 'publish' ? 'publish' : 'copy');
                 changed();
               }}
             >
-              <option value="copy">复制到新环境配置</option>
-              <option value="publish">发布到已有配置</option>
-            </NativeSelect>
+              <DropdownOption value="copy">复制到新环境配置</DropdownOption>
+              <DropdownOption value="publish">发布到已有配置</DropdownOption>
+            </Dropdown>
             <Label htmlFor="transfer-source">源版本</Label>
-            <NativeSelect
+            <Dropdown
               id="transfer-source"
               value={selected}
               disabled={busy || !versions.data}
-              onChange={(e) => {
-                setSelected(Number(e.target.value));
+              onValueChange={(nextValue) => {
+                setSelected(Number(nextValue));
                 changed();
               }}
             >
               {!versions.data?.items.some((v) => v.revision === selected) && (
-                <option value={selected}>r{selected} · 已选版本</option>
+                <DropdownOption value={selected}>
+                  r{selected} · 已选版本
+                </DropdownOption>
               )}
               {versions.data?.items.map((v) => (
-                <option key={v.revision} value={v.revision}>
+                <DropdownOption key={v.revision} value={v.revision}>
                   r{v.revision} · {v.actor_name}
-                </option>
+                </DropdownOption>
               ))}
-            </NativeSelect>
+            </Dropdown>
             {versions.data && versions.data.total > 50 && (
-              <div className="pagination">
-                <Button
-                  disabled={busy || offset === 0}
-                  onClick={() => setOffset(Math.max(0, offset - 50))}
-                >
-                  上一页版本
-                </Button>
-                <span>
-                  {offset + 1}～{Math.min(offset + 50, versions.data.total)}
-                </span>
-                <Button
-                  disabled={busy || offset + 50 >= versions.data.total}
-                  onClick={() => setOffset(offset + 50)}
-                >
-                  下一页版本
-                </Button>
-              </div>
+              <PagePagination
+                total={versions.data.total}
+                offset={offset}
+                unit="个版本"
+                label="源版本分页"
+                busy={busy}
+                previousLabel="上一页版本"
+                nextLabel="下一页版本"
+                onPage={setOffset}
+              />
             )}
             <Label htmlFor="transfer-target">目标环境</Label>
-            <NativeSelect
+            <Dropdown
               id="transfer-target"
               value={target}
               disabled={busy}
-              onChange={(e) => {
+              onValueChange={(nextValue) => {
                 const environment = candidates.find(
-                  (item) => item === e.target.value,
+                  (item) => item === nextValue,
                 );
                 if (environment) {
                   setTarget(environment);
@@ -210,14 +211,14 @@ export function TransferDialog({
               }}
             >
               {candidates.map((e) => (
-                <option key={e} value={e}>
+                <DropdownOption key={e} value={e}>
                   {e}
-                </option>
+                </DropdownOption>
               ))}
-            </NativeSelect>
+            </Dropdown>
           </div>
           {versions.isError && (
-            <p role="alert" className="error-message">
+            <Notice role="alert" className="error-message" tone="error">
               {feedback(versions.error)}
               <Button
                 onClick={() => {
@@ -226,11 +227,11 @@ export function TransferDialog({
               >
                 重试版本列表
               </Button>
-            </p>
+            </Notice>
           )}
           {source.isPending && <p role="status">加载源版本中…</p>}
           {source.isError && (
-            <p role="alert" className="error-message">
+            <Notice role="alert" className="error-message" tone="error">
               {feedback(source.error)}
               <Button
                 onClick={() => {
@@ -239,7 +240,7 @@ export function TransferDialog({
               >
                 重试源版本
               </Button>
-            </p>
+            </Notice>
           )}
           {source.data && (
             <ConfigurationView
@@ -248,15 +249,15 @@ export function TransferDialog({
             />
           )}
           {mode === 'copy' ? (
-            <p className="permission-note">
+            <Notice className="permission-note">
               将 {flag.environment} 的 r{selected} 复制到 {target}，创建相同 Key
               的新配置。已有配置会返回冲突。
-            </p>
+            </Notice>
           ) : (
             <>
               {preview.isPending && <p role="status">加载发布差异中…</p>}
               {preview.isError && (
-                <p role="alert" className="error-message">
+                <Notice role="alert" className="error-message" tone="error">
                   {feedback(preview.error)}
                   <Button
                     onClick={() => {
@@ -265,7 +266,7 @@ export function TransferDialog({
                   >
                     刷新发布差异
                   </Button>
-                </p>
+                </Notice>
               )}
               {preview.data && (
                 <>
@@ -273,54 +274,60 @@ export function TransferDialog({
                     flag={preview.data.target}
                     heading="目标当前完整配置"
                   />
-                  <section className="panel">
-                    <div className="card-heading">
-                      <div>
-                        <h3>发布差异</h3>
-                        <p className="muted">
-                          源 r{selected} → {target} / {preview.data.target.key}{' '}
-                          · 当前 r{preview.data.target_revision}
-                        </p>
+                  <Card asChild>
+                    <section className="panel">
+                      <div className="card-heading">
+                        <div>
+                          <h3>发布差异</h3>
+                          <p className="muted">
+                            源 r{selected} → {target} /{' '}
+                            {preview.data.target.key} · 当前 r
+                            {preview.data.target_revision}
+                          </p>
+                        </div>
+                        <Button
+                          disabled={busy || preview.isFetching}
+                          onClick={() => {
+                            void refresh();
+                          }}
+                        >
+                          刷新发布差异
+                        </Button>
                       </div>
-                      <Button
-                        disabled={busy || preview.isFetching}
-                        onClick={() => {
-                          void refresh();
-                        }}
-                      >
-                        刷新发布差异
-                      </Button>
-                    </div>
-                    <ConfigurationDiff changes={preview.data.changes} />
-                  </section>
+                      <ConfigurationDiff changes={preview.data.changes} />
+                    </section>
+                  </Card>
                 </>
               )}
             </>
           )}
           {error !== undefined && (
-            <p className="error-message" role="alert">
+            <Notice className="error-message" role="alert" tone="error">
               {feedback(error)}
-            </p>
+            </Notice>
           )}
           {stale && (
-            <p className="permission-note">
+            <Notice className="permission-note">
               所选源版本与目标已保留，请刷新发布差异后重新确认。
-            </p>
+            </Notice>
           )}
           {!allowed && (
-            <p className="permission-note">当前账号只可查看此目标环境。</p>
+            <Notice className="permission-note">
+              当前账号只可查看此目标环境。
+            </Notice>
           )}
           {result && (
-            <p role="status" className="permission-note">
+            <Notice role="status" className="permission-note">
               {mode === 'copy' ? '复制' : '发布'}成功，目标 revision{' '}
               {result.revision}。
-              <a
-                className="flag-name"
-                href={`/flags/${result.id}?environment=${result.environment}`}
-              >
-                查看目标配置
-              </a>
-            </p>
+              <Button asChild variant="link" size="sm">
+                <a
+                  href={`/flags/${result.id}?environment=${result.environment}`}
+                >
+                  查看目标配置
+                </a>
+              </Button>
+            </Notice>
           )}
         </div>
         <div className="actions transfer-actions">

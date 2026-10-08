@@ -1,3 +1,4 @@
+import { chooseOption } from '../support/choose-option';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
@@ -18,7 +19,7 @@ it('rejects a heterogeneous in array before saving and keeps its input', async (
     />,
   );
   await userEvent.type(screen.getByLabelText('属性名称'), 'country');
-  await userEvent.selectOptions(screen.getByLabelText('操作符'), 'in');
+  await chooseOption('操作符', 'in · 属于');
   await userEvent.clear(screen.getByLabelText('期望值 JSON'));
   await userEvent.type(screen.getByLabelText('期望值 JSON'), '[[1,"cn"]');
   await userEvent.click(screen.getByRole('button', { name: '保存规则' }));
@@ -111,10 +112,7 @@ it('edits percentage as decimal text and submits exact integer basis points', as
       reload={() => {}}
     />,
   );
-  await userEvent.selectOptions(
-    screen.getByLabelText('规则类型'),
-    'percentage',
-  );
+  await chooseOption('规则类型', '百分比灰度');
   await userEvent.clear(screen.getByLabelText('用户比例 (%)'));
   await userEvent.type(screen.getByLabelText('用户比例 (%)'), '99.99');
   await userEvent.click(screen.getByRole('button', { name: '保存规则' }));

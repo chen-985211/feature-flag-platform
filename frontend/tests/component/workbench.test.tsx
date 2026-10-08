@@ -210,3 +210,32 @@ it('keeps an in-flight save open and allows dismissal after its error', async ()
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
   );
 });
+it('shows identity once and removes the redundant workspace line from the page header', async () => {
+  mountEditor(flags);
+  await screen.findByRole('heading', { name: '功能配置' });
+  expect(screen.getAllByText('Editor')).toHaveLength(1);
+  expect(
+    within(screen.getByRole('main')).queryByText(/工作空间 \//),
+  ).not.toBeInTheDocument();
+});
+it('opens an actual environment listbox and switches the URL and write capability by keyboard', async () => {
+  const list = vi
+    .fn<Flags['list']>()
+    .mockResolvedValue({ items: [], total: 0 });
+  mountEditor({ ...flags, list });
+  await screen.findByRole('heading', { name: '功能配置' });
+  const trigger = screen.getByRole('combobox', { name: '当前环境' });
+  trigger.focus();
+  await userEvent.keyboard('{Enter}');
+  expect(await screen.findByRole('listbox')).toBeVisible();
+  await userEvent.keyboard('{End}{Enter}');
+  await waitFor(() => expect(trigger).toHaveTextContent('Production'));
+  expect(screen.getByTestId('location')).toHaveTextContent(
+    'environment=production',
+  );
+  expect(screen.getByRole('button', { name: '新建 Flag' })).toBeDisabled();
+  expect(
+    list.mock.calls.some(([environment]) => environment === 'production'),
+  ).toBe(true);
+  expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+});

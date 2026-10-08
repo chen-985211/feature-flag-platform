@@ -20,7 +20,8 @@ test('percentage rule → edit → version preview → rollback → evaluate res
     page.getByRole('heading', { name: 'Percentage rollback' }),
   ).toBeVisible();
   await page.getByRole('button', { name: '添加规则', exact: true }).click();
-  await page.getByLabel('规则类型', { exact: true }).selectOption('percentage');
+  await page.getByRole('combobox', { name: '规则类型', exact: true }).click();
+  await page.getByRole('option', { name: '百分比灰度', exact: true }).click();
   await page.getByLabel('用户比例 (%)', { exact: true }).fill('100');
   await page.getByRole('button', { name: '保存规则', exact: true }).click();
   await expect(page.getByText('100%', { exact: true })).toBeVisible();
@@ -40,7 +41,8 @@ test('percentage rule → edit → version preview → rollback → evaluate res
     .getByRole('link', { name: 'Percentage rollback', exact: true })
     .click();
   await page.getByRole('tab', { name: '版本', exact: true }).click();
-  await page.getByLabel('选择版本', { exact: true }).selectOption('2');
+  await page.getByRole('combobox', { name: '选择版本', exact: true }).click();
+  await page.getByRole('option', { name: /^r2 ·/, exact: true }).click();
   await expect(
     page.getByRole('heading', { name: '选中版本的完整配置' }),
   ).toBeVisible();
@@ -70,8 +72,10 @@ test('percentage rule → edit → version preview → rollback → evaluate res
     .getByRole('button', { name: '确认回滚', exact: true })
     .press('Enter');
   await expect(page.getByRole('status')).toContainText('revision 4');
-  await expect(page.getByLabel('选择版本')).toContainText('r3');
-  await expect(page.getByLabel('选择版本')).toContainText('r4');
+  await page.getByRole('combobox', { name: '选择版本', exact: true }).click();
+  await expect(page.getByRole('option', { name: /^r3 ·/ })).toBeVisible();
+  await expect(page.getByRole('option', { name: /^r4 ·/ })).toBeVisible();
+  await page.keyboard.press('Escape');
   await page.getByRole('link', { name: '运行评估', exact: true }).click();
   await page
     .getByLabel('用户属性 JSON', { exact: true })

@@ -1,9 +1,113 @@
 import { useRef, useState } from 'react';
-import type { Flag, Flags } from '../application/contracts';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  sortableKeyboardCoordinates,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { GripVertical } from 'lucide-react';
+import type { Flag, Flags, Rule } from '../application/contracts';
 import { moveRule } from '../domain/ordering';
 import { ApiError, feedback } from '../../../shared-kernel/errors';
 import { Button } from '../../../presentation/components/button';
+import { Notice } from '../../../presentation/components/notice';
 import { RuleCondition } from './rule-condition';
+function SortableRule({
+  rule,
+  index,
+  count,
+  disabled,
+  move,
+}: {
+  rule: Rule;
+  index: number;
+  count: number;
+  disabled: boolean;
+  move: (to: number) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+    isOver,
+  } = useSortable({
+    id: rule.id,
+    disabled,
+    transition: { duration: 150, easing: 'ease' },
+  });
+  return (
+    <li
+      ref={setNodeRef}
+      data-rule-id={rule.id}
+      data-dragging={isDragging}
+      data-over={isOver}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+        zIndex: isDragging ? 1 : undefined,
+      }}
+    >
+      <div className="rule-description">
+        <Button
+          ref={setActivatorNodeRef}
+          className="sort-handle"
+          variant="ghost"
+          {...attributes}
+          {...listeners}
+          aria-label={`移动第 ${index + 1} 条规则`}
+          disabled={disabled}
+          onKeyDown={(event) => {
+            if (
+              !isDragging &&
+              (event.key === 'ArrowUp' || event.key === 'ArrowDown')
+            ) {
+              event.preventDefault();
+              move(index + (event.key === 'ArrowUp' ? -1 : 1));
+            } else listeners?.onKeyDown?.(event);
+          }}
+        >
+          <GripVertical size={16} />
+        </Button>
+        <div>
+          <span className="muted">{index + 1} · </span>
+          <RuleCondition rule={rule} />
+          <p>命中返回 {String(rule.result)}</p>
+        </div>
+      </div>
+      <div className="actions">
+        <Button
+          variant="ghost"
+          aria-label={`上移第 ${index + 1} 条规则`}
+          disabled={disabled || index === 0}
+          onClick={() => move(index - 1)}
+        >
+          上移
+        </Button>
+        <Button
+          variant="ghost"
+          aria-label={`下移第 ${index + 1} 条规则`}
+          disabled={disabled || index === count - 1}
+          onClick={() => move(index + 1)}
+        >
+          下移
+        </Button>
+      </div>
+    </li>
+  );
+}
 export function RuleOrder({
   flag,
   flags,
@@ -23,31 +127,15 @@ export function RuleOrder({
     [stale, setStale] = useState(false),
     [error, setError] = useState<unknown>(),
     [message, setMessage] = useState('');
-  const [dragging, setDragging] = useState<string | null>(null),
-    [offsets, setOffsets] = useState<Record<string, number>>({});
-  const geometry = useRef<Record<string, { top: number; height: number }>>({});
-  const dragged = useRef<string | null>(null),
-    pending = useRef(false),
-    order = useRef<string[] | null>(null);
-  const savedIDs = flag.rules.map((r) => r.id),
+  const pending = useRef(false);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+  const savedIDs = flag.rules.map((rule) => rule.id),
     ids = draft ?? savedIDs;
-  function preview(next: string[]) {
-    order.current = next;
-    setDraft(next);
-    if (dragged.current) layout(next, true);
-  }
-  function layout(next: string[], keepSource: boolean) {
-    let top = geometry.current[savedIDs[0]]?.top;
-    if (top === undefined) return;
-    const moved: Record<string, number> = {};
-    for (const id of next) {
-      const row = geometry.current[id];
-      if (!row) return;
-      moved[id] = keepSource && id === dragged.current ? 0 : top - row.top;
-      top += row.height;
-    }
-    setOffsets(moved);
-  }
   async function commit(next: string[]) {
     if (
       !canWrite ||
@@ -60,7 +148,7 @@ export function RuleOrder({
     setBusy(true);
     setError(undefined);
     setMessage('');
-    preview(next);
+    setDraft(next);
     try {
       await onSaved(await flags.reorder(flag.id, next, flag.revision));
       setMessage('规则顺序已保存。');
@@ -71,11 +159,7 @@ export function RuleOrder({
     } finally {
       pending.current = false;
       setBusy(false);
-      order.current = null;
       setDraft(null);
-      dragged.current = null;
-      setDragging(null);
-      setOffsets({});
     }
   }
   return (
@@ -90,13 +174,13 @@ export function RuleOrder({
       {editing && (
         <>
           <p className="muted">
-            拖动规则，或聚焦移动按钮后按 ↑ /
+            拖动移动按钮，或聚焦后按 ↑ /
             ↓；也可使用上移、下移。释放后保存完整顺序。
           </p>
           {error !== undefined && (
-            <p className="error-message" role="alert">
+            <Notice className="error-message" tone="error">
               排序失败，已恢复已保存顺序。{feedback(error)}
-            </p>
+            </Notice>
           )}
           {stale && (
             <Button
@@ -111,143 +195,53 @@ export function RuleOrder({
             </Button>
           )}
           {message && <p role="status">{message}</p>}
-          <ol
-            className="rule-list sortable-rules"
-            aria-label="规则排序"
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => {
-              e.preventDefault();
-              if (dragged.current) void commit(order.current ?? savedIDs);
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            accessibility={{
+              screenReaderInstructions: {
+                draggable:
+                  '按空格开始拖动，方向键移动，空格确认，Escape 取消。',
+              },
+              announcements: {
+                onDragStart: () => '正在移动规则。',
+                onDragOver: ({ over }) =>
+                  over ? '拖动到目标位置。' : '未选择目标位置。',
+                onDragEnd: () => '拖动已结束。',
+                onDragCancel: () => '已取消移动。',
+              },
+            }}
+            onDragEnd={({ active, over }) => {
+              if (over)
+                void commit(
+                  moveRule(
+                    savedIDs,
+                    String(active.id),
+                    savedIDs.indexOf(String(over.id)),
+                  ),
+                );
             }}
           >
-            {savedIDs.map((id) => {
-              const index = ids.indexOf(id);
-              const rule = flag.rules.find((r) => r.id === id);
-              if (!rule) return null;
-              return (
-                <li
-                  key={id}
-                  style={{
-                    transform: `translateY(${String(offsets[id] ?? 0)}px)`,
-                    opacity: dragging === id ? 0 : 1,
-                  }}
-                  draggable={canWrite && !busy && !stale}
-                  onDragStart={(e) => {
-                    if (!canWrite || busy || stale) {
-                      e.preventDefault();
-                      return;
-                    }
-                    dragged.current = id;
-                    setDragging(id);
-                    const rows = e.currentTarget.parentElement?.children;
-                    const measured: Record<
-                      string,
-                      { top: number; height: number }
-                    > = {};
-                    if (rows)
-                      Array.from(rows).forEach((row, i) => {
-                        const rect = row.getBoundingClientRect();
-                        measured[savedIDs[i]] = {
-                          top: rect.top,
-                          height: rect.height,
-                        };
-                      });
-                    geometry.current = measured;
-                    e.dataTransfer.setData('text/plain', id);
-                    e.dataTransfer.effectAllowed = 'move';
-                    order.current = [...savedIDs];
-                  }}
-                  onDragOver={(e) => e.preventDefault()}
-                  onDragEnter={() => {
-                    if (
-                      dragged.current &&
-                      dragged.current !== id &&
-                      !pending.current
-                    )
-                      preview(
-                        moveRule(
-                          order.current ?? savedIDs,
-                          dragged.current,
-                          index,
-                        ),
-                      );
-                  }}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    if (dragged.current)
-                      void commit(
-                        order.current ??
-                          moveRule(savedIDs, dragged.current, index),
-                      );
-                  }}
-                  onDragEnd={() => {
-                    setDragging(null);
-                    if (pending.current) {
-                      layout(order.current ?? savedIDs, false);
-                      return;
-                    }
-                    if (!pending.current) {
-                      dragged.current = null;
-                      order.current = null;
-                      setDraft(null);
-                      setOffsets({});
-                    }
-                  }}
-                >
-                  <div className="rule-description">
-                    <Button
-                      variant="ghost"
-                      aria-label={`移动第 ${String(index + 1)} 条规则`}
-                      disabled={busy || stale || !canWrite}
-                      onKeyDown={(e) => {
-                        if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-                          e.preventDefault();
-                          void commit(
-                            moveRule(
-                              savedIDs,
-                              id,
-                              index + (e.key === 'ArrowUp' ? -1 : 1),
-                            ),
-                          );
-                        }
+            <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+              <ol className="rule-list sortable-rules" aria-label="规则排序">
+                {ids.map((id, index) => {
+                  const rule = flag.rules.find((item) => item.id === id);
+                  return rule ? (
+                    <SortableRule
+                      key={id}
+                      rule={rule}
+                      index={index}
+                      count={ids.length}
+                      disabled={!canWrite || busy || stale}
+                      move={(to) => {
+                        void commit(moveRule(savedIDs, id, to));
                       }}
-                    >
-                      ↕
-                    </Button>
-                    <div>
-                      <span className="muted">{index + 1} · </span>
-                      <RuleCondition rule={rule} />
-                      <p>命中返回 {String(rule.result)}</p>
-                    </div>
-                  </div>
-                  <div className="actions">
-                    <Button
-                      variant="ghost"
-                      aria-label={`上移第 ${String(index + 1)} 条规则`}
-                      disabled={index === 0 || busy || stale || !canWrite}
-                      onClick={() => {
-                        void commit(moveRule(savedIDs, id, index - 1));
-                      }}
-                    >
-                      上移
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      aria-label={`下移第 ${String(index + 1)} 条规则`}
-                      disabled={
-                        index === ids.length - 1 || busy || stale || !canWrite
-                      }
-                      onClick={() => {
-                        void commit(moveRule(savedIDs, id, index + 1));
-                      }}
-                    >
-                      下移
-                    </Button>
-                  </div>
-                </li>
-              );
-            })}
-          </ol>
+                    />
+                  ) : null;
+                })}
+              </ol>
+            </SortableContext>
+          </DndContext>
           {busy && <p role="status">保存规则顺序中…</p>}
         </>
       )}

@@ -1,3 +1,4 @@
+import { chooseOption } from '../support/choose-option';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -81,22 +82,20 @@ it('retains the selected version after a stale preview and prevents blind retrie
     .mockRejectedValue(new ApiError('VERSION_CONFLICT'));
   flags.rollback = rollback;
   mount(flags);
-  await screen.findByRole('option', { name: /r1/ });
-  await userEvent.selectOptions(screen.getByLabelText('选择版本'), '1');
+  await chooseOption('选择版本', /^r1 ·/);
   await userEvent.click(
     await screen.findByRole('button', { name: '回滚到 r1' }),
   );
   await userEvent.click(screen.getByRole('button', { name: '确认回滚' }));
   expect(await screen.findByRole('alert')).toHaveTextContent('已被更新');
-  expect(screen.getByLabelText('选择版本')).toHaveValue('1');
+  expect(screen.getByLabelText('选择版本')).toHaveTextContent(/^r1 ·/);
   expect(screen.getByRole('button', { name: '确认回滚' })).toBeDisabled();
   expect(screen.getByRole('button', { name: '刷新差异' })).toBeEnabled();
   expect(rollback).toHaveBeenCalledWith('id', 1, 3);
 });
 it('allows viewing history but prevents read-only restore', async () => {
   mount(gateways(), false);
-  await screen.findByRole('option', { name: /r1/ });
-  await userEvent.selectOptions(screen.getByLabelText('选择版本'), '1');
+  await chooseOption('选择版本', /^r1 ·/);
   expect(
     await screen.findByRole('button', { name: '回滚到 r1' }),
   ).toBeDisabled();

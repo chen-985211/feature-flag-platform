@@ -30,7 +30,8 @@ test('viewer reads seeded rules, evaluates, views history and logs out; editor s
     page.getByText('当前环境为只读；可以查看配置和运行评估。'),
   ).toBeVisible();
   await page.getByRole('tab', { name: '版本', exact: true }).click();
-  await page.getByLabel('选择版本', { exact: true }).selectOption('1');
+  await page.getByRole('combobox', { name: '选择版本', exact: true }).click();
+  await page.getByRole('option', { name: /^r1 ·/, exact: true }).click();
   await expect(
     page.getByRole('heading', { name: '选中版本的完整配置' }),
   ).toBeVisible();
@@ -64,7 +65,8 @@ test('viewer reads seeded rules, evaluates, views history and logs out; editor s
   await expect(
     page.getByRole('button', { name: '新建 Flag', exact: true }),
   ).toBeEnabled();
-  await page.getByLabel('当前环境', { exact: true }).selectOption('production');
+  await page.getByRole('combobox', { name: '当前环境', exact: true }).click();
+  await page.getByRole('option', { name: 'Production', exact: true }).click();
   await expect(
     page.getByRole('button', { name: '新建 Flag', exact: true }),
   ).toBeDisabled();

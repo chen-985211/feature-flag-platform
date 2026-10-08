@@ -1,8 +1,11 @@
+import { WorkspaceNavigation } from '../components/workspace-navigation';
+import { PageHeader } from '../components/page-header';
+import { Notice } from '../components/notice';
+import { Card } from '../components/ui/card';
 import { useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Link,
-  NavLink,
   Navigate,
   Route,
   Routes,
@@ -16,10 +19,9 @@ import {
   Sun,
   FlaskConical,
   Activity,
-  UserRound,
   LogOut,
 } from 'lucide-react';
-import { NativeSelect } from '../components/ui/native-select';
+import { Dropdown, DropdownOption } from '../components/dropdown';
 import { Label } from '../components/ui/label';
 import type {
   Identity,
@@ -84,16 +86,18 @@ export function Workbench({
   )
     return (
       <main className="login-page">
-        <section className="panel">
-          <p role="alert">{feedback(session.error)}</p>
-          <Button
-            onClick={() => {
-              void session.refetch();
-            }}
-          >
-            重试连接
-          </Button>
-        </section>
+        <Card asChild>
+          <section className="panel">
+            <Notice tone="error">{feedback(session.error)}</Notice>
+            <Button
+              onClick={() => {
+                void session.refetch();
+              }}
+            >
+              重试连接
+            </Button>
+          </section>
+        </Card>
       </main>
     );
   if (!session.data || session.isError)
@@ -142,22 +146,22 @@ export function Workbench({
         <div className="header-actions">
           <Label className="environment-control">
             环境
-            <NativeSelect
+            <Dropdown
               aria-label="当前环境"
               value={environment}
-              onChange={(e) => {
+              onValueChange={(nextValue) => {
                 const next = new URLSearchParams(search);
-                next.set('environment', e.target.value);
+                next.set('environment', nextValue);
                 const path = location.pathname.startsWith('/flags/')
                   ? '/flags'
                   : location.pathname;
                 void navigate(path + '?' + next.toString());
               }}
             >
-              <option value="development">Development</option>
-              <option value="staging">Staging</option>
-              <option value="production">Production</option>
-            </NativeSelect>
+              <DropdownOption value="development">Development</DropdownOption>
+              <DropdownOption value="staging">Staging</DropdownOption>
+              <DropdownOption value="production">Production</DropdownOption>
+            </Dropdown>
           </Label>
           <span className="user-label">
             {current.user.display_name}
@@ -184,45 +188,32 @@ export function Workbench({
           </Button>
         </div>
       </header>
-      <nav className="mobile-nav" aria-label="工作空间导航">
-        {nav.map(([path, label, Icon]) => (
-          <NavLink key={path} to={path + '?environment=' + environment}>
-            <Icon aria-hidden="true" />
-            <span>{label}</span>
-          </NavLink>
-        ))}
-      </nav>
+      <WorkspaceNavigation
+        mobile
+        items={nav.map(([path, label, icon]) => ({
+          path,
+          label,
+          icon,
+          href: path + '?environment=' + environment,
+        }))}
+      />
       <div className="shell">
         <aside className="sidebar">
           <span className="nav-caption">工作空间</span>
-          {nav.map(([path, label, Icon]) => (
-            <NavLink
-              className={({ isActive }) =>
-                'nav-item' + (isActive ? ' active' : '')
-              }
-              title={label}
-              key={path}
-              to={path + '?environment=' + environment}
-            >
-              <Icon aria-hidden="true" />
-              <span>{label}</span>
-            </NavLink>
-          ))}
-          <div className="sidebar-footer">
-            <span className="user-avatar" title={current.user.display_name}>
-              <UserRound size={16} />
-            </span>
-            <span className="user-label">
-              {current.user.display_name}
-              <small>{current.user.role}</small>
-            </span>
-          </div>
+          <WorkspaceNavigation
+            items={nav.map(([path, label, icon]) => ({
+              path,
+              label,
+              icon,
+              href: path + '?environment=' + environment,
+            }))}
+          />
         </aside>
         <main className="content">
           {logoutError !== undefined && (
-            <p role="alert" className="error-message">
+            <Notice role="alert" className="error-message" tone="error">
               {feedback(logoutError)}
-            </p>
+            </Notice>
           )}
           <Routes>
             <Route
@@ -260,12 +251,10 @@ export function Workbench({
               path="/overview"
               element={
                 <>
-                  <div className="page-heading">
-                    <div>
-                      <h1>服务概览</h1>
-                      <p className="page-description">查看当前服务连接状态。</p>
-                    </div>
-                  </div>
+                  <PageHeader
+                    title="服务概览"
+                    description="查看当前服务连接状态。"
+                  ></PageHeader>
                   <RuntimeStatus checkReadiness={checkReadiness} />
                 </>
               }

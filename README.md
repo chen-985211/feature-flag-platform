@@ -8,7 +8,7 @@ D1～D5 已完成：工程基础、登录/三角色、Flag 管理、属性/百�
 
 需求与规范见 [docs](docs/README.md)，完成证据见 [D1](docs/specs/001-engineering-foundation/verification.md)、[D2](docs/specs/002-core-configuration/verification.md)、[D3](docs/specs/003-percentage-and-versions/verification.md)、[D4](docs/specs/004-ordering-and-environments/verification.md) 和 [D5 验证记录](docs/specs/005-demo-and-system-acceptance/verification.md)。
 
-工作台已统一官方 shadcn/ui 组件、浅/深主题和文字排版，列表/详情/表单/评估/版本/历史采用一致的信息层级。UI 自动验收与限制见 [shadcn 工作台记录](docs/specs/007-shadcn-workbench/verification.md)。
+工作台已统一官方 shadcn/ui 组件、浅/深主题和文字排版，列表/详情/表单/评估/版本/历史采用一致的信息层级。下拉、导航、分页、折叠和提示使用对应组件，规则拖拽由 dnd kit 管理。自动验收与限制见 [完整交互组件记录](docs/specs/008-component-interactions/verification.md)，前次 UI 结果见 [工作台记录](docs/specs/007-shadcn-workbench/verification.md)。
 
 ## 本地启动
 

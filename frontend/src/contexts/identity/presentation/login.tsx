@@ -1,3 +1,5 @@
+import { Notice } from '../../../presentation/components/notice';
+import { Card } from '../../../presentation/components/ui/card';
 import { Flag } from 'lucide-react';
 import { Label } from '../../../presentation/components/ui/label';
 import { Input } from '../../../presentation/components/ui/input';
@@ -31,50 +33,52 @@ export function Login({
   }
   return (
     <main className="login-page">
-      <form
-        className="panel form-grid login-card"
-        onSubmit={(e) => {
-          e.preventDefault();
-          void submit();
-        }}
-      >
-        <span className="brand-mark">
-          <Flag size={20} />
-        </span>
-        <h1>登录工作空间</h1>
-        <p className="muted">使用已分配的账号管理配置与评估规则。</p>
-        <Label>
-          账号
-          <Input
-            autoComplete="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-            maxLength={80}
-            disabled={busy}
-            autoFocus
-          />
-        </Label>
-        <Label>
-          密码
-          <Input
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            disabled={busy}
-          />
-        </Label>
-        {error !== undefined && (
-          <p role="alert" className="error-message">
-            {feedback(error)}
-          </p>
-        )}
-        <Button type="submit" variant="primary" disabled={busy}>
-          {busy ? '登录中…' : '登录'}
-        </Button>
-      </form>
+      <Card asChild>
+        <form
+          className="panel form-grid login-card"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void submit();
+          }}
+        >
+          <span className="brand-mark">
+            <Flag size={20} />
+          </span>
+          <h1>登录工作空间</h1>
+          <p className="muted">使用已分配的账号管理配置与评估规则。</p>
+          <Label>
+            账号
+            <Input
+              autoComplete="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              maxLength={80}
+              disabled={busy}
+              autoFocus
+            />
+          </Label>
+          <Label>
+            密码
+            <Input
+              type="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={busy}
+            />
+          </Label>
+          {error !== undefined && (
+            <Notice role="alert" className="error-message" tone="error">
+              {feedback(error)}
+            </Notice>
+          )}
+          <Button type="submit" variant="primary" disabled={busy}>
+            {busy ? '登录中…' : '登录'}
+          </Button>
+        </form>
+      </Card>
     </main>
   );
 }

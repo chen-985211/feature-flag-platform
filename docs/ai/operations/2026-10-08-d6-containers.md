@@ -15,3 +15,13 @@ pnpm verify:full 通过：静态、各层测试、真实 PostgreSQL、四个本�
 补 Docker 启动/更新/备份恢复手册、工程入口、CI 容器检查步骤和状态说明。未修改用户 .env 或开发数据库，未删除已有 Docker 数据；未运行远端 CI/线上部署、未获得实际镜像 ID，不把 D6/F13 标为完成。详细结果见 [D6 验证记录](../../specs/006-container-delivery/verification.md)。
 
 最后改动后 pnpm check 通过，空 Docker 密码模板实际解析被拒绝；原生 owned schema 为 0，18090 已释放。pnpm test:docker 入口实际调用后在 Docker info 因引擎不可用失败，未进入构建/创建项目。源码与真实状态一起保存到本次本地提交，实际容器验收仍待环境恢复。
+
+## 2026-10-09：远端验收完成
+
+提交 ee5cf60 的 [Verify 37888253012](https://github.com/chen-985211/feature-flag-platform/actions/runs/37888253012) 实际通过 verify:full 与 test:docker。核对日志中的真实镜像 ID、六个容器 smoke 检查点、原生和容器各四条 Playwright 及 finally 清理结果，将 D6-01～06/F13 标为完成。平台为 Ubuntu 24.04 / linux/amd64，未将其他架构或线上部署列为已验证。
+
+README、文档中心、交付计划/映射/指南、技术栈、测试手册与 D6 Spec/Plan/验证记录同步当前状态。较早阶段的失败和未执行结果仍作为当时的历史保存，当前结果统一指向 [D6 验证记录](../../specs/006-container-delivery/verification.md)。
+
+CI 配置升级 pnpm/action-setup 到固定 SHA 的 v6.1.0，并使用固定 SHA 的 upload-artifact v7.0.2 保留容器 verification.json；两者 action.yml 均声明 Node 24。验证采用工作流格式/文档检查及提交后的真实远端完整门禁，不新增复刻配置的单元测试。
+
+本地 pnpm check 通过：77 份 Markdown/369 个内部链接、格式、依赖规模、TypeScript、ESLint、Go vet/golangci-lint、分层与 Knip 均成功；git diff --check 无错误。业务源码、schema、开发数据库与本地验收服务未修改。

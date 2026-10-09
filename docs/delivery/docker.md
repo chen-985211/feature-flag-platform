@@ -1,6 +1,6 @@
 # Docker 启动、更新与恢复
 
-配置与入口已实现，实际容器验收待完成。执行结果和环境阻断见 [D6 记录](../specs/006-container-delivery/verification.md)；本文命令不作为已通过证据。
+Docker 交付已在 Ubuntu 24.04 / linux/amd64 的远端 CI 通过实际构建、启动、业务、持久化、迁移失败门禁和备份恢复验收。镜像标识、执行结果及平台边界见 [D6 记录](../specs/006-container-delivery/verification.md)。
 
 前置条件为可用 Docker Engine 与 `docker compose`。容器构建安装固定 Node/pnpm/Go，宿主无需另装 Go、Node 或 PostgreSQL；Node/pnpm 只用于可选工程命令和自动化验收。源码、锁文件、固定镜像标签/index digest 由仓库提供。
 

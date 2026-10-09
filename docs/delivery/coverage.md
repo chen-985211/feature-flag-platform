@@ -1,6 +1,6 @@
 # 功能验收证据映射
 
-编号定义归 [验收要求](acceptance.md)，阶段状态归 [交付计划](roadmap.md)。本表关联自动化证据，同版本执行结果见 [D5 验证记录](../specs/005-demo-and-system-acceptance/verification.md)。核心分支在底层，四条 E2E 证明代表系统接线。
+编号定义归 [验收要求](acceptance.md)，阶段状态归 [交付计划](roadmap.md)。本表关联自动化证据，原生系统结果见 [D5 验证记录](../specs/005-demo-and-system-acceptance/verification.md)，完整远端与容器结果见 [D6 验证记录](../specs/006-container-delivery/verification.md)。核心分支在底层，四条 E2E 证明代表系统接线。
 
 | 编号 | 主要低层与真实边界证据                                                                                  | 系统路径 / 阶段证据                                                                                                                                                         |
 | ---- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -16,10 +16,10 @@
 | F10  | 固定源/目标预览 contract、目标身份/Key/revision、原子性、权限/并发/失败                                 | 源后续修改后仍发布固定 r5；[D4](../specs/004-ordering-and-environments/verification.md)                                                                                     |
 | F11  | 角色×环境 unit；真实登录/退出/过期/角色变更、Cookie/CSRF/Origin；production 各写入口拒绝、seed 保留账号 | admin 创建、viewer 演示/退出、editor production 只读；[D2](../specs/002-core-configuration/verification.md) / [D5](../specs/005-demo-and-system-acceptance/verification.md) |
 | F12  | unit/component/contract、实际数据库 integration、静态/类型/分层/unused、race                            | 四条 Playwright，独立三轮稳定性；[D5](../specs/005-demo-and-system-acceptance/verification.md)                                                                              |
-| F13  | Dockerfile/Compose、Go ready probe unit、隔离 Node smoke 与复用浏览器路径已提供                         | [D6](../specs/006-container-delivery/verification.md)：配置解析通过；按用户决定在远端 CI 验收实际镜像构建/启动/持久化/恢复，尚未执行通过                                    |
+| F13  | 固定工具链镜像、空库迁移/健康、真实容器业务/冲突/权限、持久化、迁移失败门禁及独立备份恢复               | [D6](../specs/006-container-delivery/verification.md)：远端 verify:full 与 test:docker 通过；原生和容器各四条 Playwright，镜像标识及资源清理已核对                          |
 
 Go 领域/应用测试在 backend/internal/contexts；真实 HTTP/并发/失败在 backend/tests/integration/core，实际 seed 二进制在 backend/tests/integration/demo；前端各层和四条 E2E 在 frontend/tests。命令见 [测试手册](../testing/TESTING_RUNBOOK.md)，演示步骤见 [本地演示](demo.md)。
 
 F01/F04/F11 的正常人工运行接线与真实数据额外见 [持久化演示](../specs/009-persistent-demo/verification.md)：普通开发库保存配置、规则、完整版本和真实 Actor 历史；正式三角色可登录，重跑初始化/重启服务保留数据。该原生实例证据不替代 F13 的容器验收。
 
-映射是覆盖责任说明，不代表全仓覆盖率统计、长期容量或线上部署证据。各阶段历史记录对应当时提交；D6 修改后的完整原生回归已通过，实际容器证据待补。
+映射是覆盖责任说明，不代表全仓覆盖率统计、长期容量或线上部署证据。各阶段历史记录对应当时提交；D6 的完整原生回归与实际容器证据均已通过，平台为 linux/amd64。

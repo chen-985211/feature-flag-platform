@@ -47,7 +47,7 @@ docs/specs/
 
 D5 演示与系统验收已完成，见 [Spec](005-demo-and-system-acceptance/spec.md)、[Plan](005-demo-and-system-acceptance/plan.md) 和 [验证记录](005-demo-and-system-acceptance/verification.md)。
 
-D6 容器交付实施中，见 [Spec](006-container-delivery/spec.md)、[Plan](006-container-delivery/plan.md) 和 [验证记录](006-container-delivery/verification.md)。
+D6 容器交付已完成远端 CI 验收，见 [Spec](006-container-delivery/spec.md)、[Plan](006-container-delivery/plan.md) 和 [验证记录](006-container-delivery/verification.md)。
 
 001 已完成；002 已完成，见 [Spec](002-core-configuration/spec.md)、[Plan](002-core-configuration/plan.md) 和 [验证记录](002-core-configuration/verification.md)。编号单调增加，名称表达业务/工程目标，不使用临时聊天标题；任务完成状态以对应验证记录为准。
 

@@ -1,6 +1,6 @@
 # 项目文档中心
 
-本项目是 React、Go 与 PostgreSQL 实现的 Feature Flag 与灰度规则平台。规范已提交，[工程基础](specs/001-engineering-foundation/verification.md)、[D2 核心业务](specs/002-core-configuration/verification.md)、[D3 灰度与版本](specs/003-percentage-and-versions/verification.md)、[D4 排序与环境流转](specs/004-ordering-and-environments/verification.md) 和 [D5 演示与系统验收](specs/005-demo-and-system-acceptance/verification.md) 已完成并验证。[D6 容器交付](specs/006-container-delivery/verification.md) 已实现配置与工具，实际容器验收待完成；在线部署不属于必交付项。
+本项目是 React、Go 与 PostgreSQL 实现的 Feature Flag 与灰度规则平台。规范已提交，[工程基础](specs/001-engineering-foundation/verification.md)、[D2 核心业务](specs/002-core-configuration/verification.md)、[D3 灰度与版本](specs/003-percentage-and-versions/verification.md)、[D4 排序与环境流转](specs/004-ordering-and-environments/verification.md)、[D5 演示与系统验收](specs/005-demo-and-system-acceptance/verification.md) 和 [D6 容器交付](specs/006-container-delivery/verification.md) 均已完成并验证。D6 的远端 CI 包含真实构建、容器业务、持久化、迁移失败门禁和备份恢复；在线部署不属于必交付项。
 
 Docker 首次启动、更新、持久化与独立数据库备份恢复见 [容器手册](delivery/docker.md)。
 

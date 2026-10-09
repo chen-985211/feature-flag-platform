@@ -6,7 +6,7 @@ React + Go + PostgreSQL，前后端 DDD + Clean，大任务 SDD、行为变更 T
 
 ## 当前状态
 
-D1～D5 已完成：工程基础、登录/三角色、Flag 管理、属性/百分比规则、精确数字评估、排序、版本/差异/回滚、复制/发布、revision 冲突与原子审计、显式演示初始化。完整门禁和四条 Playwright 的三轮独立稳定性检查已通过。D6 已提供镜像、Compose、健康探针和隔离验收入口；按用户决定，实际容器验收留到远端 CI 最后执行，尚未通过，见 [D6 记录](docs/specs/006-container-delivery/verification.md)。本次不要求线上地址。
+D1～D6 已完成：工程基础、登录/三角色、Flag 管理、属性/百分比规则、精确数字评估、排序、版本/差异/回滚、复制/发布、revision 冲突与原子审计、显式演示初始化和 Docker 交付。完整门禁与四条 Playwright 的三轮独立稳定性检查已通过；远端 CI 也已实际通过原生完整门禁、容器构建/业务、迁移失败门禁、持久化与数据库备份恢复，见 [D6 记录](docs/specs/006-container-delivery/verification.md)。本次不要求线上地址。
 
 需求与规范见 [docs](docs/README.md)，完成证据见 [D1](docs/specs/001-engineering-foundation/verification.md)、[D2](docs/specs/002-core-configuration/verification.md)、[D3](docs/specs/003-percentage-and-versions/verification.md)、[D4](docs/specs/004-ordering-and-environments/verification.md) 和 [D5 验证记录](docs/specs/005-demo-and-system-acceptance/verification.md)。
 
@@ -196,7 +196,7 @@ APP_ORIGIN=http://127.0.0.1:8080 pnpm start
 
 行锁与 expected revision 共同防止覆盖并发修改，源 revision 固定防止预览后来源漂移。百分比使用 SHA-256(seed + NUL + user_id) 的前八字节按大端转整数后模 10000，与整数基点比较；同 seed/标识始终同桶。参数化 SQL、Cookie 会话、CSRF/Origin 和后端目标环境授权保护实际写入口。
 
-当前聚焦单团队本地平台，未实现多租户、SDK 分发、实时推送、SSO、自助注册和审批流。稳定性三轮是关键路径重复验收，不是长期容量报告；远端 CI 需实际运行后报告，未统计全仓覆盖率。D6 实际容器验收待完成，在线部署不要求。功能证据见 [验收映射](docs/delivery/coverage.md)。
+当前聚焦单团队本地平台，未实现多租户、SDK 分发、实时推送、SSO、自助注册和审批流。稳定性三轮是关键路径重复验收，未统计全仓覆盖率。D6 已在 Ubuntu 24.04 / linux/amd64 的远端 CI 验收，其他 CPU 架构及长期容量尚未验证，在线部署不要求。功能证据见 [验收映射](docs/delivery/coverage.md)。
 
 ## 灰度与历史版本
 

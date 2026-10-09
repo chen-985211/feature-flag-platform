@@ -208,7 +208,7 @@ E2E_PORT=18190 pnpm verify:full
 
 预期命令退出 0，包括静态检查、Go/前端 unit、component、contract、真实 PostgreSQL integration、构建、race 和四条 Playwright。测试自建/清理临时 schema，不修改人工验收数据；18190 必须空闲。输出和失败排查见 [测试执行手册](../testing/TESTING_RUNBOOK.md)，覆盖责任见 [证据映射](coverage.md)。已有运行结果只能证明对应提交，不能将其当作本次人工步骤已执行。
 
-按已确认安排，Docker/远端 CI 留到最后执行。CI 的 verify:full 与 test:docker 都实际成功后，再填写 F13；当前尚无远端成功结果。容器启动、持久化和备份恢复步骤见 [容器手册](docker.md)，实际状态见 [D6 记录](../specs/006-container-delivery/verification.md)。
+Docker/远端 CI 已在提交 ee5cf60 上实际通过 verify:full 和 test:docker，F13/D6 的对应结果见 [D6 记录](../specs/006-container-delivery/verification.md)。核对待验收提交的 [Verify 工作流](https://github.com/chen-985211/feature-flag-platform/actions/workflows/verify.yml)，确认原生与容器步骤均为 success；后续代码变化需要对应的新结果。容器启动、持久化和备份恢复操作见 [容器手册](docker.md)。
 
 ## 验收记录模板
 

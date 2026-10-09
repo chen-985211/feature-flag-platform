@@ -44,4 +44,4 @@
 
 未来审计格式无法生成摘要时仍可访问完整原始数据。Clipboard 权限不可用时有失败及手动选取提示。
 
-实际 Docker/远端 CI 验收仍待完成，状态见 [D6 记录](../006-container-delivery/verification.md)。Vite 单包仍超过 500 kB，构建成功，性能优化尚未完成。
+后续实际 Docker/远端 CI 验收已通过，基线与结果见 [D6 记录](../006-container-delivery/verification.md)。Vite 单包仍超过 500 kB，构建成功，性能优化尚未完成。

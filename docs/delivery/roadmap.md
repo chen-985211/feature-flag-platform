@@ -4,21 +4,21 @@
 
 ## 当前状态
 
-D0～D5 已完成。工程基础、核心业务和灰度/版本证据分别见 [D1](../specs/001-engineering-foundation/verification.md)、[D2](../specs/002-core-configuration/verification.md)、[D3](../specs/003-percentage-and-versions/verification.md)。排序、复制/发布见 [D4](../specs/004-ordering-and-environments/verification.md)；演示初始化、三角色和四条 E2E 三轮稳定性见 [D5](../specs/005-demo-and-system-acceptance/verification.md)。D6 镜像/Compose/健康探针与验收工具已实现；按用户决定，实际容器验收留到远端 CI 最后执行，仍待通过。本机前次磁盘阻断和当前验收安排见 [D6](../specs/006-container-delivery/verification.md)。在线实例不属于必交付项。
+D0～D6 已完成。工程基础、核心业务和灰度/版本证据分别见 [D1](../specs/001-engineering-foundation/verification.md)、[D2](../specs/002-core-configuration/verification.md)、[D3](../specs/003-percentage-and-versions/verification.md)。排序、复制/发布见 [D4](../specs/004-ordering-and-environments/verification.md)；演示初始化、三角色和四条 E2E 三轮稳定性见 [D5](../specs/005-demo-and-system-acceptance/verification.md)。D6 的原生完整门禁和实际容器构建、启动、业务/E2E、持久化、迁移失败门禁及数据库恢复已在远端 CI 通过，基线与证据见 [D6](../specs/006-container-delivery/verification.md)。在线实例不属于必交付项。
 
-人工验收环境已从临时 E2E fixture 切到正常 Go 服务和持久化开发库；新增 pnpm demo 初始化/启动入口。已有数据完整保留，正式三角色可用，真实 API 写入及 seed 重跑/服务重启已验证，见 [持久化演示记录](../specs/009-persistent-demo/verification.md)。Docker/远端 CI 的未结状态不变。
+人工验收环境已从临时 E2E fixture 切到正常 Go 服务和持久化开发库；新增 pnpm demo 初始化/启动入口。已有数据完整保留，正式三角色可用，真实 API 写入及 seed 重跑/服务重启已验证，见 [持久化演示记录](../specs/009-persistent-demo/verification.md)。完整源码已发布到 [公开仓库](https://github.com/chen-985211/feature-flag-platform)。
 
 ## 开发阶段
 
-| 阶段              | 产出                                                                 | 最低验收                                               | 当前状态       |
-| ----------------- | -------------------------------------------------------------------- | ------------------------------------------------------ | -------------- |
-| D0 规范           | AGENTS 路由、docs、任务分级、DDD/Clean、测试与交付标准               | 文档导航、规则一致、真实状态                           | 已完成         |
-| D1 工程与模型     | 前后端骨架、装配、配置、迁移、隔离测试环境和命令                     | 空库启动、依赖向内、unit 与数据库检查可执行            | 已完成         |
-| D2 核心配置与身份 | 登录/角色、Flag 管理、属性规则、评估、原子审计与首条 Playwright 冒烟 | 原题核心路径、唯一约束、权限负向与首条命中             | 已完成         |
-| D3 灰度与版本     | 百分比分桶、版本查看/差异与回滚，复用 D2 快照与乐观锁                | 灰度矩阵、冲突/失败不部分写入、完整恢复                | 已完成         |
-| D4 排序与环境流转 | 拖拽/键盘、复制、差异预览、发布                                      | 原子排序、固定源版本、目标 revision 与 production 权限 | 已完成         |
-| D5 系统验收       | 各层回归、E2E 稳定性、演示数据、完整构建与本地 README                | F01～F12 有证据，F13 在 D6 容器验收                    | 已完成         |
-| D6 容器与提交     | Docker 复现、交付包、AI 记录与限制说明                               | 容器与本地可复现、报告真实                             | 实际容器待验收 |
+| 阶段              | 产出                                                                 | 最低验收                                               | 当前状态 |
+| ----------------- | -------------------------------------------------------------------- | ------------------------------------------------------ | -------- |
+| D0 规范           | AGENTS 路由、docs、任务分级、DDD/Clean、测试与交付标准               | 文档导航、规则一致、真实状态                           | 已完成   |
+| D1 工程与模型     | 前后端骨架、装配、配置、迁移、隔离测试环境和命令                     | 空库启动、依赖向内、unit 与数据库检查可执行            | 已完成   |
+| D2 核心配置与身份 | 登录/角色、Flag 管理、属性规则、评估、原子审计与首条 Playwright 冒烟 | 原题核心路径、唯一约束、权限负向与首条命中             | 已完成   |
+| D3 灰度与版本     | 百分比分桶、版本查看/差异与回滚，复用 D2 快照与乐观锁                | 灰度矩阵、冲突/失败不部分写入、完整恢复                | 已完成   |
+| D4 排序与环境流转 | 拖拽/键盘、复制、差异预览、发布                                      | 原子排序、固定源版本、目标 revision 与 production 权限 | 已完成   |
+| D5 系统验收       | 各层回归、E2E 稳定性、演示数据、完整构建与本地 README                | F01～F12 有证据，F13 在 D6 容器验收                    | 已完成   |
+| D6 容器与提交     | Docker 复现、交付包、AI 记录与限制说明                               | 容器与本地可复现、报告真实                             | 已完成   |
 
 每阶段涉及业务能力时按 Large 建立 Spec/Plan，内部步骤按 TDD 可独立验证。D1 包含必要基础设施，不能因此跳过 DDD/Clean 的职责划分；D2 已接入版本提交策略的基础结构，避免 D3 再重写所有写入口。
 
@@ -34,6 +34,6 @@ Large 的子任务可以粒度很小，但仍受父 Spec/Plan 约束；不能因
 
 2026-10-08，对照 [question.md](../../question.md) 的原题与本次补充范围、源码、迁移和验收证据核对：四项必做功能、六组扩展中的业务与自动化测试均已实现，F01～F12 有对应证据。README 的优先级方向说明已补齐；界面收尾的侧栏布局回归已修复并加到既有 E2E。
 
-明确未结项为 F13/D6：实际 Docker 镜像构建、空库迁移/启动、迁移失败门禁、容器业务/E2E、持久化及数据库备份恢复验收。流水线已有 verify:full 和 test:docker，按用户决定在最后远端执行；本次核对时尚未配置 Git 远端，因此没有 CI 运行结果。后续需要提交到交付仓库、运行流水线并补齐真实结果，才能标记 D6 完成。
+2026-10-09，F13/D6 已由 [远端 CI](https://github.com/chen-985211/feature-flag-platform/actions/runs/37888253012) 完成验收：verify:full 和 test:docker 实际成功，镜像标识与 D6-01～06 后置结果进入验证记录。F01～F13 均有自动化证据，既定开发与容器交付范围没有待完成项。独立验收者仍应按 [人工指南](manual-acceptance.md) 记录自己的执行结果。
 
 单 bundle 拆包、性能量化及全仓覆盖率统计目前未做，属于后续优化，不是题面必交付缺项。线上部署不在已确认范围；48 小时一次性提交的题面约束保留，不从本地文件时间推算新的截止时间，也不将本地 Git 提交当作已向收件方交付。

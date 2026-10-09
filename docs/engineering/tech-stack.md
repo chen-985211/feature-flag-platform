@@ -2,7 +2,7 @@
 
 ## 状态与归属
 
-本文记录已选技术、版本策略与运行方式；架构边界见 [架构](architecture.md)。D1 已固定 Node 24.21.0、pnpm 10.33.0、Go 1.27.0、pgx v5.11.0 与 golang-migrate v4.20.1；React 19.3.0、TypeScript 6.0.3、Vite 8.3.3 已接线。精确依赖由 package.json/pnpm-lock.yaml 和 backend/go.mod/go.sum 维护；工程命令统一由 Node 编排，Make 只转发。D2 接入业务核心、golang.org/x/crypto v0.57.0 bcrypt 和 Playwright 1.64.0；D3/D4 沿用这些依赖，D5 已完成完整演示/稳定性。D6 提供固定镜像 index digest 的多阶段构建与 Compose，实际容器验收待完成，见 [记录](../specs/006-container-delivery/verification.md)。质量配置见 [质量工具](quality-tooling.md)。
+本文记录已选技术、版本策略与运行方式；架构边界见 [架构](architecture.md)。D1 已固定 Node 24.21.0、pnpm 10.33.0、Go 1.27.0、pgx v5.11.0 与 golang-migrate v4.20.1；React 19.3.0、TypeScript 6.0.3、Vite 8.3.3 已接线。精确依赖由 package.json/pnpm-lock.yaml 和 backend/go.mod/go.sum 维护；工程命令统一由 Node 编排，Make 只转发。D2 接入业务核心、golang.org/x/crypto v0.57.0 bcrypt 和 Playwright 1.64.0；D3/D4 沿用这些依赖，D5 已完成完整演示/稳定性。D6 的固定工具链多阶段构建与 Compose 已在远端 CI 完成实际容器验收，见 [记录](../specs/006-container-delivery/verification.md)。质量配置见 [质量工具](quality-tooling.md)。
 
 ## 已选技术
 

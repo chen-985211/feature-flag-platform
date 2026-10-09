@@ -1,6 +1,6 @@
 # D6 Spec：容器复现与最终交付
 
-状态：已确认、实施中。基线 fc52d7f。用户已确认 D6 为最后阶段并授权「继续」，Docker 交付属于既定完整范围，在线部署不要求。
+状态：已完成并验收。设计基线 fc52d7f，远端验收提交 ee5cf60，结果见 [验证记录](verification.md)。Docker 交付属于既定完整范围，在线部署不要求。
 
 ## 目标与范围
 
@@ -16,7 +16,7 @@ Flags/Identity/Audit 的领域、应用及 PostgreSQL 数据仍是业务 owner�
 
 ## 行为与交付
 
-使用独立 .env.docker 配置数据库密码、同源地址/端口和演示密码，无公共默认密码。数据库端口不向宿主暴露，应用默认仅在本机 loopback 暴露。演示初始化显式运行现有 demo 用例；重跑/升级不重置配置。
+使用独立 .env.docker 配置数据库密码、同源地址/端口和演示密码，模板提供本地验收用的占位符值，部署时替换。数据库端口不向宿主暴露，应用默认仅在本机 loopback 暴露。演示初始化显式运行现有 demo 用例；重跑/升级不重置配置。
 
 多阶段构建将 Node/pnpm 前端产物交给 Go embed，最终镜像包含 server/migrate/seed 与健康检查入口。健康检查确认 ready 响应并有短超时，失败退出非零。Compose 区分数据库健康依赖与迁移成功依赖。
 
@@ -35,8 +35,6 @@ Flags/Identity/Audit 的领域、应用及 PostgreSQL 数据仍是业务 owner�
 
 ## 风险与确认
 
-本机暂未发现 Docker 引擎/CLI，环境准备偏好已异步询问，不阻塞配置、工具和低层实现；有实际引擎才能完成 Docker 验收。镜像 Node 24.21.0-bookworm-slim、Go 1.27.0-bookworm、PostgreSQL 17.7-bookworm 已从官方 registry 确认存在，实施将锁定 index digest。
+镜像 Node 24.21.0-bookworm-slim、Go 1.27.0-bookworm、PostgreSQL 17.7-bookworm 已锁定 index digest。首次本机 Docker 引擎/磁盘阻断属于历史实施环境问题；D6-01～06 已在 Ubuntu 24.04 / linux/amd64 的远端 CI 实际通过，见 [记录](verification.md)。
 
-实施补充：CLI/Colima 已准备；独立 didi VM 启动受宿主磁盘空间阻断。已请求释放至少 10 GB，配置和低层工作继续，容器构建/运行仍须实际验收，详见 [记录](verification.md)。
-
-Compose 持久化/迁移/恢复及多架构构建必须实际验证，配置文件存在不算通过。无新增业务核心决策。参考 [Docker 启动依赖](https://docs.docker.com/compose/how-tos/startup-order/) 与 [多阶段构建](https://docs.docker.com/build/building/multi-stage/)。
+其他 CPU 架构和长期容量尚未验证；固定多架构 index digest 不等于所有平台都通过验收。参考 [Docker 启动依赖](https://docs.docker.com/compose/how-tos/startup-order/) 与 [多阶段构建](https://docs.docker.com/build/building/multi-stage/)。

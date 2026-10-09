@@ -2,6 +2,8 @@
 
 React + Go + PostgreSQL，前后端 DDD + Clean，大任务 SDD、行为变更 TDD。
 
+项目仓库：[chen-985211/feature-flag-platform](https://github.com/chen-985211/feature-flag-platform)。
+
 ## 当前状态
 
 D1～D5 已完成：工程基础、登录/三角色、Flag 管理、属性/百分比规则、精确数字评估、排序、版本/差异/回滚、复制/发布、revision 冲突与原子审计、显式演示初始化。完整门禁和四条 Playwright 的三轮独立稳定性检查已通过。D6 已提供镜像、Compose、健康探针和隔离验收入口；按用户决定，实际容器验收留到远端 CI 最后执行，尚未通过，见 [D6 记录](docs/specs/006-container-delivery/verification.md)。本次不要求线上地址。
@@ -18,7 +20,12 @@ D1～D5 已完成：工程基础、登录/三角色、Flag 管理、属性/百�
 
 只使用 Docker 的启动、更新、持久化及备份/恢复见 [容器手册](docs/delivery/docker.md)。宿主无需安装 Go/Node/PostgreSQL；原生开发步骤如下。
 
-从 Git 获取源码后，在包含 package.json 的项目根目录按以下阶段操作。下面的 shell 示例用于 macOS/Linux；Windows 可在 WSL 中使用。
+先获取源码，再在包含 package.json 的项目根目录按以下阶段操作。下面的 shell 示例用于 macOS/Linux；Windows 可在 WSL 中使用。
+
+```sh
+git clone https://github.com/chen-985211/feature-flag-platform.git
+cd feature-flag-platform
+```
 
 ### 1. 检查版本，不匹配时先处理
 
@@ -202,3 +209,7 @@ APP_ORIGIN=http://127.0.0.1:8080 pnpm start
 规则页的「调整规则顺序」支持拖拽、移动按钮的 ↑/↓ 及上移/下移。释放或键盘移动后提交完整序列，成功生成新版本；失败恢复已保存顺序，冲突需刷新后再操作。
 
 详情的「环境流转」选择固定源版本与不同目标环境。复制创建同 Key 新配置，已有配置返回冲突；发布先展示现有目标完整内容/差异，再按预览的目标 revision 提交。源继续编辑不会改变选定版本；发布保留目标身份，目标生成新版本并记录来源。seed 随配置流转，规则生成目标自己的 ID，跨环境差异忽略 ID 和技术时间。目标不存在需先复制，production 复制/发布限 admin。API 见 [D4 Plan](docs/specs/004-ordering-and-environments/plan.md)。
+
+## 开源许可
+
+项目使用 [MIT License](LICENSE)。shadcn/ui 组件保留其 [MIT 许可与版权声明](frontend/src/presentation/components/ui/LICENSE)，组件来源见 [记录](frontend/src/presentation/components/ui/registry-sources.json)。

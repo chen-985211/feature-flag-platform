@@ -11,6 +11,7 @@
 - 人工验收从临时测试环境切到正常 Go/开发库的过程见 [持久化演示](operations/2026-10-08-persistent-demo.md)。
 - 面向其他验收者的逐步操作文档见 [验收指南整理](operations/2026-10-08-manual-acceptance.md)。
 - 历史、规则和确认说明的可读性优化见 [可读变更](operations/2026-10-09-readable-changes.md)。
+- 项目许可证与公开仓库准备见 [开源发布](operations/2026-10-09-open-source.md)。
 
 ## 记录字段
 

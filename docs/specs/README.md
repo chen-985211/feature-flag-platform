@@ -67,6 +67,8 @@ UI 工作台优化已完成：[Spec](007-shadcn-workbench/spec.md)、[Plan](007-
 
 正式数据库与持久化演示：[Spec](009-persistent-demo/spec.md)、[Plan](009-persistent-demo/plan.md)、[验证](009-persistent-demo/verification.md)。
 
+可读配置与变更说明：[Spec](010-readable-changes/spec.md)、[Plan](010-readable-changes/plan.md)、[验证](010-readable-changes/verification.md)。
+
 Spec 使用稳定验收 ID，并关联 [交付编号](../delivery/acceptance.md)。Plan 每步写明目标层、测试层、Red 行为和退出条件。verification 记录实际命令、结果、未运行原因、对应工作区/提交版本以及剩余风险。
 
 使用 [Spec 模板](../templates/spec.md) 和 [Plan 模板](../templates/plan.md)。Small 不强制新建归档文件，必要过程摘要写入 AI 操作记录。

@@ -8,12 +8,12 @@
 
 ```sh
 cp .env.docker.example .env.docker
-# 编辑 .env.docker，设置数据库密码和三个演示密码
+# 模板已包含本地验收用的数据库密码和三个演示密码
 docker compose --env-file .env.docker up --build -d --wait --wait-timeout 120 app
 docker compose --env-file .env.docker run --rm seed
 ```
 
-已有文件时保留，不能覆盖已有密码。POSTGRES_PASSWORD 自行设置足够长的随机值，SEED_*_PASSWORD 为 8～72 字节。包含 $ 等特殊字符的值用单引号包裹；数据库密码通过 PGPASSWORD 传入 pgx，不拼接到 DSN，不要求手工 URL 编码。不要将展开的 compose config、容器完整环境或备份提交到仓库。
+已有文件时保留，不能覆盖已有密码。[Docker 环境模板](../../.env.docker.example) 中的占位符密码可直接用于首次本地验收；部署时将 POSTGRES_PASSWORD 替换为足够长的随机值，并替换三个 SEED_*_PASSWORD（8～72 字节）。包含 $ 等特殊字符的值用单引号包裹；数据库密码通过 PGPASSWORD 传入 pgx，不拼接到 DSN，不要求手工 URL 编码。不要将展开的 compose config、容器完整环境或备份提交到仓库。
 
 打开 http://localhost:8080，用 admin/editor/viewer 和本地配置密码登录。APP_PORT 改变后，同时调整 APP_ORIGIN 为实际浏览器 origin，包含协议和端口。应用默认只在宿主 127.0.0.1 发布，数据库不发布宿主端口。
 

@@ -21,6 +21,7 @@ import { ApiError, feedback } from '../../../shared-kernel/errors';
 import { Button } from '../../../presentation/components/button';
 import { Notice } from '../../../presentation/components/notice';
 import { RuleCondition } from './rule-condition';
+import { resultLabel } from '../../../presentation/components/configuration-language';
 function SortableRule({
   rule,
   index,
@@ -84,7 +85,7 @@ function SortableRule({
         <div>
           <span className="muted">{index + 1} · </span>
           <RuleCondition rule={rule} />
-          <p>命中返回 {String(rule.result)}</p>
+          <p>命中返回 {resultLabel(rule.result)}</p>
         </div>
       </div>
       <div className="actions">

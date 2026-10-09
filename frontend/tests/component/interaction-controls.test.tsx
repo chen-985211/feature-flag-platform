@@ -112,7 +112,11 @@ it('discloses authoritative audit changes and loads the final page through the n
   const trigger = await screen.findByRole('button', { name: '查看变更详情' });
   expect(screen.queryByText(entry.changes_json)).not.toBeInTheDocument();
   await userEvent.click(trigger);
-  expect(screen.getByText(entry.changes_json)).toBeVisible();
+  await userEvent.click(screen.getByRole('button', { name: '查看原始数据' }));
+  const raw = screen.getByRole('region', { name: '原始审计数据' });
+  expect(JSON.parse(raw.querySelector('pre')?.textContent ?? '')).toEqual(
+    JSON.parse(entry.changes_json),
+  );
   expect(trigger).toHaveAttribute('aria-expanded', 'true');
   await userEvent.click(screen.getByRole('button', { name: '下一页' }));
   expect(await screen.findByText('编辑基本信息')).toBeVisible();

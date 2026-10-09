@@ -1,6 +1,6 @@
 import { chooseOption } from '../support/choose-option';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { it, expect, vi } from 'vitest';
 import { Versions } from '../../src/contexts/flags/presentation/versions';
@@ -99,4 +99,19 @@ it('allows viewing history but prevents read-only restore', async () => {
   expect(
     await screen.findByRole('button', { name: '回滚到 r1' }),
   ).toBeDisabled();
+});
+
+it('shows the exact changed fields and new version before confirming rollback', async () => {
+  mount(gateways());
+  await chooseOption('选择版本', /^r1 ·/);
+  await userEvent.click(
+    await screen.findByRole('button', { name: '回滚到 r1' }),
+  );
+  const dialog = screen.getByRole('dialog');
+  expect(within(dialog).getByText(/将生成 r4/)).toBeVisible();
+  expect(
+    within(dialog).getByRole('heading', { name: '本次将修改' }),
+  ).toBeVisible();
+  expect(within(dialog).getByText('Current', { exact: true })).toBeVisible();
+  expect(within(dialog).getByText('Original', { exact: true })).toBeVisible();
 });

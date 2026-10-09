@@ -1,15 +1,36 @@
 import type { Rule, VersionPreview } from '../application/contracts';
 import { RuleCondition } from './rule-condition';
-const fields: Record<string, string> = {
+import { resultLabel } from '../../../presentation/components/configuration-language';
+const changeFields: Record<string, string> = {
   name: '名称',
   key: 'Key',
   enabled: '启用状态',
   default_value: '默认结果',
-  seed: '灰度 seed',
+  seed: '灰度分组依据',
   rules: '规则及顺序',
 };
-function Value({ field, raw }: { field: string; raw: string }) {
+function Value({
+  field,
+  raw,
+  after = false,
+}: {
+  field: string;
+  raw: string;
+  after?: boolean;
+}) {
   const value: unknown = JSON.parse(raw);
+  if (field === 'enabled' && typeof value === 'boolean')
+    return <span>{value ? '已启用' : '已停用'}</span>;
+  if (field === 'default_value' && typeof value === 'boolean')
+    return <span>{resultLabel(value)}</span>;
+  if (field === 'seed')
+    return (
+      <span>
+        {after
+          ? '采用新的分组依据，同一 user_id 的灰度结果可能变化。'
+          : '原灰度分组依据'}
+      </span>
+    );
   if (field === 'rules' && Array.isArray(value)) {
     if (value.length === 0) return <span className="muted">无规则</span>;
     return (
@@ -18,7 +39,7 @@ function Value({ field, raw }: { field: string; raw: string }) {
           <li key={rule.id}>
             <span>优先级 {rule.priority} · </span>
             <RuleCondition rule={rule} />
-            <p>返回 {String(rule.result)}</p>
+            <p>命中后 {resultLabel(rule.result)}</p>
           </li>
         ))}
       </ol>
@@ -40,7 +61,7 @@ export function ConfigurationDiff({
     <div className="diff-list">
       {changes.map((c) => (
         <section key={c.field} className="diff-row">
-          <h4>{fields[c.field]}</h4>
+          <h4>{changeFields[c.field]}</h4>
           <div className="diff-columns">
             <div>
               <small>当前配置</small>
@@ -48,7 +69,7 @@ export function ConfigurationDiff({
             </div>
             <div>
               <small>应用后配置</small>
-              <Value field={c.field} raw={c.after_json} />
+              <Value field={c.field} raw={c.after_json} after />
             </div>
           </div>
         </section>

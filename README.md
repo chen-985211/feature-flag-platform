@@ -10,37 +10,102 @@ D1～D5 已完成：工程基础、登录/三角色、Flag 管理、属性/百�
 
 工作台已统一官方 shadcn/ui 组件、浅/深主题和文字排版，列表/详情/表单/评估/版本/历史采用一致的信息层级。下拉、导航、分页、折叠和提示使用对应组件，规则拖拽由 dnd kit 管理。自动验收与限制见 [完整交互组件记录](docs/specs/008-component-interactions/verification.md)，前次 UI 结果见 [工作台记录](docs/specs/007-shadcn-workbench/verification.md)。
 
+操作历史提供具体摘要和业务前后对比，规则使用可读条件描述，发布/回滚说明配置影响，原始数据可展开和复制，见 [可读变更记录](docs/specs/010-readable-changes/verification.md)。
+
 第一次验收项目请跟随 [人工验收指南](docs/delivery/manual-acceptance.md)：从启动和账号开始，逐步验证主要功能、扩展、权限与重启持久化；每步有明确输入和预期结果，末尾有待填写的验收记录表。
 
 ## 本地启动
 
 只使用 Docker 的启动、更新、持久化及备份/恢复见 [容器手册](docs/delivery/docker.md)。宿主无需安装 Go/Node/PostgreSQL；原生开发步骤如下。
 
-先决条件：Node 24.21.0（.node-version）、pnpm 10.33.0、Go 1.27.0、PostgreSQL 17；不需要 Python。通过自己的 Node 版本管理器切换项目版本，不要求修改系统 Node。
+从 Git 获取源码后，在包含 package.json 的项目根目录按以下阶段操作。下面的 shell 示例用于 macOS/Linux；Windows 可在 WSL 中使用。
+
+### 1. 检查版本，不匹配时先处理
+
+| 工具       | 推荐验收版本    | 当前要求与版本不匹配时的处理                                                                                                            |
+| ---------- | --------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Node       | 24.21.0         | package.json 要求 `>=24.21.0 <25`；Node 22、25 等会被入口拒绝。使用版本管理器切到 24.21.0，命令见下方                                   |
+| pnpm       | 10.33.0         | packageManager 指定项目版本。先切换 Node，再按下方命令安装 pnpm；后续项目命令使用 pnpm                                                  |
+| Go         | 1.27.0          | go.mod 声明最低 1.27.0，同系列较新补丁满足要求。版本过低时按 [官方安装说明](https://go.dev/doc/install) 安装 1.27 系列并确认 PATH       |
+| PostgreSQL | 17 系列最新补丁 | 当前验收使用 17 系列，不要求恰好 17.7。其他主版本尚未验收，可按 [官方下载入口](https://www.postgresql.org/download/) 准备独立的 17 实例 |
+
+先检查当前终端实际使用的工具：
+
+```sh
+node --version
+pnpm --version
+go version
+psql --version
+```
+
+Node 不匹配时，macOS/Linux/WSL 可使用已安装的 nvm；尚未安装则先按 [nvm 官方说明](https://github.com/nvm-sh/nvm#installing-and-updating) 安装并重新打开终端，然后执行：
+
+```sh
+nvm install 24.21.0
+nvm use 24.21.0
+node --version
+```
+
+预期显示 `v24.21.0`。`.node-version` 记录推荐版本，本身不会自动切换终端的 Node；新终端需要重新选择版本，或配置版本管理器的自动切换。已有其他版本管理器时，使用对应工具选择同一版本即可。
+
+切换 Node 后，若 pnpm 不存在或版本不同，按 [官方安装方式](https://pnpm.io/installation#using-npm) 安装项目版本：
+
+```sh
+npm install --global pnpm@10.33.0
+pnpm --version
+```
+
+预期显示 `10.33.0`。后续依赖安装使用 pnpm 和仓库锁文件。Go 低于最低版本时，默认的 GOTOOLCHAIN=auto 可能自动下载所需工具链；离线运行应事先准备所需版本，机制见 [Go 工具链说明](https://go.dev/doc/toolchain)。
+
+`psql --version` 只检查客户端，连接后的服务端版本需用 `SHOW server_version;` 确认。PostgreSQL 服务必须已经启动，连接账号必须能登录并创建开发库。
+
+### 2. 安装项目依赖
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm tools:install
-cp .env.example .env
-createdb didi_development
-createdb didi_test
-pnpm migrate
-# 在 .env 设置 SEED_ADMIN_PASSWORD、SEED_EDITOR_PASSWORD、SEED_VIEWER_PASSWORD
-pnpm seed:demo
-pnpm dev
 ```
 
-已有 .env/数据库时不覆盖或重复创建；按本机 PostgreSQL 认证修改 .env。Node 读取 .env，已有进程环境变量优先；凭据不打印，.env 不提交。`pnpm dev` 同时运行 Go API 与 Vite，并在关闭时终止本次子进程。
+预期命令成功退出。出现 `ERR_PNPM_UNSUPPORTED_ENGINE` 时先回到第 1 步处理 Node 版本。
 
-人工验收推荐使用正常 Go 同源服务。准备好数据库与 `.env` 中的三个初始化密码后，一条命令完成迁移、演示初始化、构建和启动：
+### 3. 准备配置与空数据库
+
+仅在 `.env` 不存在时复制模板：
 
 ```sh
-APP_ORIGIN=http://127.0.0.1:8080 pnpm demo
+cp .env.example .env
 ```
 
-打开 http://127.0.0.1:8080。改变监听端口时同时设置 HTTP_ADDR 和与浏览器地址完全一致的 APP_ORIGIN。`pnpm demo` 使用 DATABASE_URL 的普通数据库，启动前拒绝测试库及缺失/非法初始化密码；不会清理数据库。停止后重新执行同一命令，已有配置、规则、版本、历史与账号保留。自动化 E2E 使用独立测试库与临时 schema，人工验收通过正常服务进行。实际数据接线、API/SQL 一致性及重启证据见 [持久化演示记录](docs/specs/009-persistent-demo/verification.md)。
+先按本机 PostgreSQL 的主机、端口、用户名及密码修改 DATABASE_URL。下面建库命令以 localhost:5432、当前系统用户名作为数据库账号；仅在开发库不存在时执行：
 
-使用 `pnpm dev` 热更新开发时，浏览器打开 http://localhost:5173；Vite 将 /health 和 /api 代理至 Go API（默认 127.0.0.1:8080，可用 API_PROXY_TARGET 改变）。使用 admin/editor/viewer 与各自配置的初始化密码登录。admin 可写所有环境，editor 可写 development/staging，viewer 只读。`pnpm seed:demo` 初始化账号与五份配置，`pnpm seed:users` 仅初始化账号；重复执行保留已有密码、名称、角色和演示配置修改。服务不自动 seed。首次示例及评估/发布/回滚步骤见 [演示手册](docs/delivery/demo.md)。
+```sh
+createdb -h localhost -p 5432 didi_development
+```
+
+若使用其他数据库账号，在命令中添加 `-U 数据库用户名`，并让 DATABASE_URL 使用同一账号、主机、端口和库名。`createdb` 只创建空库，此时没有业务表；它不会自动读取项目 `.env`。
+
+已有 `.env` 或数据库时保留原内容。项目 Node 命令会读取 `.env`，已有进程环境变量优先；修改文件后若仍使用旧设置，先检查终端是否设置了同名变量。
+
+> **[环境模板](.env.example) 已提供三个可直接用于本地演示的初始化密码：**
+>
+> - `SEED_ADMIN_PASSWORD`：admin 的初始化密码。
+> - `SEED_EDITOR_PASSWORD`：editor 的初始化密码。
+> - `SEED_VIEWER_PASSWORD`：viewer 的初始化密码。
+>
+> 复制模板后可直接使用其中的密码，或在 `.env` 中修改；部署时替换示例密码。每项须为 8～72 字节，任一项为空或长度不符合要求，`pnpm demo` 会报 `DEMO_PASSWORD_REQUIRED` 并停止。Node 会自动读取 `.env`，无需手动 `export`。
+
+### 4. 初始化、启动与人工验收
+
+完成数据库连接配置后，执行正常 Go 同源服务的启动命令：
+
+```sh
+HTTP_ADDR=127.0.0.1:8080 APP_ORIGIN=http://127.0.0.1:8080 pnpm demo
+```
+
+该命令依次执行迁移建表、初始化三个账号及五份示例、构建、启动；可直接用于已创建的空数据库，无需额外先运行 migrate 或 seed。预期看到 `Migration completed`、账号初始化及示例结果，构建成功后服务保持运行。首次空库的示例结果为 created=5 preserved=0；已有示例重跑保留实际修改。
+
+打开 http://127.0.0.1:8080。改变监听端口时同时设置 HTTP_ADDR 和与浏览器地址完全一致的 APP_ORIGIN；localhost 与 127.0.0.1 是不同的 origin。使用 admin/editor/viewer 与 `.env` 中各自配置的密码登录，从 [人工验收指南第 2 步](docs/delivery/manual-acceptance.md#2-登录新建搜索与校验f01f11) 开始验证功能。admin 可写所有环境，editor 可写 development/staging，viewer 只读。
+
+`pnpm demo` 使用 DATABASE_URL 的普通数据库，启动前拒绝测试库及缺失/非法初始化密码；不会清理数据库。实际数据接线、API/SQL 一致性及重启证据见 [持久化演示记录](docs/specs/009-persistent-demo/verification.md)。
 
 ```sh
 curl http://127.0.0.1:8080/health/live
@@ -49,7 +114,33 @@ curl http://127.0.0.1:8080/health/ready
 
 live 表示进程存活；ready 实际查询 PostgreSQL，超时/失败返回 503、稳定错误码和 request ID。配置校验与服务错误不输出数据库凭据。
 
+### 5. 停止、再次启动与开发模式
+
+在启动终端按 Ctrl+C 停止服务，再次启动执行第 4 步的同一命令。已有配置、规则、版本、历史和账号保留；修改 SEED_*_PASSWORD 后重跑初始化不会重置已有账号密码。持久化观察步骤见 [人工验收指南](docs/delivery/manual-acceptance.md#12-重启与数据库持久化f01f04f06)。
+
+需要热更新开发时执行：
+
+```sh
+pnpm migrate
+pnpm seed:demo
+pnpm dev
+```
+
+`pnpm dev` 同时运行 Go API 与 Vite，退出时终止这次启动的子进程。浏览器打开 http://localhost:5173；Vite 将 /health 和 /api 代理至 Go API（默认 127.0.0.1:8080，可用 API_PROXY_TARGET 改变）。`pnpm seed:demo` 初始化账号与五份配置，`pnpm seed:users` 仅初始化账号；重复执行保留已有密码、名称、角色和演示配置修改。普通服务启动不自动迁移或 seed；首次示例及评估/发布/回滚步骤见 [演示手册](docs/delivery/demo.md)。
+
 ## 检查与测试
+
+完成上述人工功能验收后，再准备工程检查工具和独立测试库。首次安装工具执行：
+
+```sh
+pnpm tools:install
+```
+
+仅在测试库不存在时执行下方建库命令；账号、主机和端口按第 3 步保持与 TEST_DATABASE_URL 一致。该 URL 的数据库名须以 `_test` 结尾，且与开发库分离。
+
+```sh
+createdb -h localhost -p 5432 didi_test
+```
 
 ```sh
 pnpm check
@@ -80,7 +171,7 @@ APP_ORIGIN=http://127.0.0.1:8080 pnpm start
 
 `pnpm migrate` 应用待执行 up；`pnpm migrate:down` 明确回退一个迁移，移除该迁移创建的表及其数据，只用于可丢弃开发环境。服务启动不自动迁移或 seed。迁移与业务配置版本回滚是不同能力。
 
-.env.example 维护数据库、监听地址、APP_ORIGIN、SESSION_TTL、READINESS_TIMEOUT、SHUTDOWN_TIMEOUT 与隔离测试库。SEED_*_PASSWORD 在显式账号/演示初始化时必填（8～72 字节），无通用默认密码。配置 seed 在单一事务创建完整 r1/规则/审计，已有固定 ID 原样保留；其他配置占据演示 Key 时拒绝整批新配置。账号步骤独立提交，配置失败可修复冲突后重跑。范围与状态归 [项目范围](docs/product/scope.md) 和 [交付计划](docs/delivery/roadmap.md)，过程见 [AI 记录](docs/ai/README.md)。
+.env.example 维护数据库、监听地址、APP_ORIGIN、SESSION_TTL、READINESS_TIMEOUT、SHUTDOWN_TIMEOUT 与隔离测试库，并提供本地演示的占位符密码。SEED_*_PASSWORD 在显式账号/演示初始化时必填（8～72 字节），初始化程序从环境变量读取。配置 seed 在单一事务创建完整 r1/规则/审计，已有固定 ID 原样保留；其他配置占据演示 Key 时拒绝整批新配置。账号步骤独立提交，配置失败可修复冲突后重跑。范围与状态归 [项目范围](docs/product/scope.md) 和 [交付计划](docs/delivery/roadmap.md)，过程见 [AI 记录](docs/ai/README.md)。
 
 ## 数据模型与设计取舍
 

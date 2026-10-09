@@ -242,6 +242,13 @@ export function TransferDialog({
               </Button>
             </Notice>
           )}
+          {mode === 'publish' && preview.data && (
+            <Notice className="permission-note">
+              将更新 {target} / {preview.data.target.key}，生成 r
+              {preview.data.target_revision + 1}。仅应用所选源版本 r{selected}
+              ，目标原有版本和操作历史保留。
+            </Notice>
+          )}
           {source.data && (
             <ConfigurationView
               flag={source.data.snapshot}
@@ -251,7 +258,7 @@ export function TransferDialog({
           {mode === 'copy' ? (
             <Notice className="permission-note">
               将 {flag.environment} 的 r{selected} 复制到 {target}，创建相同 Key
-              的新配置。已有配置会返回冲突。
+              的新配置，目标从 r1 开始并记录复制操作。已有配置会返回冲突。
             </Notice>
           ) : (
             <>

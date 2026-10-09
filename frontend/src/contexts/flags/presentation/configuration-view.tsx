@@ -1,6 +1,8 @@
 import { Card } from '../../../presentation/components/ui/card';
 import type { Flag } from '../application/contracts';
 import { RuleCondition } from './rule-condition';
+import { resultLabel } from '../../../presentation/components/configuration-language';
+import { RawJSON } from '../../../presentation/components/raw-json';
 export function ConfigurationView({
   flag,
   heading = '选中版本的完整配置',
@@ -23,11 +25,7 @@ export function ConfigurationView({
           <dd>{flag.enabled ? '已启用' : '已停用'}</dd>
           <dt>默认结果</dt>
           <dd>
-            <code>{String(flag.default_value)}</code>
-          </dd>
-          <dt>灰度 seed</dt>
-          <dd>
-            <code>{flag.seed}</code>
+            <code>{resultLabel(flag.default_value)}</code>
           </dd>
         </dl>
         <h3 className="subsection-title">规则顺序与条件</h3>
@@ -42,7 +40,7 @@ export function ConfigurationView({
                   <div>
                     <RuleCondition rule={rule} />
                     <p className="muted">
-                      命中返回 <strong>{String(rule.result)}</strong>
+                      命中返回 <strong>{resultLabel(rule.result)}</strong>
                     </p>
                   </div>
                 </div>
@@ -50,6 +48,7 @@ export function ConfigurationView({
             ))}
           </ol>
         )}
+        <RawJSON raw={JSON.stringify(flag)} label="原始配置数据" />
       </section>
     </Card>
   );

@@ -2,7 +2,23 @@
 
 第一次验收请先看 [人工验收指南](manual-acceptance.md)，按独立 Key 逐项操作并记录预期结果。本手册维护标准 seed 示例及其初始语义。
 
-先按 [README](../../README.md) 准备 PostgreSQL、DATABASE_URL 和三个 SEED_*_PASSWORD，执行 `APP_ORIGIN=http://127.0.0.1:8080 pnpm demo`。该入口显式迁移、初始化、构建，再运行普通 Go 服务，直接打开 http://127.0.0.1:8080。需要热更新时仍可使用 `pnpm migrate` → `pnpm seed:demo` → `pnpm dev`。以下预期对应首次初始化；演示中修改后重跑 seed 会保留修改，不把数据恢复成初始状态。
+先按 [README](../../README.md) 准备 PostgreSQL 和 DATABASE_URL。
+
+> **[环境模板](../../.env.example) 已提供三个可直接用于本地演示的初始化密码：**
+>
+> - `SEED_ADMIN_PASSWORD`：admin 的初始化密码。
+> - `SEED_EDITOR_PASSWORD`：editor 的初始化密码。
+> - `SEED_VIEWER_PASSWORD`：viewer 的初始化密码。
+>
+> 复制模板后可直接使用其中的密码，或在 `.env` 中修改；部署时替换示例密码。每项须为 8～72 字节，任一项为空或长度不符合要求，命令会报 `DEMO_PASSWORD_REQUIRED` 并停止。Node 会自动读取 `.env`，无需手动 `export`。
+
+配置好 DATABASE_URL 后执行：
+
+```sh
+APP_ORIGIN=http://127.0.0.1:8080 pnpm demo
+```
+
+该入口显式迁移、初始化、构建，再运行普通 Go 服务，直接打开 http://127.0.0.1:8080。需要热更新时仍可使用 `pnpm migrate` → `pnpm seed:demo` → `pnpm dev`。以下预期对应首次初始化；演示中修改后重跑 seed 会保留修改，不把数据恢复成初始状态。
 
 ## 数据与持久化验收
 
@@ -16,7 +32,7 @@
 
 ## 初始化与账号
 
-`pnpm seed:users` 只创建 admin/editor/viewer；`pnpm seed:demo` 先完成同样的账号初始化，再初始化五份配置。密码由本地配置提供，没有公共默认值。重复执行保留名称、角色和密码，Actor 使用数据库中 admin 的实际身份。若 admin 已失去全环境写权限，返回 SEED_FORBIDDEN，不重置角色。
+`pnpm seed:users` 只创建 admin/editor/viewer；`pnpm seed:demo` 先完成同样的账号初始化，再初始化五份配置。密码从 `.env` 或进程环境变量读取，模板提供本地演示示例。重复执行保留名称、角色和密码，Actor 使用数据库中 admin 的实际身份。若 admin 已失去全环境写权限，返回 SEED_FORBIDDEN，不重置角色。
 
 首次配置输出 created=5 preserved=0，重跑输出 created=0 preserved=5。固定 ID 识别演示，即使改名/改 Key 也保留。其他 ID 占据尚未创建的演示 Key 时返回 SEED_KEY_CONFLICT，整批新配置回滚。账号步骤独立提交，配置失败后已创建账号仍存在，可以修复冲突后重跑。服务不自动 seed。
 

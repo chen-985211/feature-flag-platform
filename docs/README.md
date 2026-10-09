@@ -14,6 +14,8 @@ Docker 首次启动、更新、持久化与独立数据库备份恢复见 [容�
 
 工作台共享组件、布局与文字排版已统一到官方 shadcn/ui；下拉、导航、分页、折叠、提示和拖拽也已完成组件化，实际自动验收与限制见 [完整交互组件记录](specs/008-component-interactions/verification.md)。前次 UI 检查范围见 [工作台记录](specs/007-shadcn-workbench/verification.md)。
 
+历史摘要、规则描述和发布/回滚确认说明见 [可读变更](specs/010-readable-changes/verification.md)。
+
 前后端已落地的质量检测工具、固定版本与 CI 入口见 [质量工具](engineering/quality-tooling.md)。
 
 ## 文档地图

@@ -16,6 +16,7 @@ import type { Flag, Flags } from '../application/contracts';
 import { FlagForm } from './flag-form';
 import { RuleForm } from './rule-form';
 import { RuleCondition } from './rule-condition';
+import { resultLabel } from '../../../presentation/components/configuration-language';
 import { Versions } from './versions';
 import { RuleOrder } from './rule-order';
 import { TransferDialog } from './transfer-dialog';
@@ -234,7 +235,7 @@ export function FlagDetail({
                 <dd>{flag.environment}</dd>
                 <dt>默认结果</dt>
                 <dd>
-                  <code>{String(flag.default_value)}</code>
+                  <code>{resultLabel(flag.default_value)}</code>
                 </dd>
                 <dt>创建时间</dt>
                 <dd>{new Date(flag.created_at).toLocaleString()}</dd>
@@ -269,7 +270,7 @@ export function FlagDetail({
               {flag.rules.length === 0 ? (
                 <p className="empty-state">
                   尚未配置规则。未命中时返回{' '}
-                  <code>{String(flag.default_value)}</code>。
+                  <code>{resultLabel(flag.default_value)}</code>。
                 </p>
               ) : (
                 <ol className="rule-list">
@@ -280,7 +281,7 @@ export function FlagDetail({
                         <div>
                           <RuleCondition rule={rule} />
                           <p className="muted">
-                            命中返回 <strong>{String(rule.result)}</strong>
+                            命中返回 <strong>{resultLabel(rule.result)}</strong>
                           </p>
                         </div>
                       </div>

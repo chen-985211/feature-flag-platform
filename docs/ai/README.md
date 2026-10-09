@@ -10,6 +10,7 @@
 - 最近的 Small 修复与题面核对见 [侧栏修复与交付核对](operations/2026-10-08-sidebar-and-delivery-review.md)。
 - 人工验收从临时测试环境切到正常 Go/开发库的过程见 [持久化演示](operations/2026-10-08-persistent-demo.md)。
 - 面向其他验收者的逐步操作文档见 [验收指南整理](operations/2026-10-08-manual-acceptance.md)。
+- 历史、规则和确认说明的可读性优化见 [可读变更](operations/2026-10-09-readable-changes.md)。
 
 ## 记录字段
 

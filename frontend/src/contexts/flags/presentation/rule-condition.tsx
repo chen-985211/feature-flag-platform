@@ -1,5 +1,8 @@
 import type { Rule } from '../application/contracts';
-import { formatPercentage } from '../domain/percentage';
+import {
+  operatorLabel,
+  percentageLabel,
+} from '../../../presentation/components/configuration-language';
 export function RuleCondition({ rule }: { rule: Rule }) {
   return (
     <span className="rule-condition">
@@ -7,14 +10,14 @@ export function RuleCondition({ rule }: { rule: Rule }) {
         <>
           <strong>百分比灰度</strong>
           <code className="rule-percentage">
-            {formatPercentage(rule.percentage_bp)}%
+            {percentageLabel(rule.percentage_bp)}
           </code>
           <span className="muted">按 user_id</span>
         </>
       ) : (
         <>
           <strong>{rule.attribute}</strong>
-          <code className="rule-operator">{rule.operator}</code>
+          <span className="rule-operator">{operatorLabel(rule.operator)}</span>
           <code className="expected-value">{rule.expected_json}</code>
         </>
       )}

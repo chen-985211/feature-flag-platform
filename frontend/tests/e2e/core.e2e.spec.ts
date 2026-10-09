@@ -121,6 +121,35 @@ test('login → create → attribute rule → evaluate → history → logout', 
   await page.getByRole('tab', { name: '操作历史', exact: true }).click();
   await expect(page.getByText('添加规则', { exact: true })).toBeVisible();
   await expect(page.getByText('创建配置', { exact: true })).toBeVisible();
+  const auditEntry = page
+    .getByRole('listitem')
+    .filter({ has: page.getByText('添加规则', { exact: true }) });
+  await expect(auditEntry).toContainText(
+    '新增规则：优先级 1 · country 等于 "cn" → 开启（true）',
+  );
+  await auditEntry
+    .getByRole('button', { name: '查看变更详情', exact: true })
+    .click();
+  await expect(
+    auditEntry.getByRole('region', { name: '变更前后对比' }),
+  ).toContainText('未配置');
+  await expect(auditEntry.locator('pre')).toHaveCount(0);
+  await auditEntry
+    .getByRole('button', { name: '查看原始数据', exact: true })
+    .click();
+  await expect(
+    auditEntry.getByRole('region', { name: '原始审计数据' }),
+  ).toContainText('"ExpectedJSON"');
+  const auditGeometry = await page.evaluate(() => ({
+    viewport: document.documentElement.clientWidth,
+    content: document.documentElement.scrollWidth,
+  }));
+  expect(auditGeometry.content).toBeLessThanOrEqual(auditGeometry.viewport);
+  await page.screenshot({
+    path: testInfo.outputPath('readable-history-dark-mobile.png'),
+    fullPage: true,
+    animations: 'disabled',
+  });
   await page.getByRole('button', { name: '退出', exact: true }).click();
   await expect(
     page.getByRole('heading', { name: '登录工作空间' }),

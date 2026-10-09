@@ -172,3 +172,13 @@ it('allows previewing but prevents read-only writes and handles Escape', async (
   await userEvent.keyboard('{Escape}');
   expect(close).toHaveBeenCalledOnce();
 });
+
+it('states the target and next revision before publishing the fixed source', async () => {
+  mountDialog(gateways());
+  await chooseOption('操作方式', '发布到已有配置');
+  expect(
+    await screen.findByText(/将更新 staging \/ key，生成 r8/),
+  ).toBeVisible();
+  expect(screen.getByText(/仅应用所选源版本 r4/)).toBeVisible();
+  expect(screen.getByText('已停用', { exact: true })).toBeVisible();
+});

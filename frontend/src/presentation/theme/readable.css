@@ -1,0 +1,33 @@
+.history-summary {
+  font-size: var(--type-label);
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+  margin: 10px 0;
+}
+.history-list .diff-row {
+  padding: 12px 0;
+}
+.history-list .diff-columns p {
+  margin: 0;
+  font-size: var(--type-label);
+  overflow-wrap: anywhere;
+  line-height: 1.75;
+}
+.raw-data {
+  margin-top: 14px;
+}
+.raw-data-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: var(--type-caption);
+}
+.raw-data .json-output {
+  max-height: 300px;
+}
+.confirmation-impact h3 {
+  font-size: var(--type-label);
+  margin: 6px 0;
+}

@@ -8,6 +8,8 @@ import type { Audit } from '../application/contracts';
 import { feedback } from '../../../shared-kernel/errors';
 import { Button } from '../../../presentation/components/button';
 import { ChevronDown } from 'lucide-react';
+import { RawJSON } from '../../../presentation/components/raw-json';
+import { describeChange } from './change-description';
 import {
   Collapsible,
   CollapsibleTrigger,
@@ -45,40 +47,80 @@ export function History({ audit, id }: { audit: Audit; id: string }) {
           <>
             {query.data.items.length === 0 && <p>暂无操作历史。</p>}
             <ol className="history-list">
-              {query.data.items.map((entry) => (
-                <li key={entry.id}>
-                  <div className="actions">
-                    <strong>{names[entry.action] ?? entry.action}</strong>
-                    <Badge variant="outline" className="font-mono">
-                      r{entry.revision}
-                    </Badge>
-                  </div>
-                  <div className="history-meta">
-                    <span>{entry.actor_name}</span>
-                    <time dateTime={entry.created_at}>
-                      {new Date(entry.created_at).toLocaleString()}
-                    </time>
-                    <code>
-                      {entry.environment} / {entry.key}
-                    </code>
-                  </div>
-                  <Collapsible className="history-details">
-                    <CollapsibleTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="history-disclosure"
-                      >
-                        查看变更详情
-                        <ChevronDown size={14} />
-                      </Button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      <pre className="json-output">{entry.changes_json}</pre>
-                    </CollapsibleContent>
-                  </Collapsible>
-                </li>
-              ))}
+              {query.data.items.map((entry) => {
+                const description = describeChange(entry);
+                return (
+                  <li key={entry.id}>
+                    <div className="actions">
+                      <strong>{names[entry.action] ?? entry.action}</strong>
+                      <Badge variant="outline" className="font-mono">
+                        {description?.fromRevision !== undefined
+                          ? `r${String(description.fromRevision)} → `
+                          : ''}
+                        r{entry.revision}
+                      </Badge>
+                    </div>
+                    <p className="history-summary">
+                      {description?.summary ??
+                        '此记录暂无法生成变更摘要，可查看完整原始数据。'}
+                    </p>
+                    <div className="history-meta">
+                      <span>{entry.actor_name}</span>
+                      <time dateTime={entry.created_at}>
+                        {new Date(entry.created_at).toLocaleString()}
+                      </time>
+                      <code>
+                        {entry.environment} / {entry.key}
+                      </code>
+                    </div>
+                    <Collapsible className="history-details">
+                      <CollapsibleTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="history-disclosure"
+                        >
+                          查看变更详情
+                          <ChevronDown size={14} />
+                        </Button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <section role="region" aria-label="变更前后对比">
+                          {description ? (
+                            description.rows.length === 0 ? (
+                              <p className="muted">业务配置内容未改变。</p>
+                            ) : (
+                              description.rows.map((row, index) => (
+                                <div className="diff-row" key={index}>
+                                  <h4>{row.label}</h4>
+                                  <div className="diff-columns">
+                                    <div>
+                                      <small>变更前</small>
+                                      <p>{row.before}</p>
+                                    </div>
+                                    <div>
+                                      <small>变更后</small>
+                                      <p>{row.after}</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))
+                            )
+                          ) : (
+                            <p className="muted">
+                              原始记录已保留，以下可展开查看。
+                            </p>
+                          )}
+                          <RawJSON
+                            raw={entry.changes_json}
+                            label="原始审计数据"
+                          />
+                        </section>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  </li>
+                );
+              })}
             </ol>
             <PagePagination
               total={query.data.total}

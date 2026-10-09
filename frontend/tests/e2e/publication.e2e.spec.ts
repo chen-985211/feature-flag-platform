@@ -176,6 +176,13 @@ test('reorder → copy → fixed source publication → target evaluation and au
     .getByRole('listitem')
     .filter({ has: page.getByText('发布配置', { exact: true }) });
   await entry.getByText('查看变更详情', { exact: true }).click();
+  await expect(entry).toContainText(
+    '发布 development 的 r5 到 staging / environment-flow',
+  );
+  await expect(entry.locator('pre')).toHaveCount(0);
+  await entry
+    .getByRole('button', { name: '查看原始数据', exact: true })
+    .click();
   await expect(entry).toContainText('"source"');
   await expect(entry).toContainText(/"revision":\s*5/);
   await expect(entry).toContainText(process.env.E2E_ADMIN_NAME ?? 'E2E 管理员');

@@ -278,8 +278,13 @@ export function Versions({
                         </Button>
                       </>
                     )}
+                    <section className="confirmation-impact">
+                      <h3>本次将修改</h3>
+                      <ConfigurationDiff changes={preview.data.changes} />
+                    </section>
                     <p className="muted text-xs">
-                      回滚将生成新版本，原有版本和操作历史会保留。
+                      将生成 r{preview.data.current_revision + 1}，恢复所选 r
+                      {selected} 的完整配置，原有版本和操作历史会保留。
                     </p>
                     <div className="actions">
                       <Button
